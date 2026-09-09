@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { SubmissionCard } from "@/components/problems/SubmissionCard";
+import { ApproachForm } from "@/components/problems/ApproachForm";
 import { prisma } from "@/lib/db/prisma";
-
 interface ProblemPageProps {
   params: Promise<{
     id: string;
@@ -77,6 +77,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
           }}
         />
       </section>
+
       <section className="mb-10">
         <div className="mb-4 flex items-center justify-between">
           <div>
@@ -86,9 +87,13 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
             </p>
           </div>
 
-          <span className="text-sm text-muted-foreground">
-            {problem.approaches.length} total
-          </span>
+          <div className="flex items-center gap-3">
+            <span className="text-sm text-muted-foreground">
+              {problem.approaches.length} total
+            </span>
+
+            <ApproachForm problemId={problem.id} />
+          </div>
         </div>
 
         {problem.approaches.length === 0 ? (
