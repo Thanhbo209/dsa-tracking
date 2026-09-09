@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Problem {
+  id          String      @id @default(cuid())
+  leetcodeId  Int?        @unique
+  slug        String      @unique
+  title       String
+  difficulty  Difficulty?
+  url         String
+  description String?
+  topics ProblemTopic[]
+  submissions Submission[]
+  approaches Approach[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Submission {
+  id String @id @default(cuid())
+
+  problemId String
+  problem   Problem @relation(fields: [problemId], references: [id])
+
+  source     SubmissionSource
+  externalId String
+
+  status     SubmissionStatus
+  language   String
+  code       String?
+
+  runtimeMs   Int?
+  memoryBytes BigInt?
+
+  submittedAt DateTime?
+  createdAt   DateTime @default(now())
+
+  @@unique([source, externalId])
+  @@index([problemId])
+}
+
+model Topic {
+  id       String        @id @default(cuid())
+  name     String        @unique
+  slug     String        @unique
+  problems ProblemTopic[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProblemTopic {
+  problemId String
+  topicId   String
+
+  problem Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+  topic   Topic   @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@id([problemId, topicId])
+  @@index([topicId])
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum SubmissionSource {
+  LEETCODE
+}
+
+enum SubmissionStatus {
+  ACCEPTED
+  WRONG_ANSWER
+  TIME_LIMIT_EXCEEDED
+  MEMORY_LIMIT_EXCEEDED
+  RUNTIME_ERROR
+  COMPILE_ERROR
+  UNKNOWN
+}
+
+model Approach {
+  id        String  @id @default(cuid())
+  problemId String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  name            String
+  coreIdea        String?
+  algorithm       String?
+  whyItWorks     String?
+  whenToUse      String?
+  timeComplexity  String?
+  spaceComplexity String?
+
+  pros            String?
+  cons            String?
+  notes           String?
+  mistakes        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([problemId])
+}
