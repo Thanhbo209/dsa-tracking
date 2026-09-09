@@ -1,12 +1,29 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
-import { updateApproach } from "@/lib/approaches/service";
+import { updateApproach, getApproach } from "@/lib/approaches/service";
 
 interface ApproachRouteProps {
   params: Promise<{
     id: string;
   }>;
+}
+
+export async function GET(_request: Request, { params }: ApproachRouteProps) {
+  const { id } = await params;
+
+  const approach = await getApproach(id);
+
+  if (!approach) {
+    return NextResponse.json(
+      {
+        error: "Approach not found",
+      },
+      { status: 404 },
+    );
+  }
+
+  return NextResponse.json(approach);
 }
 
 export async function PATCH(request: Request, { params }: ApproachRouteProps) {
