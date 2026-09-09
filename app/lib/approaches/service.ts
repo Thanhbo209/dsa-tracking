@@ -1,22 +1,14 @@
 import { prisma } from "@/lib/db/prisma";
-import type { CreateApproachInput, UpdateApproachInput } from "./types";
+import {
+  createApproachSchema,
+  updateApproachSchema,
+} from "@/lib/validation/approaches";
 
-export async function createApproach(input: CreateApproachInput) {
+export async function createApproach(input: unknown) {
+  const data = createApproachSchema.parse(input);
+
   return prisma.approach.create({
-    data: {
-      problemId: input.problemId,
-      name: input.name,
-      coreIdea: input.coreIdea,
-      algorithm: input.algorithm,
-      whyItWorks: input.whyItWorks,
-      whenToUse: input.whenToUse,
-      timeComplexity: input.timeComplexity,
-      spaceComplexity: input.spaceComplexity,
-      pros: input.pros,
-      cons: input.cons,
-      notes: input.notes,
-      mistakes: input.mistakes,
-    },
+    data,
   });
 }
 
@@ -39,12 +31,14 @@ export async function getApproach(id: string) {
   });
 }
 
-export async function updateApproach(id: string, input: UpdateApproachInput) {
+export async function updateApproach(id: string, input: unknown) {
+  const data = updateApproachSchema.parse(input);
+
   return prisma.approach.update({
     where: {
       id,
     },
-    data: input,
+    data,
   });
 }
 
