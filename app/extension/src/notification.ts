@@ -74,6 +74,11 @@ export function showSubmissionNotification(submission: CapturedSubmission) {
       margin-bottom: 12px;
     }
 
+    .dsa-tracker-add.success {
+        background: #166534;
+        cursor: default;
+    }
+
     .dsa-tracker-close {
       border: 0;
       background: transparent;
@@ -201,6 +206,34 @@ export function showSubmissionNotification(submission: CapturedSubmission) {
       addButton.textContent = result.created
         ? "✓ Added to DSA Tracker"
         : "✓ Already in DSA Tracker";
+
+      addButton.classList.add("success");
+
+      const openButton = document.createElement("button");
+
+      openButton.type = "button";
+      openButton.textContent = "Open in DSA Tracker";
+
+      Object.assign(openButton.style, {
+        width: "100%",
+        marginTop: "8px",
+        padding: "8px 12px",
+        border: "1px solid #d1d5db",
+        borderRadius: "8px",
+        background: "#ffffff",
+        color: "#111827",
+        fontWeight: "600",
+        cursor: "pointer",
+      });
+
+      openButton.addEventListener("click", () => {
+        window.open(
+          `http://localhost:3000/problems/${submission.problemSlug}`,
+          "_blank",
+        );
+      });
+
+      addButton.insertAdjacentElement("afterend", openButton);
     } catch (error) {
       console.error("[DSA Tracker] Import failed:", error);
 
