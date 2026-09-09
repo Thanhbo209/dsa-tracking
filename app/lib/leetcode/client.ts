@@ -1,31 +1,11 @@
 import { GET_PROBLEM_BY_SLUG } from "./queries";
-import type { LeetCodeProblem } from "./types";
+import type { LeetCodeProblemResponse } from "./types";
 
 const LEETCODE_GRAPHQL_URL = "https://leetcode.com/graphql";
 
-interface GraphQLResponse<T> {
-  data?: T;
-  errors?: Array<{
-    message: string;
-  }>;
-}
-
-interface ProblemResponse {
-  question: {
-    questionId: string;
-    title: string;
-    difficulty: "Easy" | "Medium" | "Hard";
-    titleSlug: string;
-    content: string | null;
-    topicTags: Array<{
-      id: string;
-      name: string;
-      slug: string;
-    }>;
-  } | null;
-}
-
-export async function getProblemBySlug(slug: string): Promise<LeetCodeProblem> {
+export async function getProblemBySlug(
+  slug: string,
+): Promise<LeetCodeProblemResponse> {
   const response = await fetch(LEETCODE_GRAPHQL_URL, {
     method: "POST",
     headers: {
@@ -45,7 +25,10 @@ export async function getProblemBySlug(slug: string): Promise<LeetCodeProblem> {
     );
   }
 
-  const result = (await response.json()) as GraphQLResponse<ProblemResponse>;
+  const result = (await response.json()) as {
+    data?: LeetCodeProblemResponse;
+    errors?: Array<{ message: string }>;
+  };
 
   if (result.errors?.length) {
     throw new Error(
@@ -55,20 +38,9 @@ export async function getProblemBySlug(slug: string): Promise<LeetCodeProblem> {
     );
   }
 
-  const question = result.data?.question;
-
-  if (!question) {
-    throw new Error(`LeetCode problem not found: ${slug}`);
+  if (!result.data) {
+    throw new Error("LeetCode GraphQL returned no data");
   }
 
-  return {
-    leetcodeId: Number(question.questionId),
-    slug: question.titleSlug,
-    title: question.title,
-    difficulty:
-      question.difficulty.toUpperCase() as LeetCodeProblem["difficulty"],
-    url: `https://leetcode.com/problems/${question.titleSlug}/`,
-    description: question.content ?? undefined,
-    topics: question.topicTags,
-  };
+  return result.data;
 }
