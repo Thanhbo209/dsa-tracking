@@ -115,15 +115,3 @@ model Approach {
 
   @@index([problemId])
 }
-
-enum ComplexityClass {
-  CONSTANT
-  LOGARITHMIC
-  LINEAR
-  LINEARITHMIC
-  QUADRATIC
-  CUBIC
-  EXPONENTIAL
-  FACTORIAL
-  OTHER
-}

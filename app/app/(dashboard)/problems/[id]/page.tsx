@@ -26,6 +26,11 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
           submittedAt: "desc",
         },
       },
+      approaches: {
+        orderBy: {
+          createdAt: "asc",
+        },
+      },
     },
   });
 
@@ -71,6 +76,83 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
             __html: problem.description ?? "No description available.",
           }}
         />
+      </section>
+      <section className="mb-10">
+        <div className="mb-4 flex items-center justify-between">
+          <div>
+            <h2 className="text-xl font-semibold">Approaches</h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Algorithmic strategies for solving this problem.
+            </p>
+          </div>
+
+          <span className="text-sm text-muted-foreground">
+            {problem.approaches.length} total
+          </span>
+        </div>
+
+        {problem.approaches.length === 0 ? (
+          <div className="rounded-lg border border-dashed p-6 text-center">
+            <p className="text-sm text-muted-foreground">
+              No approaches recorded yet.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {problem.approaches.map((approach) => (
+              <article key={approach.id} className="rounded-lg border p-5">
+                <div className="flex items-start justify-between gap-4">
+                  <h3 className="text-lg font-semibold">{approach.name}</h3>
+
+                  <div className="text-right text-sm text-muted-foreground">
+                    {approach.timeComplexity && (
+                      <p>Time: {approach.timeComplexity}</p>
+                    )}
+                    {approach.spaceComplexity && (
+                      <p>Space: {approach.spaceComplexity}</p>
+                    )}
+                  </div>
+                </div>
+
+                {approach.coreIdea && (
+                  <div className="mt-4">
+                    <h4 className="text-sm font-medium">Core idea</h4>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      {approach.coreIdea}
+                    </p>
+                  </div>
+                )}
+
+                {approach.algorithm && (
+                  <div className="mt-4">
+                    <h4 className="text-sm font-medium">Algorithm</h4>
+                    <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
+                      {approach.algorithm}
+                    </p>
+                  </div>
+                )}
+
+                {approach.whyItWorks && (
+                  <div className="mt-4">
+                    <h4 className="text-sm font-medium">Why it works</h4>
+                    <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
+                      {approach.whyItWorks}
+                    </p>
+                  </div>
+                )}
+
+                {approach.whenToUse && (
+                  <div className="mt-4">
+                    <h4 className="text-sm font-medium">When to use</h4>
+                    <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
+                      {approach.whenToUse}
+                    </p>
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
       </section>
 
       <section>
