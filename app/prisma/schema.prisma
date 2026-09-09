@@ -22,6 +22,7 @@ model Problem {
   description String?
   topics ProblemTopic[]
   submissions Submission[]
+  approaches Approach[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -89,4 +90,40 @@ enum SubmissionStatus {
   RUNTIME_ERROR
   COMPILE_ERROR
   UNKNOWN
+}
+
+model Approach {
+  id        String  @id @default(cuid())
+  problemId String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  name            String
+  coreIdea        String?
+  algorithm       String?
+  whyItWorks     String?
+  whenToUse      String?
+  timeComplexity  String?
+  spaceComplexity String?
+
+  pros            String?
+  cons            String?
+  notes           String?
+  mistakes        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([problemId])
+}
+
+enum ComplexityClass {
+  CONSTANT
+  LOGARITHMIC
+  LINEAR
+  LINEARITHMIC
+  QUADRATIC
+  CUBIC
+  EXPONENTIAL
+  FACTORIAL
+  OTHER
 }
