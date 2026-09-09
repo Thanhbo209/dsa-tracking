@@ -12,8 +12,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
-
 model Problem {
   id          String      @id @default(cuid())
   leetcodeId  Int?        @unique
@@ -55,6 +53,7 @@ model Submission {
 model Topic {
   id       String        @id @default(cuid())
   name     String        @unique
+  slug     String        @unique
   problems ProblemTopic[]
 
   createdAt DateTime @default(now())
