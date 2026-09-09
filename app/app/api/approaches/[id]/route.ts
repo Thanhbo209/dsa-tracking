@@ -1,7 +1,11 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
-import { updateApproach, getApproach } from "@/lib/approaches/service";
+import {
+  updateApproach,
+  getApproach,
+  deleteApproach,
+} from "@/lib/approaches/service";
 
 interface ApproachRouteProps {
   params: Promise<{
@@ -50,6 +54,30 @@ export async function PATCH(request: Request, { params }: ApproachRouteProps) {
     return NextResponse.json(
       {
         error: "Failed to update approach",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function DELETE(
+  _request: Request,
+  { params }: ApproachRouteProps,
+) {
+  try {
+    const { id } = await params;
+
+    await deleteApproach(id);
+
+    return new NextResponse(null, {
+      status: 204,
+    });
+  } catch (error) {
+    console.error("Approach deletion failed:", error);
+
+    return NextResponse.json(
+      {
+        error: "Failed to delete approach",
       },
       { status: 500 },
     );
