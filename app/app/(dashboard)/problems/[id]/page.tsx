@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-
+import { SubmissionCard } from "@/components/problems/SubmissionCard";
 import { prisma } from "@/lib/db/prisma";
 
 interface ProblemPageProps {
@@ -84,35 +84,15 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
 
         <div className="space-y-3">
           {problem.submissions.map((submission) => (
-            <div key={submission.id} className="rounded-lg border p-4">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <p className="font-medium">
-                    {submission.status.replaceAll("_", " ")}
-                  </p>
-
-                  <p className="text-sm text-muted-foreground">
-                    {submission.language}
-                  </p>
-                </div>
-
-                <div className="text-right text-sm text-muted-foreground">
-                  <p>
-                    {submission.runtimeMs != null
-                      ? `${submission.runtimeMs} ms`
-                      : "N/A"}
-                  </p>
-
-                  <p>
-                    {submission.memoryBytes != null
-                      ? `${Math.round(
-                          Number(submission.memoryBytes) / 1024 / 1024,
-                        )} MB`
-                      : "N/A"}
-                  </p>
-                </div>
-              </div>
-            </div>
+            <SubmissionCard
+              key={submission.id}
+              status={submission.status}
+              language={submission.language}
+              runtimeMs={submission.runtimeMs}
+              memoryBytes={submission.memoryBytes}
+              submittedAt={submission.submittedAt}
+              code={submission.code}
+            />
           ))}
         </div>
       </section>
