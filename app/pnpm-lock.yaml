@@ -11,6 +11,9 @@ importers:
       '@base-ui/react':
         specifier: ^1.8.0
         version: 1.8.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      '@prisma/adapter-pg':
+        specifier: ^7.10.0
+        version: 7.10.0
       '@prisma/client':
         specifier: 7.10.0
         version: 7.10.0(prisma@7.10.0(@types/react-dom@19.2.7(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(typescript@5.9.3))(typescript@5.9.3)
@@ -32,6 +35,9 @@ importers:
       next:
         specifier: 16.3.4
         version: 16.3.4(@babel/core@7.29.7)(@types/node@20.19.43)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      pg:
+        specifier: ^8.23.0
+        version: 8.23.0
       react:
         specifier: 19.2.8
         version: 19.2.8
@@ -803,6 +809,9 @@ packages:
     resolution: {integrity: sha512-nn5ozdjYQpUCZlWGuxcJY/KpxkWQs4DcbMCmKojjyrYDEAGy4Ce19NN4v5MduafTwJlbKc99UA8YhSVqq9yPZA==}
     engines: {node: '>=12.4.0'}
 
+  '@prisma/adapter-pg@7.10.0':
+    resolution: {integrity: sha512-N7nwSor0HO1Kz6xBv0TPAjAPysKK0fac6p4fVN3ensLOuzc/83Fgmln5k92eK/cvzqdkSR/2kkAqlbcdwVrwpw==}
+
   '@prisma/cli-engine@0.3.0':
     resolution: {integrity: sha512-uurQyGX46Wx/J/A//AUwX/KN+DC+byemStM1b2Xi1t3aHhQ21eIbnRDCWNVxCMdDh8CZJ7fY9hgy+tJDbslFlA==}
     engines: {node: '>=22.12.0'}
@@ -835,6 +844,9 @@ packages:
 
   '@prisma/dev@0.24.17':
     resolution: {integrity: sha512-UvdZzmpFwknnfreh6Jije84ekkYGPYEJhXG1tFzCsCfQyzJifrOo38eZc0qajzvaC6OLUOrN9ML5XfCnEZL9DA==}
+
+  '@prisma/driver-adapter-utils@7.10.0':
+    resolution: {integrity: sha512-u8zkcRLlaryO652T4qavBg0HmzNW5tSKdsCn6hc1PhWAp/J6k0vrxLuUs+b9o+HcjsK7Dfa01o4OFSn0frauJA==}
 
   '@prisma/engines-version@7.10.0-4.0edf323efd1d98336f3f0a68684b56f689b900d3':
     resolution: {integrity: sha512-8OJ6RuZTZ06eFUOtBwxVmv8XMmOW6HWN5F+uxUbZkGxR0Bfab1dfAdXaHPmR5mb59E+fmUo8IOzXlbLY1SClbw==}
@@ -3129,6 +3141,15 @@ packages:
       pg-native:
         optional: true
 
+  pg@8.23.0:
+    resolution: {integrity: sha512-Ip2EQCngowJLGOfCwkFhPXU7/ljlhn6Rxlmy4XYfL2Y+vyRM59+8uR2xqRWKdYmbXmxCFOAmKxBuSUCdF34qLg==}
+    engines: {node: '>= 16.0.0'}
+    peerDependencies:
+      pg-native: '>=3.0.1'
+    peerDependenciesMeta:
+      pg-native:
+        optional: true
+
   pgpass@1.0.5:
     resolution: {integrity: sha512-FdW9r/jQZhSeohs1Z3sI1yxFQNFvMcnmfuj4WBMUTxOrAyLMaTcE1aAMBiTlbMNaXvBCQuVi0R7hd8udDSP7ug==}
 
@@ -3177,6 +3198,10 @@ packages:
   postgres-array@2.0.0:
     resolution: {integrity: sha512-VpZrUqU5A69eQyW2c5CA1jtLecCsN2U/bD6VilrFDWq5+5UIEVO7nazS3TEcHf1zuPYO/sqGvUvW62g86RXZuA==}
     engines: {node: '>=4'}
+
+  postgres-array@3.0.4:
+    resolution: {integrity: sha512-nAUSGfSDGOaOAEGwqsRY27GPOea7CNipJPOA7lPbdEpx5Kg3qzdP0AaWC5MlhTWV9s4hFX39nomVZ+C4tnGOJQ==}
+    engines: {node: '>=12'}
 
   postgres-bytea@1.0.1:
     resolution: {integrity: sha512-5+5HqXnsZPE65IJZSMkZtURARZelel2oXUEO8rH83VS/hxH5vv1uHquPg5wZs8yMAfdv971IU+kcPUczi7NVBQ==}
@@ -4481,6 +4506,15 @@ snapshots:
 
   '@nolyfill/is-core-module@1.0.39': {}
 
+  '@prisma/adapter-pg@7.10.0':
+    dependencies:
+      '@prisma/driver-adapter-utils': 7.10.0
+      '@types/pg': 8.20.4
+      pg: 8.22.0
+      postgres-array: 3.0.4
+    transitivePeerDependencies:
+      - pg-native
+
   '@prisma/cli-engine@0.3.0(@prisma/management-api-sdk@1.72.0)':
     dependencies:
       '@clack/prompts': 1.5.0
@@ -4534,6 +4568,10 @@ snapshots:
       zeptomatch: 2.1.0
     transitivePeerDependencies:
       - typescript
+
+  '@prisma/driver-adapter-utils@7.10.0':
+    dependencies:
+      '@prisma/debug': 7.10.0
 
   '@prisma/engines-version@7.10.0-4.0edf323efd1d98336f3f0a68684b56f689b900d3': {}
 
@@ -6973,6 +7011,10 @@ snapshots:
     dependencies:
       pg: 8.22.0
 
+  pg-pool@3.14.0(pg@8.23.0):
+    dependencies:
+      pg: 8.23.0
+
   pg-protocol@1.16.0: {}
 
   pg-types@2.2.0:
@@ -6987,6 +7029,16 @@ snapshots:
     dependencies:
       pg-connection-string: 2.14.0
       pg-pool: 3.14.0(pg@8.22.0)
+      pg-protocol: 1.16.0
+      pg-types: 2.2.0
+      pgpass: 1.0.5
+    optionalDependencies:
+      pg-cloudflare: 1.4.0
+
+  pg@8.23.0:
+    dependencies:
+      pg-connection-string: 2.14.0
+      pg-pool: 3.14.0(pg@8.23.0)
       pg-protocol: 1.16.0
       pg-types: 2.2.0
       pgpass: 1.0.5
@@ -7037,6 +7089,8 @@ snapshots:
       source-map-js: 1.2.1
 
   postgres-array@2.0.0: {}
+
+  postgres-array@3.0.4: {}
 
   postgres-bytea@1.0.1: {}
 
