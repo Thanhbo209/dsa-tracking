@@ -32,18 +32,13 @@ async function captureSubmission(submissionId: string) {
   console.log("[DSA Tracker] Import result:", result);
 }
 
-async function startSubmissionWatcher() {
-  const problemSlug = getProblemSlug();
-
-  if (!problemSlug) {
-    return;
-  }
-
+async function startSubmissionWatcher(problemSlug: string) {
   const initialSubmission = await getLatestSubmission(problemSlug);
 
   let lastSubmissionId = initialSubmission?.id ?? null;
   let pendingSubmissionId =
     initialSubmission?.isPending === "Pending" ? initialSubmission.id : null;
+  let isPolling = false;
 
   console.log(
     "[DSA Tracker] Watching:",
@@ -52,7 +47,12 @@ async function startSubmissionWatcher() {
     initialSubmission,
   );
 
-  setInterval(async () => {
+  const intervalId = setInterval(async () => {
+    if (isPolling) {
+      return;
+    }
+
+    isPolling = true;
     try {
       const latest = await getLatestSubmission(problemSlug);
 
@@ -97,10 +97,53 @@ async function startSubmissionWatcher() {
       await captureSubmission(latest.id);
     } catch (error) {
       console.error("[DSA Tracker] Submission watcher failed:", error);
+    } finally {
+      isPolling = false;
     }
   }, POLL_INTERVAL_MS);
+
+  return () => {
+    clearInterval(intervalId);
+  };
 }
 
-startSubmissionWatcher().catch((error) => {
-  console.error("[DSA Tracker] Failed to start watcher:", error);
-});
+// eslint-disable-next-line prefer-const
+let currentProblemSlug = getProblemSlug();
+let stopWatcher: (() => void) | null = null;
+
+async function restartWatcherIfNeeded() {
+  const nextProblemSlug = getProblemSlug();
+
+  if (!nextProblemSlug || nextProblemSlug === currentProblemSlug) {
+    return;
+  }
+
+  console.log(
+    "[DSA Tracker] Problem changed:",
+    currentProblemSlug,
+    "→",
+    nextProblemSlug,
+  );
+
+  stopWatcher?.();
+
+  currentProblemSlug = nextProblemSlug;
+
+  stopWatcher = await startSubmissionWatcher(currentProblemSlug);
+}
+
+if (currentProblemSlug) {
+  startSubmissionWatcher(currentProblemSlug)
+    .then((stop) => {
+      stopWatcher = stop;
+    })
+    .catch((error) => {
+      console.error("[DSA Tracker] Failed to start watcher:", error);
+    });
+}
+
+setInterval(() => {
+  restartWatcherIfNeeded().catch((error) => {
+    console.error("[DSA Tracker] Failed to restart watcher:", error);
+  });
+}, 1000);
