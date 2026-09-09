@@ -1,7 +1,7 @@
 import { getLatestSubmission } from "./leetcode";
 import { getSubmissionDetails } from "./submission-details";
 import { mapSubmissionStatus } from "./status";
-import { sendSubmission } from "./api";
+import { showSubmissionNotification } from "./notification";
 
 const POLL_INTERVAL_MS = 2000;
 
@@ -27,9 +27,7 @@ async function captureSubmission(submissionId: string) {
 
   console.log("[DSA Tracker] Captured submission:", submission);
 
-  const result = await sendSubmission(submission);
-
-  console.log("[DSA Tracker] Import result:", result);
+  showSubmissionNotification(submission);
 }
 
 async function startSubmissionWatcher(problemSlug: string) {

@@ -1,13 +1,14 @@
 import { prisma } from "@/lib/db/prisma";
 import { submissionImportSchema } from "@/lib/validation/submissions";
 import type { SubmissionImportResult } from "./types";
+import { syncProblem } from "@/lib/leetcode/sync";
 
 export async function importSubmission(
   input: unknown,
 ): Promise<SubmissionImportResult> {
   const data = submissionImportSchema.parse(input);
 
-  const problem = await prisma.problem.findUnique({
+  let problem = await prisma.problem.findUnique({
     where: {
       slug: data.problemSlug,
     },
@@ -17,7 +18,11 @@ export async function importSubmission(
   });
 
   if (!problem) {
-    throw new Error(`Problem not found for slug: ${data.problemSlug}`);
+    const syncedProblem = await syncProblem(data.problemSlug);
+
+    problem = {
+      id: syncedProblem.id,
+    };
   }
 
   const existing = await prisma.submission.findUnique({
