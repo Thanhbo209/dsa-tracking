@@ -30,9 +30,14 @@ const QUESTION_SUBMISSION_LIST_QUERY = `
   }
 `;
 
-export async function getLatestSubmissionId(
+export interface LatestSubmission {
+  id: string;
+  isPending: "Pending" | "Not Pending";
+}
+
+export async function getLatestSubmission(
   problemSlug: string,
-): Promise<string | null> {
+): Promise<LatestSubmission | null> {
   const response = await fetch(LEETCODE_GRAPHQL_URL, {
     method: "POST",
     headers: {
@@ -54,11 +59,14 @@ export async function getLatestSubmissionId(
 
   const result = await response.json();
 
-  const submissions = result.data?.questionSubmissionList?.submissions;
+  const submission = result.data?.questionSubmissionList?.submissions?.[0];
 
-  if (!submissions?.length) {
+  if (!submission) {
     return null;
   }
 
-  return submissions[0].id;
+  return {
+    id: submission.id,
+    isPending: submission.isPending,
+  };
 }
