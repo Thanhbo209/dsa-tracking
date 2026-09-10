@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { AiReviewSection } from "@/components/problems/analysis/AiReviewSection";
 import { KnowledgeDraftSection } from "@/components/problems/analysis/KnowledgeDraftSection";
+import { DraftEditForm } from "@/components/problems/analysis/DraftEditForm";
 import { AnalysisEmptyState } from "@/components/problems/analysis/AnalysisEmptyState";
 import { AnalysisGeneratingState } from "@/components/problems/analysis/AnalysisGeneratingState";
 import { AnalysisFailedState } from "@/components/problems/analysis/AnalysisFailedState";
@@ -161,13 +162,24 @@ describe("Submission Analysis UI Components", () => {
   });
 
   describe("KnowledgeDraftSection", () => {
-    it("renders candidate knowledge draft clearly labeled as not saved", () => {
+    it("renders candidate knowledge draft with action buttons when DRAFT_READY", () => {
       const html = renderToStaticMarkup(
-        <KnowledgeDraftSection draft={mockDraft} />,
+        <KnowledgeDraftSection
+          draft={mockDraft}
+          status="DRAFT_READY"
+          onAccept={async () => {}}
+          onReject={async () => {}}
+          isPromoting={false}
+        />,
       );
 
       // Draft disclaimer banner
       expect(html).toContain("AI-generated draft — not saved to your knowledge base");
+
+      // Action buttons
+      expect(html).toContain("Accept Draft");
+      expect(html).toContain("Edit Draft");
+      expect(html).toContain("Reject Draft");
 
       // Approach details
       expect(html).toContain("Candidate Approach");
@@ -184,6 +196,61 @@ describe("Submission Analysis UI Components", () => {
       expect(html).toContain("Candidate Canonical Code");
       expect(html).toContain("Generated knowledge draft — not saved");
       expect(html).toContain("function twoSum(nums: number[], target: number)");
+    });
+
+    it("renders saved banner and hides actions when status is ACCEPTED", () => {
+      const html = renderToStaticMarkup(
+        <KnowledgeDraftSection
+          draft={mockDraft}
+          status="ACCEPTED"
+          onAccept={async () => {}}
+          onReject={async () => {}}
+          isPromoting={false}
+        />,
+      );
+
+      expect(html).toContain("Saved to Knowledge — Approach, Solution, and Code have been added");
+      expect(html).not.toContain("Accept Draft");
+      expect(html).not.toContain("Reject Draft");
+      expect(html).not.toContain("Edit Draft");
+    });
+
+    it("renders rejected banner and hides actions when status is REJECTED", () => {
+      const html = renderToStaticMarkup(
+        <KnowledgeDraftSection
+          draft={mockDraft}
+          status="REJECTED"
+          onAccept={async () => {}}
+          onReject={async () => {}}
+          isPromoting={false}
+        />,
+      );
+
+      expect(html).toContain("Draft Rejected — This draft was rejected and not saved");
+      expect(html).not.toContain("Accept Draft");
+      expect(html).not.toContain("Reject Draft");
+    });
+  });
+
+  describe("DraftEditForm", () => {
+    it("renders all editable fields with initial draft content", () => {
+      const html = renderToStaticMarkup(
+        <DraftEditForm
+          initialDraft={mockDraft}
+          onSave={async () => {}}
+          onCancel={() => {}}
+          isSaving={false}
+        />,
+      );
+
+      expect(html).toContain("Edit Knowledge Draft");
+      expect(html).toContain("Approach Name *");
+      expect(html).toContain("Hash Map Lookup");
+      expect(html).toContain("Solution Name *");
+      expect(html).toContain("One-Pass Complement Search");
+      expect(html).toContain("Implementation Code *");
+      expect(html).toContain("Save to Knowledge");
+      expect(html).toContain("Cancel");
     });
   });
 

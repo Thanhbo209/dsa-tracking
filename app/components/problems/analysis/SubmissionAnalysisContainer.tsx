@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Sparkles, RotateCcw, History, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { SerializedSubmissionAnalysis } from "./types";
+import type { AiDraft } from "@/lib/validation/analysis";
 import { AiReviewSection } from "./AiReviewSection";
 import { KnowledgeDraftSection } from "./KnowledgeDraftSection";
 import { AnalysisEmptyState } from "./AnalysisEmptyState";
@@ -36,6 +37,7 @@ export function SubmissionAnalysisContainer({
     useState<SerializedSubmissionAnalysis[]>(initialAnalyses);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
+  const [isPromoting, setIsPromoting] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const activeAnalysis = analyses[selectedIndex] || null;
@@ -73,6 +75,95 @@ export function SubmissionAnalysisContainer({
       setActionError(message);
     } finally {
       setIsAnalyzing(false);
+    }
+  }
+
+  async function handleAccept(editedDraft?: AiDraft) {
+    if (isPromoting || !activeAnalysis) return;
+
+    setIsPromoting(true);
+    setActionError(null);
+
+    try {
+      const response = await fetch(
+        `/api/submissions/${submissionId}/analyze/${activeAnalysis.id}/accept`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ editedDraft }),
+        },
+      );
+
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => null);
+        throw new Error(errJson?.error || "Failed to accept draft");
+      }
+
+      const { analysis: updatedAnalysis } = await response.json();
+
+      setAnalyses((prev) =>
+        prev.map((item) =>
+          item.id === updatedAnalysis.id
+            ? {
+                ...item,
+                status: "ACCEPTED",
+                draft: (editedDraft as any) || item.draft,
+              }
+            : item,
+        ),
+      );
+
+      router.refresh();
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to accept draft";
+      setActionError(message);
+    } finally {
+      setIsPromoting(false);
+    }
+  }
+
+  async function handleReject() {
+    if (isPromoting || !activeAnalysis) return;
+
+    setIsPromoting(true);
+    setActionError(null);
+
+    try {
+      const response = await fetch(
+        `/api/submissions/${submissionId}/analyze/${activeAnalysis.id}/reject`,
+        {
+          method: "POST",
+        },
+      );
+
+      if (!response.ok) {
+        const errJson = await response.json().catch(() => null);
+        throw new Error(errJson?.error || "Failed to reject draft");
+      }
+
+      const updatedAnalysis = await response.json();
+
+      setAnalyses((prev) =>
+        prev.map((item) =>
+          item.id === updatedAnalysis.id
+            ? {
+                ...item,
+                status: "REJECTED",
+              }
+            : item,
+        ),
+      );
+
+      router.refresh();
+    } catch (err) {
+      const message =
+        err instanceof Error ? err.message : "Failed to reject draft";
+      setActionError(message);
+    } finally {
+      setIsPromoting(false);
     }
   }
 
@@ -118,6 +209,19 @@ export function SubmissionAnalysisContainer({
                 {activeAnalysis.modelName}
               </span>
             )}
+            {activeAnalysis?.status && activeAnalysis.status !== "DRAFT_READY" && (
+              <span
+                className={`rounded px-1.5 py-0.5 text-[10px] font-medium uppercase ${
+                  activeAnalysis.status === "ACCEPTED"
+                    ? "bg-green-500/10 text-green-700 dark:text-green-400"
+                    : activeAnalysis.status === "REJECTED"
+                      ? "bg-zinc-500/10 text-zinc-600 dark:text-zinc-400"
+                      : "bg-red-500/10 text-red-700 dark:text-red-400"
+                }`}
+              >
+                {activeAnalysis.status}
+              </span>
+            )}
           </div>
         </div>
 
@@ -136,7 +240,13 @@ export function SubmissionAnalysisContainer({
                   <option key={item.id || idx} value={idx}>
                     {idx === 0 ? "Latest: " : `Run #${analyses.length - idx}: `}
                     {item.createdAt ? formatDate(item.createdAt) : `Analysis ${idx + 1}`}
-                    {item.status === "FAILED" ? " (Failed)" : ""}
+                    {item.status === "ACCEPTED"
+                      ? " (Accepted)"
+                      : item.status === "REJECTED"
+                        ? " (Rejected)"
+                        : item.status === "FAILED"
+                          ? " (Failed)"
+                          : ""}
                   </option>
                 ))}
               </select>
@@ -149,7 +259,7 @@ export function SubmissionAnalysisContainer({
             variant="outline"
             size="xs"
             onClick={handleAnalyze}
-            disabled={isAnalyzing}
+            disabled={isAnalyzing || isPromoting}
             className="gap-1.5"
           >
             <RotateCcw className="size-3" />
@@ -173,11 +283,17 @@ export function SubmissionAnalysisContainer({
               onRetry={handleAnalyze}
               isRetrying={isAnalyzing}
             />
-          ) : activeAnalysis.status === "DRAFT_READY" && activeAnalysis.review ? (
+          ) : activeAnalysis.review ? (
             <div className="space-y-6">
               <AiReviewSection review={activeAnalysis.review} />
               {activeAnalysis.draft && (
-                <KnowledgeDraftSection draft={activeAnalysis.draft} />
+                <KnowledgeDraftSection
+                  draft={activeAnalysis.draft}
+                  status={activeAnalysis.status}
+                  onAccept={handleAccept}
+                  onReject={handleReject}
+                  isPromoting={isPromoting}
+                />
               )}
             </div>
           ) : (
