@@ -36,7 +36,6 @@ export function ApproachForm({ problemId }: ApproachFormProps) {
       problemId,
       name: formData.get("name"),
       coreIdea: formData.get("coreIdea") || undefined,
-      algorithm: formData.get("algorithm") || undefined,
       whyItWorks: formData.get("whyItWorks") || undefined,
       whenToUse: formData.get("whenToUse") || undefined,
       timeComplexity: formData.get("timeComplexity") || undefined,
@@ -120,19 +119,6 @@ export function ApproachForm({ problemId }: ApproachFormProps) {
             name="coreIdea"
             rows={3}
             placeholder="What is the main idea behind this approach?"
-            className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="algorithm" className="mb-1 block text-sm font-medium">
-            Algorithm
-          </label>
-          <textarea
-            id="algorithm"
-            name="algorithm"
-            rows={5}
-            placeholder="Describe the steps of the algorithm..."
             className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2"
           />
         </div>

@@ -68,6 +68,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
 
   return (
     <main className="mx-auto max-w-5xl p-6">
+      {/* ── Problem Header ──────────────────────────────────────── */}
       <div className="mb-8">
         <p className="text-sm text-muted-foreground">
           LeetCode #{problem.leetcodeId}
@@ -95,6 +96,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
         </div>
       </div>
 
+      {/* ── Description ─────────────────────────────────────────── */}
       <section className="mb-10">
         <h2 className="mb-3 text-xl font-semibold">Description</h2>
 
@@ -106,38 +108,48 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
         />
       </section>
 
-      <section className="mb-10">
-        <div className="mb-4 flex items-center justify-between">
+      {/* ══ YOUR KNOWLEDGE ══════════════════════════════════════════ */}
+      <section className="mb-12">
+        <div className="mb-6 flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-semibold">Approaches</h2>
+            <h2 className="text-2xl font-bold tracking-tight">
+              Your Knowledge
+            </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Algorithmic strategies for solving this problem.
+              Approaches, solutions, and canonical code you have intentionally
+              organised and understood.
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex shrink-0 items-center gap-3 pt-1">
             <span className="text-sm text-muted-foreground">
-              {problem.approaches.length} total
+              {problem.approaches.length}{" "}
+              {problem.approaches.length === 1 ? "approach" : "approaches"}
             </span>
-
             <ApproachForm problemId={problem.id} />
           </div>
         </div>
 
         {problem.approaches.length === 0 ? (
-          <div className="rounded-lg border border-dashed p-6 text-center">
+          <div className="rounded-lg border border-dashed p-8 text-center">
             <p className="text-sm text-muted-foreground">
-              No approaches recorded yet.
+              No approaches recorded yet. Add one to start building your
+              knowledge.
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {problem.approaches.map((approach) => (
-              <article key={approach.id} className="rounded-lg border p-5">
+              /* ── Approach card ────────────────────────────────── */
+              <div
+                key={approach.id}
+                className="rounded-lg border border-l-4 border-l-foreground/20 p-5"
+              >
+                {/* Approach header */}
                 <div className="flex items-start justify-between gap-4">
-                  <h3 className="text-lg font-semibold">{approach.name}</h3>
+                  <h3 className="text-lg font-bold">{approach.name}</h3>
 
-                  <div className="text-right text-sm text-muted-foreground">
+                  <div className="shrink-0 text-right text-sm text-muted-foreground">
                     {approach.timeComplexity && (
                       <p>Time: {approach.timeComplexity}</p>
                     )}
@@ -147,99 +159,96 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
                   </div>
                 </div>
 
-                {approach.coreIdea && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium">Core idea</h4>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {approach.coreIdea}
-                    </p>
-                  </div>
-                )}
-
-                {approach.algorithm && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium">Algorithm</h4>
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
-                      {approach.algorithm}
-                    </p>
-                  </div>
-                )}
-
-                {approach.whyItWorks && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium">Why it works</h4>
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
-                      {approach.whyItWorks}
-                    </p>
-                  </div>
-                )}
-
-                {approach.whenToUse && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium">When to use</h4>
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
-                      {approach.whenToUse}
-                    </p>
-                  </div>
-                )}
-
-                <div className="mt-6 border-t pt-5">
-                  <div className="mb-3 flex items-center justify-between">
+                {/* Approach details */}
+                <div className="mt-3 space-y-3">
+                  {approach.coreIdea && (
                     <div>
-                      <h4 className="font-medium">Solutions</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Concrete techniques within this approach.
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Core idea
+                      </p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {approach.coreIdea}
                       </p>
                     </div>
+                  )}
+                  {approach.whyItWorks && (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        Why it works
+                      </p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
+                        {approach.whyItWorks}
+                      </p>
+                    </div>
+                  )}
+                  {approach.whenToUse && (
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        When to use
+                      </p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
+                        {approach.whenToUse}
+                      </p>
+                    </div>
+                  )}
+                </div>
 
-                    <span className="text-sm text-muted-foreground">
-                      {approach.solutions.length} total
+                {/* ── Solutions ─────────────────────────────────── */}
+                <div className="ml-4 mt-5 border-t pt-5">
+                  <div className="mb-3 flex items-center justify-between">
+                    <p className="text-sm font-semibold">Solutions</p>
+                    <span className="text-xs text-muted-foreground">
+                      {approach.solutions.length}{" "}
+                      {approach.solutions.length === 1
+                        ? "solution"
+                        : "solutions"}
                     </span>
                   </div>
 
                   {approach.solutions.length > 0 && (
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       {approach.solutions.map((solution) => (
+                        /* ── Solution card ──────────────────────── */
                         <div
                           key={solution.id}
-                          className="rounded-md border bg-muted/20 p-4"
+                          className="rounded-md border-l-2 border-l-muted-foreground/30 pl-4"
                         >
-                          <h5 className="font-medium">{solution.name}</h5>
+                          <h4 className="font-semibold">{solution.name}</h4>
 
                           {solution.description && (
-                            <p className="mt-2 text-sm text-muted-foreground">
+                            <p className="mt-1 text-sm text-muted-foreground">
                               {solution.description}
                             </p>
                           )}
-
                           {solution.algorithm && (
-                            <div className="mt-3">
-                              <p className="text-sm font-medium">Algorithm</p>
+                            <div className="mt-2">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                Algorithm
+                              </p>
                               <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
                                 {solution.algorithm}
                               </p>
                             </div>
                           )}
-
                           {solution.notes && (
-                            <div className="mt-3">
-                              <p className="text-sm font-medium">Notes</p>
+                            <div className="mt-2">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                Notes
+                              </p>
                               <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
                                 {solution.notes}
                               </p>
                             </div>
                           )}
-                          <div className="mt-4 border-t pt-4">
-                            <div className="mb-3 flex items-center justify-between">
-                              <div>
-                                <p className="text-sm font-medium">Codes</p>
-                                <p className="text-xs text-muted-foreground">
-                                  Implementations of this solution.
-                                </p>
-                              </div>
 
+                          {/* ── Codes ─────────────────────────── */}
+                          <div className="ml-4 mt-4 border-t pt-4">
+                            <div className="mb-2 flex items-center justify-between">
+                              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                Implementations
+                              </p>
                               <span className="text-xs text-muted-foreground">
-                                {solution.codes.length} total
+                                {solution.codes.length}
                               </span>
                             </div>
 
@@ -250,18 +259,14 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
                                     key={code.id}
                                     className="rounded-md border bg-background p-3"
                                   >
-                                    <div className="flex items-center justify-between gap-3">
-                                      <p className="text-sm font-medium">
-                                        {code.language}
-                                      </p>
-                                    </div>
-
-                                    <pre className="mt-3 overflow-x-auto rounded-md bg-muted p-3 text-sm">
+                                    <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                                      {code.language}
+                                    </p>
+                                    <pre className="mt-2 overflow-x-auto rounded-md bg-muted p-3 text-sm">
                                       <code>{code.code}</code>
                                     </pre>
-
                                     {code.notes && (
-                                      <div className="mt-3">
+                                      <div className="mt-2">
                                         <p className="text-xs font-medium">
                                           Notes
                                         </p>
@@ -284,39 +289,53 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
                     </div>
                   )}
 
-                  <SolutionForm approachId={approach.id} />
+                  <div className="mt-4">
+                    <SolutionForm approachId={approach.id} />
+                  </div>
                 </div>
-              </article>
+              </div>
             ))}
           </div>
         )}
       </section>
 
+      {/* ══ SUBMISSION HISTORY ══════════════════════════════════════ */}
       <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Submissions</h2>
-
-          <span className="text-sm text-muted-foreground">
-            {problem.submissions.length} total
-          </span>
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold tracking-tight">
+            Submission History
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Historical attempts imported from LeetCode. Expand a submission to
+            see its original code. Link it to a knowledge entry to track which
+            approach you used.
+          </p>
         </div>
 
-        <div className="space-y-3">
-          {problem.submissions.map((submission) => (
-            <SubmissionCard
-              key={submission.id}
-              status={submission.status}
-              language={submission.language}
-              runtimeMs={submission.runtimeMs}
-              memoryBytes={submission.memoryBytes}
-              submittedAt={submission.submittedAt}
-              code={submission.code}
-              submissionId={submission.id}
-              linkedCodeId={submission.codeId}
-              availableCodes={availableCodes}
-            />
-          ))}
-        </div>
+        {problem.submissions.length === 0 ? (
+          <div className="rounded-lg border border-dashed p-8 text-center">
+            <p className="text-sm text-muted-foreground">
+              No submissions imported yet.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {problem.submissions.map((submission) => (
+              <SubmissionCard
+                key={submission.id}
+                status={submission.status}
+                language={submission.language}
+                runtimeMs={submission.runtimeMs}
+                memoryBytes={submission.memoryBytes}
+                submittedAt={submission.submittedAt}
+                code={submission.code}
+                submissionId={submission.id}
+                linkedCodeId={submission.codeId}
+                availableCodes={availableCodes}
+              />
+            ))}
+          </div>
+        )}
       </section>
     </main>
   );

@@ -103,7 +103,6 @@ model Approach {
 
   name            String
   coreIdea        String?
-  algorithm       String?
   whyItWorks     String?
   whenToUse      String?
   timeComplexity  String?

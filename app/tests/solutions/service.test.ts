@@ -27,6 +27,7 @@ describe("createSolution", () => {
       approachId: "approach-1",
       name: "One-pass complement lookup",
       description: "Use a hash map for complement lookup.",
+      algorithm: "Iterate elements and check map for complement.",
     });
 
     expect(createMock).toHaveBeenCalledWith({
@@ -34,6 +35,7 @@ describe("createSolution", () => {
         approachId: "approach-1",
         name: "One-pass complement lookup",
         description: "Use a hash map for complement lookup.",
+        algorithm: "Iterate elements and check map for complement.",
       },
     });
 
@@ -64,6 +66,7 @@ describe("updateSolution", () => {
 
     const result = await updateSolution("solution-1", {
       name: "Optimized complement lookup",
+      algorithm: "Updated steps for complement check.",
     });
 
     expect(updateMock).toHaveBeenCalledWith({
@@ -72,6 +75,7 @@ describe("updateSolution", () => {
       },
       data: {
         name: "Optimized complement lookup",
+        algorithm: "Updated steps for complement check.",
       },
     });
 

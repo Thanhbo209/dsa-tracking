@@ -4,7 +4,6 @@ export const createApproachSchema = z.object({
   problemId: z.string().min(1),
   name: z.string().trim().min(1),
   coreIdea: z.string().optional(),
-  algorithm: z.string().optional(),
   whyItWorks: z.string().optional(),
   whenToUse: z.string().optional(),
   timeComplexity: z.string().trim().optional(),

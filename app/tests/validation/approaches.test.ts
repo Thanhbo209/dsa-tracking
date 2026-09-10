@@ -18,8 +18,41 @@ describe("createApproachSchema", () => {
     expect(result.success).toBe(true);
   });
 
+  it("does not include algorithm in parsed approach data", () => {
+    const result = createApproachSchema.safeParse({
+      problemId: "problem-1",
+      name: "Hash Map",
+      algorithm: "This should not be in the schema",
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data).not.toHaveProperty("algorithm");
+    }
+  });
+
+  it("accepts a CUID-shaped problem database id", () => {
+    // problemId must be the Problem.id (CUID), not the URL slug.
+    const result = createApproachSchema.safeParse({
+      problemId: "clw1234567890abcdefghijklm",
+      name: "Hash Map",
+    });
+
+    expect(result.success).toBe(true);
+  });
+
   it("requires a problemId", () => {
     const result = createApproachSchema.safeParse({
+      name: "Hash Map",
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an empty-string problemId", () => {
+    // An empty string is not a valid Problem.id and would cause a FK violation.
+    const result = createApproachSchema.safeParse({
+      problemId: "",
       name: "Hash Map",
     });
 

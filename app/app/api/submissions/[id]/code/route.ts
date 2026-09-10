@@ -19,7 +19,10 @@ export async function PATCH(request: Request, { params }: RouteContext) {
 
     const submission = await linkSubmissionToCode(id, data.codeId);
 
-    return NextResponse.json(submission);
+    // Return only the fields needed to confirm the operation.
+    // Returning the full Submission would fail JSON serialization because
+    // Submission.memoryBytes is a BigInt, which JSON.stringify cannot handle.
+    return NextResponse.json({ id: submission.id, codeId: submission.codeId });
   } catch (error) {
     if (error instanceof ZodError) {
       return NextResponse.json(
