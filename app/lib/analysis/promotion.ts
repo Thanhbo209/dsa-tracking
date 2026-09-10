@@ -47,6 +47,16 @@ export interface PromoteDraftResult {
   };
 }
 
+/**
+ * Interactive transaction options.
+ * Over remote poolers (e.g. Supabase across regions), acquiring a client connection
+ * and issuing BEGIN can exceed Prisma's default 2000ms maxWait.
+ */
+export const TRANSACTION_OPTIONS = {
+  maxWait: 15000, // Wait up to 15 seconds to acquire a connection from the pool
+  timeout: 30000, // Wait up to 30 seconds for transaction queries to complete
+};
+
 export async function promoteDraftToKnowledge(
   submissionId: string,
   analysisId: string,
@@ -62,7 +72,8 @@ export async function promoteDraftToKnowledge(
     validatedEditedDraft = aiDraftSchema.parse(editedDraftInput);
   }
 
-  return await prisma.$transaction(async (tx) => {
+  return await prisma.$transaction(
+    async (tx) => {
     // 1. Fetch analysis and derive the problemId through submission relation
     const analysis = await tx.submissionAnalysis.findUnique({
       where: { id: analysisId },
@@ -169,7 +180,7 @@ export async function promoteDraftToKnowledge(
       solution,
       code,
     };
-  });
+  }, TRANSACTION_OPTIONS);
 }
 
 export async function rejectDraft(
@@ -219,5 +230,5 @@ export async function rejectDraft(
     return await tx.submissionAnalysis.findUniqueOrThrow({
       where: { id: analysisId },
     });
-  });
+  }, TRANSACTION_OPTIONS);
 }

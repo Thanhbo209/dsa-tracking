@@ -41,6 +41,7 @@ vi.mock("@/lib/db/prisma", () => ({
 import {
   promoteDraftToKnowledge,
   rejectDraft,
+  TRANSACTION_OPTIONS,
 } from "@/lib/analysis/promotion";
 
 describe("Knowledge Draft Promotion Service", () => {
@@ -186,6 +187,12 @@ describe("Knowledge Draft Promotion Service", () => {
       expect(result.approach.id).toBe("app-1");
       expect(result.solution.id).toBe("sol-1");
       expect(result.code.id).toBe("code-1");
+
+      // Verifies custom transaction timeout options were passed to prevent P2028
+      expect(transactionMock).toHaveBeenCalledWith(
+        expect.any(Function),
+        TRANSACTION_OPTIONS,
+      );
     });
 
     it("supports promoting a user-edited draft", async () => {
@@ -327,6 +334,10 @@ describe("Knowledge Draft Promotion Service", () => {
       expect(solutionCreateMock).not.toHaveBeenCalled();
       expect(codeCreateMock).not.toHaveBeenCalled();
       expect(result.status).toBe("REJECTED");
+      expect(transactionMock).toHaveBeenCalledWith(
+        expect.any(Function),
+        TRANSACTION_OPTIONS,
+      );
     });
 
     it("prevents rejecting an analysis that is not in DRAFT_READY status", async () => {
