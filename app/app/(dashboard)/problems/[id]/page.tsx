@@ -3,6 +3,8 @@ import { SubmissionCard } from "@/components/problems/SubmissionCard";
 import { ApproachForm } from "@/components/problems/ApproachForm";
 import { prisma } from "@/lib/db/prisma";
 import { SolutionForm } from "@/components/problems/SolutionForm";
+import { CodeForm } from "@/components/problems/CodeForm";
+
 interface ProblemPageProps {
   params: Promise<{
     id: string;
@@ -35,6 +37,13 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
           solutions: {
             orderBy: {
               createdAt: "asc",
+            },
+            include: {
+              codes: {
+                orderBy: {
+                  createdAt: "asc",
+                },
+              },
             },
           },
         },
@@ -209,6 +218,56 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
                               </p>
                             </div>
                           )}
+                          <div className="mt-4 border-t pt-4">
+                            <div className="mb-3 flex items-center justify-between">
+                              <div>
+                                <p className="text-sm font-medium">Codes</p>
+                                <p className="text-xs text-muted-foreground">
+                                  Implementations of this solution.
+                                </p>
+                              </div>
+
+                              <span className="text-xs text-muted-foreground">
+                                {solution.codes.length} total
+                              </span>
+                            </div>
+
+                            {solution.codes.length > 0 && (
+                              <div className="space-y-3">
+                                {solution.codes.map((code) => (
+                                  <div
+                                    key={code.id}
+                                    className="rounded-md border bg-background p-3"
+                                  >
+                                    <div className="flex items-center justify-between gap-3">
+                                      <p className="text-sm font-medium">
+                                        {code.language}
+                                      </p>
+                                    </div>
+
+                                    <pre className="mt-3 overflow-x-auto rounded-md bg-muted p-3 text-sm">
+                                      <code>{code.code}</code>
+                                    </pre>
+
+                                    {code.notes && (
+                                      <div className="mt-3">
+                                        <p className="text-xs font-medium">
+                                          Notes
+                                        </p>
+                                        <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
+                                          {code.notes}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+
+                            <div className="mt-3">
+                              <CodeForm solutionId={solution.id} />
+                            </div>
+                          </div>
                         </div>
                       ))}
                     </div>
