@@ -11,16 +11,16 @@ export function AnalysisEmptyState({
   isAnalyzing,
 }: AnalysisEmptyStateProps) {
   return (
-    <div className="rounded-lg border border-dashed p-6 text-center bg-muted/10">
-      <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary mb-3">
+    <div className="rounded-lg border border-dashed border-[#4a4a4a] p-6 text-center bg-[#373737] text-white shadow-2xs">
+      <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-primary/20 text-primary mb-3">
         <Sparkles className="size-5" />
       </div>
 
-      <h4 className="text-sm font-semibold text-foreground">
+      <h4 className="text-sm font-semibold text-white">
         No AI Analysis Yet
       </h4>
 
-      <p className="mx-auto mt-1.5 max-w-md text-xs text-muted-foreground leading-relaxed">
+      <p className="mx-auto mt-1.5 max-w-md text-xs text-white leading-relaxed">
         Analyze this submission to evaluate your code, dissect Big-O time and
         space complexity reasoning, diagnose bugs or missed edge cases, and
         generate a candidate knowledge draft.
@@ -32,7 +32,7 @@ export function AnalysisEmptyState({
           onClick={onAnalyze}
           disabled={isAnalyzing}
           size="sm"
-          className="gap-2"
+          className="gap-2 text-white"
         >
           <Sparkles className="size-3.5" />
           <span>Analyze Submission</span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
 import type { KnowledgeApproach } from "./types";
 import { KnowledgeCodeBlock } from "./KnowledgeCodeBlock";
 import { SolutionDialog } from "@/components/problems/dialogs/SolutionDialog";
@@ -8,6 +8,27 @@ import { ListOrdered, Layers, FileText } from "lucide-react";
 
 interface SolutionTechniqueViewProps {
   approach: KnowledgeApproach;
+}
+
+/**
+ * Formats inline backticked code identifiers like `stack.pop()` into clean code chips.
+ */
+function formatText(text: string): React.ReactNode {
+  if (!text || !text.includes("`")) return text;
+  const parts = text.split(/(`[^`]+`)/g);
+  return parts.map((part, idx) => {
+    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
+      return (
+        <code
+          key={idx}
+          className="mx-0.5 rounded bg-[#262626] px-1.5 py-0.5 font-mono text-[13px] sm:text-sm text-zinc-200 border border-[#4a4a4a]"
+        >
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    return part;
+  });
 }
 
 export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) {
@@ -19,16 +40,16 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
   // Empty state when approach has no solutions
   if (solutions.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed p-8 text-center bg-muted/10">
-        <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-muted text-muted-foreground mb-3">
-          <Layers className="size-5" />
+      <div className="rounded-xl border border-dashed border-[#4a4a4a] p-8 text-center bg-[#373737] text-white shadow-2xs">
+        <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-[#2a2a2a] text-white mb-3 border border-[#4a4a4a]">
+          <Layers className="size-5 text-sky-400" />
         </div>
-        <h4 className="text-sm font-semibold text-foreground">
-          No Techniques Recorded Yet
+        <h4 className="text-base font-bold text-white">
+          No Methods Recorded Yet
         </h4>
-        <p className="mx-auto mt-1 max-w-md text-xs text-muted-foreground leading-relaxed">
-          This approach does not have any concrete algorithmic variations
-          recorded yet. Add a technique to document how this strategy executes.
+        <p className="mx-auto mt-1 max-w-md text-xs text-zinc-300 leading-relaxed">
+          This approach does not have any concrete methods
+          recorded yet. Add a method to document how this approach executes.
         </p>
         <div className="mt-4">
           <SolutionDialog mode="create" approach={approach} />
@@ -38,13 +59,13 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
   }
 
   return (
-    <div className="space-y-6 rounded-xl border bg-card p-5 sm:p-6 shadow-2xs">
+    <div className="space-y-6 rounded-xl border border-[#4a4a4a] bg-[#373737] p-5 sm:p-6 shadow-2xs text-white">
       {/* ── Technique Selector Bar ────────────────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b pb-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#4a4a4a] pb-4">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-            <ListOrdered className="size-4 text-primary" />
-            Techniques & Algorithms
+          <span className="text-base sm:text-lg font-bold text-zinc-100 flex items-center gap-2">
+            <ListOrdered className="size-5 text-sky-400 shrink-0" />
+            <span>Methods & Algorithms</span>
           </span>
 
           {/* Solution tab selector if multiple exist */}
@@ -63,8 +84,8 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
                   onClick={() => setSelectedSolutionIndex(idx)}
                   className={`rounded-md px-2.5 py-1 text-xs transition-colors outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                     idx === selectedSolutionIndex
-                      ? "bg-primary text-primary-foreground font-semibold"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      ? "bg-primary text-white font-semibold shadow-xs"
+                      : "bg-[#2a2a2a] text-zinc-300 border border-[#4a4a4a] hover:bg-[#333333]"
                   }`}
                 >
                   {sol.name}
@@ -74,7 +95,7 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
           )}
 
           {solutions.length === 1 && (
-            <span className="text-xs font-semibold text-primary ml-1">
+            <span className="text-sm font-semibold text-zinc-400 ml-1">
               — {activeSolution.name}
             </span>
           )}
@@ -97,21 +118,21 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
         <div className="space-y-5">
           {/* Solution Description */}
           {activeSolution.description && (
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              {activeSolution.description}
+            <p className="text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+              {formatText(activeSolution.description)}
             </p>
           )}
 
           {/* Algorithm Steps (Easy to scan) */}
           {activeSolution.algorithm && (
-            <div className="rounded-lg border bg-muted/20 p-4">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground mb-2">
-                <ListOrdered className="size-3.5 text-primary" />
-                <span>Algorithm Steps</span>
+            <div className="rounded-xl border border-[#4a4a4a] bg-[#2a2a2a] p-5 text-white shadow-2xs">
+              <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-zinc-100 mb-2.5">
+                <ListOrdered className="size-5 text-amber-400 shrink-0" />
+                <span>Step-by-Step Guide</span>
               </div>
-              <div className="rounded-md bg-background/80 border p-3">
-                <p className="whitespace-pre-wrap font-mono text-xs text-muted-foreground leading-relaxed">
-                  {activeSolution.algorithm}
+              <div className="rounded-lg bg-[#222222] border border-[#4a4a4a] p-4 text-zinc-300">
+                <p className="whitespace-pre-wrap font-mono text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                  {formatText(activeSolution.algorithm)}
                 </p>
               </div>
             </div>
@@ -119,19 +140,19 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
 
           {/* Solution Notes */}
           {activeSolution.notes && (
-            <div className="rounded-md border bg-muted/10 p-3 text-xs">
-              <div className="flex items-center gap-1.5 font-medium text-foreground mb-0.5">
-                <FileText className="size-3 text-muted-foreground" />
-                <span>Technique Notes</span>
+            <div className="rounded-xl border border-[#4a4a4a] bg-[#2a2a2a] p-5 text-zinc-300 shadow-2xs">
+              <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2">
+                <FileText className="size-5 text-blue-400 shrink-0" />
+                <span>Method Notes</span>
               </div>
-              <p className="whitespace-pre-wrap text-muted-foreground">
-                {activeSolution.notes}
+              <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                {formatText(activeSolution.notes)}
               </p>
             </div>
           )}
 
           {/* ── Canonical Code ──────────────────────────────────── */}
-          <div className="border-t pt-5">
+          <div className="border-t border-[#4a4a4a] pt-5">
             <KnowledgeCodeBlock solution={activeSolution} />
           </div>
         </div>

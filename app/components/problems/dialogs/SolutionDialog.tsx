@@ -182,14 +182,14 @@ export function SolutionDialog(props: SolutionDialogProps) {
           ) : mode === "create" ? (
             <button
               type="button"
-              className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted"
+              className="inline-flex items-center gap-1 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#333333]"
             >
-              <Plus className="size-3" />
+              <Plus className="size-3 text-white" />
               <span>+ Add Solution</span>
             </button>
           ) : (
-            <Button variant="outline" size="xs" className="gap-1 text-xs h-7">
-              <Pencil className="size-3" />
+            <Button variant="outline" size="xs" className="gap-1 text-xs h-7 border-[#555555] bg-[#2a2a2a] text-white hover:bg-[#333333]">
+              <Pencil className="size-3 text-white" />
               <span>Edit Solution</span>
             </Button>
           )

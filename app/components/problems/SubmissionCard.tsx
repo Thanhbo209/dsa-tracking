@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, Sparkles, AlertCircle, Code, CheckCircle2 } fro
 import { SubmissionAnalysisContainer } from "./analysis/SubmissionAnalysisContainer";
 import type { SerializedSubmissionAnalysis } from "./analysis/types";
 import { cn } from "@/lib/utils";
+import { CodeViewer } from "./CodeViewer";
 
 export interface SubmissionCardProps {
   id: string;
@@ -70,10 +71,10 @@ export function SubmissionCard({
   return (
     <div
       className={cn(
-        "rounded-lg border bg-card transition-all text-card-foreground",
+        "rounded-lg border border-[#4a4a4a] bg-[#373737] transition-all text-white shadow-2xs",
         isSelected
-          ? "border-primary/60 ring-2 ring-primary/20 bg-primary/[0.02]"
-          : "hover:border-muted-foreground/30",
+          ? "border-primary ring-2 ring-primary/30"
+          : "hover:border-zinc-400/60",
       )}
     >
       {/* Header — click to select and expand/collapse */}
@@ -95,7 +96,7 @@ export function SubmissionCard({
                     "flex size-4 items-center justify-center rounded-full border transition-colors shrink-0",
                     isSelected
                       ? "border-primary bg-primary text-primary-foreground"
-                      : "border-muted-foreground/40 bg-background",
+                      : "border-white/60 bg-[#2a2a2a]",
                   )}
                   title={isSelected ? "Selected for AI review" : "Click to select"}
                 >
@@ -104,36 +105,36 @@ export function SubmissionCard({
               )}
 
               <span
-                className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${statusBadgeClass(
+                className={`inline-block rounded-full px-2.5 py-0.5 text-xs sm:text-sm font-medium ${statusBadgeClass(
                   status,
                 )}`}
               >
                 {status.replaceAll("_", " ")}
               </span>
 
-              <span className="text-xs sm:text-sm font-medium text-muted-foreground">
+              <span className="text-sm sm:text-base font-semibold text-white">
                 {language}
               </span>
 
               {/* Analysis status indicator on card header */}
               {latestAnalysis && (
                 <span
-                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium ${
+                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
                     latestAnalysis.status === "DRAFT_READY"
-                      ? "bg-primary/10 text-primary"
+                      ? "bg-primary/20 text-white border border-primary/40"
                       : latestAnalysis.status === "FAILED"
-                        ? "bg-red-500/10 text-red-600 dark:text-red-400"
-                        : "bg-muted text-muted-foreground"
+                        ? "bg-red-500/20 text-white border border-red-500/40"
+                        : "bg-[#2a2a2a] text-white border border-[#4a4a4a]"
                   }`}
                 >
                   {latestAnalysis.status === "DRAFT_READY" ? (
                     <>
-                      <Sparkles className="size-3" />
+                      <Sparkles className="size-3.5 text-primary" />
                       <span>AI Review Ready</span>
                     </>
                   ) : latestAnalysis.status === "FAILED" ? (
                     <>
-                      <AlertCircle className="size-3" />
+                      <AlertCircle className="size-3.5 text-red-400" />
                       <span>AI Review Failed</span>
                     </>
                   ) : (
@@ -144,7 +145,7 @@ export function SubmissionCard({
             </div>
 
             {submittedAt && (
-              <span className="text-[11px] sm:text-xs text-muted-foreground">
+              <span className="text-xs sm:text-sm text-zinc-300">
                 {formatDate(submittedAt)}
               </span>
             )}
@@ -152,7 +153,7 @@ export function SubmissionCard({
 
           {/* Right: runtime + memory + code indicator + chevron */}
           <div className="flex shrink-0 items-center gap-3">
-            <div className="text-right text-xs sm:text-sm text-muted-foreground">
+            <div className="text-right text-sm sm:text-base text-white font-mono">
               <p>{runtimeMs != null ? `${runtimeMs} ms` : "—"}</p>
               <p>
                 {memoryBytes != null
@@ -163,18 +164,18 @@ export function SubmissionCard({
 
             {code && (
               <span
-                className="hidden sm:inline-flex items-center gap-0.5 text-[11px] text-muted-foreground bg-muted px-1.5 py-0.5 rounded font-mono"
+                className="hidden sm:inline-flex items-center gap-0.5 text-[11px] text-white bg-[#2a2a2a] border border-[#4a4a4a] px-1.5 py-0.5 rounded font-mono"
                 title="Historical code available"
               >
-                <Code className="size-3" />
+                <Code className="size-3 text-white" />
                 <span>Code</span>
               </span>
             )}
 
             {isExpanded ? (
-              <ChevronUp className="size-4 shrink-0 text-muted-foreground" />
+              <ChevronUp className="size-4 shrink-0 text-white" />
             ) : (
-              <ChevronDown className="size-4 shrink-0 text-muted-foreground" />
+              <ChevronDown className="size-4 shrink-0 text-white" />
             )}
           </div>
         </div>
@@ -182,33 +183,38 @@ export function SubmissionCard({
 
       {/* Expanded body */}
       {isExpanded && (
-        <div className="border-t px-4 pb-4 pt-3 space-y-4">
+        <div className="border-t border-[#4a4a4a] px-4 pb-4 pt-3 space-y-4">
           {/* Historical submission code */}
           {code ? (
-            <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wide text-white">
                   Your Submitted Code (Historical attempt — unchanged)
                 </p>
-                <span className="text-[10px] font-mono text-muted-foreground">
+                <span className="text-[10px] font-mono text-white">
                   {language}
                 </span>
               </div>
-              <pre className="overflow-x-auto rounded-md bg-muted p-3 text-xs font-mono leading-relaxed max-h-60 overflow-y-auto">
-                <code>{code}</code>
-              </pre>
+              <CodeViewer
+                code={code}
+                language={language}
+                badge="Historical Attempt"
+              />
             </div>
           ) : (
-            <p className="text-xs italic text-muted-foreground">
+            <p className="text-xs italic text-white">
               No historical code recorded for this submission.
             </p>
           )}
 
           {/* Optional: Embedded AI Analysis (if showAnalysisInside is true) */}
           {showAnalysisInside && (
-            <div className="border-t pt-4">
+            <div className="border-t border-[#4a4a4a] pt-4">
               <SubmissionAnalysisContainer
                 submissionId={id}
+                submissionCode={code}
+                submissionLanguage={language}
+                submissionStatus={status}
                 initialAnalyses={analyses}
               />
             </div>

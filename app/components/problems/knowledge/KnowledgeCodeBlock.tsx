@@ -3,8 +3,9 @@
 import { useState } from "react";
 import type { KnowledgeSolution } from "./types";
 import { CodeDialog } from "@/components/problems/dialogs/CodeDialog";
-import { Copy, Check, Code2, FileCode } from "lucide-react";
+import { Copy, Check, Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CodeViewer } from "../CodeViewer";
 
 interface KnowledgeCodeBlockProps {
   solution: KnowledgeSolution;
@@ -26,22 +27,21 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback if clipboard API fails
       setCopied(false);
     }
   }
 
   if (codes.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed p-6 text-center bg-muted/10">
-        <div className="mx-auto flex size-8 items-center justify-center rounded-full bg-muted text-muted-foreground mb-2">
-          <Code2 className="size-4" />
+      <div className="rounded-lg border border-dashed border-[#4a4a4a] p-6 text-center bg-[#2a2a2a] text-white shadow-2xs">
+        <div className="mx-auto flex size-8 items-center justify-center rounded-full bg-[#333333] text-white mb-2 border border-[#4a4a4a]">
+          <Code2 className="size-4 text-primary" />
         </div>
-        <p className="text-xs font-semibold text-foreground">
+        <p className="text-xs font-semibold text-white">
           No Implementation Recorded
         </p>
-        <p className="mt-1 text-xs text-muted-foreground">
-          Add canonical code for this technique to complete your knowledge.
+        <p className="mt-1 text-xs text-white">
+          Add an optimized implementation for this method to complete your knowledge.
         </p>
         <div className="mt-3">
           <CodeDialog mode="create" solution={solution} />
@@ -51,13 +51,13 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
   }
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 text-white">
       {/* Code Header Bar: Title, Language Selector, Copy & Add Code */}
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-            <Code2 className="size-3.5 text-primary" />
-            Canonical Implementation
+          <span className="text-base sm:text-lg font-bold text-zinc-100 flex items-center gap-2">
+            <Code2 className="size-5 text-emerald-400 shrink-0" />
+            <span>Optimized Implementation</span>
           </span>
 
           {/* Language Selector if multiple codes exist */}
@@ -76,8 +76,8 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
                   onClick={() => setSelectedCodeIndex(idx)}
                   className={`rounded px-2 py-0.5 text-[11px] font-medium transition-colors ${
                     idx === selectedCodeIndex
-                      ? "bg-primary text-primary-foreground font-semibold"
-                      : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      ? "bg-primary text-white font-semibold"
+                      : "bg-[#2a2a2a] text-white border border-[#4a4a4a] hover:bg-[#333333]"
                   }`}
                 >
                   {item.language}
@@ -87,7 +87,7 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
           )}
 
           {codes.length === 1 && activeCode && (
-            <span className="rounded bg-muted px-2 py-0.5 text-[10px] font-mono text-muted-foreground uppercase">
+            <span className="rounded bg-[#2a2a2a] border border-[#4a4a4a] px-2 py-0.5 text-[10px] font-mono text-white uppercase">
               {activeCode.language}
             </span>
           )}
@@ -101,12 +101,12 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
             size="xs"
             onClick={handleCopy}
             disabled={!activeCode}
-            className="gap-1 text-xs h-7"
+            className="gap-1 text-xs h-7 border-[#555555] bg-[#2a2a2a] text-white hover:bg-[#333333]"
           >
             {copied ? (
               <>
-                <Check className="size-3 text-green-600 dark:text-green-400" />
-                <span>Copied!</span>
+                <Check className="size-3 text-green-400" />
+                <span className="text-green-400 font-medium">Copied!</span>
               </>
             ) : (
               <>
@@ -132,28 +132,20 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
 
       {/* Code Block Container */}
       {activeCode && (
-        <div className="rounded-lg border border-border bg-zinc-950 dark:bg-zinc-900/90 text-zinc-100 shadow-xs overflow-hidden">
-          <div className="flex items-center justify-between border-b border-zinc-800 bg-zinc-900/60 px-3.5 py-1.5 text-[11px] font-mono text-zinc-400">
-            <span className="flex items-center gap-1.5">
-              <FileCode className="size-3" />
-              {activeCode.language}
-            </span>
-            <span className="text-[10px] text-zinc-500">Reusable Knowledge</span>
-          </div>
-
-          <pre className="overflow-x-auto p-4 text-xs font-mono leading-relaxed">
-            <code>{activeCode.code}</code>
-          </pre>
-        </div>
+        <CodeViewer
+          code={activeCode.code}
+          language={activeCode.language}
+          badge="Reusable Knowledge"
+        />
       )}
 
       {/* Code Notes */}
       {activeCode?.notes && (
-        <div className="rounded-md border bg-muted/20 px-3 py-2 text-xs">
-          <span className="font-semibold text-foreground">
+        <div className="rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-3 py-2 text-xs text-white shadow-2xs">
+          <span className="font-semibold text-white">
             Implementation Notes:{" "}
           </span>
-          <span className="text-muted-foreground">{activeCode.notes}</span>
+          <span className="text-white">{activeCode.notes}</span>
         </div>
       )}
     </div>

@@ -26,17 +26,17 @@ export function KnowledgeWorkspace({
   // Empty state: no approaches yet
   if (approaches.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed p-10 text-center bg-muted/10">
-        <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary mb-3">
+      <div className="rounded-xl border border-dashed border-[#4a4a4a] p-10 text-center bg-[#373737] text-white shadow-2xs">
+        <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-primary/20 text-primary mb-3">
           <BookOpen className="size-6" />
         </div>
-        <h3 className="text-base font-bold text-foreground">
+        <h3 className="text-base font-bold text-white">
           No Knowledge Recorded Yet
         </h3>
-        <p className="mx-auto mt-2 max-w-md text-xs text-muted-foreground leading-relaxed">
-          Approaches, algorithms, and canonical code organized here become your
+        <p className="mx-auto mt-2 max-w-md text-xs text-white leading-relaxed">
+          Approaches, algorithms, and optimized implementations organized here become your
           reusable problem-solving playbook. Record an approach manually or
-          review a submission to generate a candidate draft.
+          review a submission to generate AI suggested solutions.
         </p>
         <div className="mt-5">
           <ApproachDialog mode="create" problemId={problemId} />

@@ -31,12 +31,12 @@ export function ProblemDetailPanel({
   description,
 }: ProblemDetailPanelProps) {
   return (
-    <aside className="space-y-6 rounded-xl border border-border/80 bg-zinc-100/60 dark:bg-zinc-900/60 p-5 sm:p-6 shadow-xs lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
+    <aside className="space-y-6 rounded-xl border border-[#383838] bg-[#262626] p-5 sm:p-6 shadow-xs lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto text-white">
       {/* ── Problem Header ─────────────────────────────────────────── */}
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-2">
           {leetcodeId != null && (
-            <span className="font-mono text-xs font-semibold text-muted-foreground">
+            <span className="font-mono text-sm font-semibold text-white">
               LeetCode #{leetcodeId}
             </span>
           )}
@@ -46,23 +46,23 @@ export function ProblemDetailPanel({
               href={url}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex items-center gap-1.5 text-sm text-zinc-300 hover:text-white transition-colors underline underline-offset-2"
               title="Open problem on LeetCode"
             >
               <span>View on LeetCode</span>
-              <ExternalLink className="size-3" />
+              <ExternalLink className="size-3.5 text-zinc-300" />
             </a>
           )}
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
             {title}
           </h1>
 
           {difficulty && (
             <span
-              className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${difficultyBadgeClass(
+              className={`rounded-full border px-2.5 py-0.5 text-xs sm:text-sm font-semibold uppercase tracking-wider ${difficultyBadgeClass(
                 difficulty,
               )}`}
             >
@@ -77,7 +77,7 @@ export function ProblemDetailPanel({
             {topics.map((topic) => (
               <span
                 key={topic.id}
-                className="rounded-md border bg-muted/40 px-2 py-0.5 text-xs font-medium text-muted-foreground"
+                className="rounded-md border border-[#4a4a4a] bg-[#373737] px-2.5 py-1 text-xs sm:text-sm font-medium text-white shadow-2xs"
               >
                 {topic.name}
               </span>
@@ -86,13 +86,13 @@ export function ProblemDetailPanel({
         )}
       </div>
 
-      <div className="border-t pt-4">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+      <div className="border-t border-[#383838] pt-4">
+        <h2 className="text-sm sm:text-base font-semibold uppercase tracking-wider text-white mb-3">
           Problem Description
         </h2>
 
         <div
-          className="prose dark:prose-invert max-w-none text-xs sm:text-sm leading-relaxed break-words [&_pre]:bg-muted [&_pre]:p-3 [&_pre]:rounded-md [&_code]:text-xs [&_code]:font-mono"
+          className="prose dark:prose-invert max-w-none text-sm sm:text-base leading-relaxed break-words text-white [&_*]:text-white [&_pre]:bg-[#373737] [&_pre]:p-3 [&_pre]:rounded-md [&_pre]:border [&_pre]:border-[#4a4a4a] [&_code]:text-white [&_code]:font-mono"
           dangerouslySetInnerHTML={{
             __html: description ?? "<p>No description available.</p>",
           }}

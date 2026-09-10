@@ -7,6 +7,7 @@ import {
   type WorkspaceSubmission,
 } from "@/components/problems/ProblemLearningWorkspace";
 import { SubmissionCard } from "@/components/problems/SubmissionCard";
+import { CodeViewer } from "@/components/problems/CodeViewer";
 import type {
   KnowledgeApproach,
   KnowledgeSolution,
@@ -346,15 +347,34 @@ describe("Phase 5C: Two-Column Learning Workspace Components", () => {
       expect(html).toContain("ACCEPTED");
       expect(html).toContain(mockReview.summary);
       expect(html).toContain("O(n)");
-      expect(html).toContain("Proposed Knowledge Model");
-      expect(html).toContain("Candidate Approach");
+      expect(html).toContain("AI Suggested Solutions");
+      expect(html).toContain("Suggested Approach");
 
       // Section 3: Permanent Knowledge ("What approach should I remember?")
       expect(html).toContain("Permanent Knowledge");
       expect(html).toContain("Hash Map Strategy");
       expect(html).toContain("One-Pass Complement Lookup");
-      expect(html).toContain("Canonical Implementation");
+      expect(html).toContain("Optimized Implementation");
       expect(html).toContain("Edit Approach");
+    });
+
+    it("renders LeetCode-style UI tab bar separating Permanent Knowledge, AI Diagnostic Review, and Submissions", () => {
+      const html = renderToStaticMarkup(
+        <ProblemLearningWorkspace
+          problemId="prob-1"
+          submissions={mockSubmissions}
+          approaches={[mockApproach]}
+        />,
+      );
+
+      // Verify tablist role and accessible tabs
+      expect(html).toContain('role="tablist"');
+      expect(html).toContain('id="tab-knowledge"');
+      expect(html).toContain('id="tab-analysis"');
+      expect(html).toContain('id="tab-submissions"');
+      expect(html).toContain('aria-controls="panel-knowledge"');
+      expect(html).toContain('aria-controls="panel-analysis"');
+      expect(html).toContain('aria-controls="panel-submissions"');
     });
 
     it("renders empty states gracefully when no submissions exist", () => {
@@ -390,4 +410,46 @@ describe("Phase 5C: Two-Column Learning Workspace Components", () => {
       expect(html).toContain("+ Add Approach");
     });
   });
+
+  /* ── 4. CodeViewer (LeetCode-style Scaling & Line Numbers) Tests ───── */
+  describe("CodeViewer (LeetCode-style Scaling & Line Numbers)", () => {
+    it("renders code with line numbers, language uppercase badge, and copy button", () => {
+      const sampleCode = "const a = 1;\nconst b = 2;\nreturn a + b;";
+      const html = renderToStaticMarkup(
+        <CodeViewer
+          code={sampleCode}
+          language="typescript"
+          badge="Canonical"
+        />,
+      );
+
+      expect(html).toContain("TYPESCRIPT");
+      expect(html).toContain("Canonical");
+      expect(html).toContain("Copy");
+      expect(html).toContain("const");
+      expect(html).toContain("return");
+      // Verify colorful syntax highlighting classes
+      expect(html).toContain("text-[#c586c0]"); // keyword color
+      expect(html).toContain("text-[#b5cea8]"); // number color
+      // Verify line numbers 1, 2, 3 are present
+      expect(html).toContain(">1<");
+      expect(html).toContain(">2<");
+      expect(html).toContain(">3<");
+      // Verify NO max-h-60 or overflow-y-auto trapped scroll classes
+      expect(html).not.toContain("max-h-60");
+      expect(html).not.toContain("overflow-y-auto");
+    });
+
+    it("handles single-line code without breaking line numbering", () => {
+      const html = renderToStaticMarkup(
+        <CodeViewer code="return true;" language="python" />
+      );
+
+      expect(html).toContain("PYTHON");
+      expect(html).toContain("return");
+      expect(html).toContain("true");
+      expect(html).toContain(">1<");
+    });
+  });
 });
+

@@ -97,7 +97,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
         </div>
 
         {/* ── RIGHT SECTION: Learning Workspace (7 cols on desktop) ──── */}
-        <div className="lg:col-span-7 rounded-xl border border-border/80 bg-zinc-100/60 dark:bg-zinc-900/60 p-5 sm:p-6 shadow-xs">
+        <div className="lg:col-span-7 rounded-xl border border-[#383838] bg-[#262626] p-5 sm:p-6 shadow-xs">
           <ProblemLearningWorkspace
             problemId={problem.id}
             submissions={serializedSubmissions}

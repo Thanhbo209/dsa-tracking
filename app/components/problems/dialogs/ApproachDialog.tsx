@@ -209,14 +209,14 @@ export function ApproachDialog(props: ApproachDialogProps) {
           ) : mode === "create" ? (
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted"
+              className="inline-flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#373737] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#454545] shadow-2xs"
             >
-              <Plus className="size-3.5" />
+              <Plus className="size-3.5 text-white" />
               <span>+ Add Approach</span>
             </button>
           ) : (
-            <Button variant="outline" size="xs" className="gap-1 text-xs">
-              <Pencil className="size-3" />
+            <Button variant="outline" size="xs" className="gap-1 text-xs border-[#555555] bg-[#2a2a2a] text-white hover:bg-[#333333]">
+              <Pencil className="size-3 text-white" />
               <span>Edit Approach</span>
             </Button>
           )
@@ -325,7 +325,7 @@ export function ApproachDialog(props: ApproachDialogProps) {
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label htmlFor="approach-whyItWorks" className="mb-1 block text-xs font-medium">
-                    Why It Works / Invariant
+                    Why It Works
                   </label>
                   <textarea
                     id="approach-whyItWorks"
@@ -333,14 +333,14 @@ export function ApproachDialog(props: ApproachDialogProps) {
                     value={whyItWorks}
                     onChange={(e) => setWhyItWorks(e.target.value)}
                     rows={3}
-                    placeholder="Mathematical or logical invariant..."
+                    placeholder="Explain why this approach works..."
                     className="w-full rounded-md border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary leading-relaxed"
                   />
                 </div>
 
                 <div>
                   <label htmlFor="approach-whenToUse" className="mb-1 block text-xs font-medium">
-                    When To Use / Signals
+                    When To Use
                   </label>
                   <textarea
                     id="approach-whenToUse"
@@ -403,7 +403,7 @@ export function ApproachDialog(props: ApproachDialogProps) {
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label htmlFor="approach-pros" className="mb-1 block text-xs font-medium">
-                    Advantages & Strengths
+                    Pros & Advantages
                   </label>
                   <textarea
                     id="approach-pros"
@@ -418,7 +418,7 @@ export function ApproachDialog(props: ApproachDialogProps) {
 
                 <div>
                   <label htmlFor="approach-cons" className="mb-1 block text-xs font-medium">
-                    Trade-offs & Limitations
+                    Cons & Limitations
                   </label>
                   <textarea
                     id="approach-cons"
@@ -442,7 +442,7 @@ export function ApproachDialog(props: ApproachDialogProps) {
 
               <div>
                 <label htmlFor="approach-mistakes" className="mb-1 block text-xs font-medium">
-                  Common Pitfalls to Avoid
+                  Common Mistakes to Avoid
                 </label>
                 <textarea
                   id="approach-mistakes"

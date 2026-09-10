@@ -1,3 +1,4 @@
+import React from "react";
 import type { KnowledgeApproach } from "./types";
 import { ApproachDialog } from "@/components/problems/dialogs/ApproachDialog";
 import {
@@ -14,19 +15,40 @@ interface ApproachOverviewProps {
   approach: KnowledgeApproach;
 }
 
+/**
+ * Formats inline backticked code identifiers like `len(s)` into clean code chips.
+ */
+function formatText(text: string): React.ReactNode {
+  if (!text || !text.includes("`")) return text;
+  const parts = text.split(/(`[^`]+`)/g);
+  return parts.map((part, idx) => {
+    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
+      return (
+        <code
+          key={idx}
+          className="mx-0.5 rounded bg-[#262626] px-1.5 py-0.5 font-mono text-[13px] sm:text-sm text-zinc-200 border border-[#4a4a4a]"
+        >
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    return part;
+  });
+}
+
 export function ApproachOverview({ approach }: ApproachOverviewProps) {
   const hasTradeoffs = Boolean(approach.pros || approach.cons);
   const hasMechanics = Boolean(approach.whyItWorks || approach.whenToUse);
 
   return (
-    <div className="space-y-5 rounded-xl border bg-card p-5 sm:p-6 shadow-2xs">
+    <div className="space-y-5 rounded-xl border border-[#4a4a4a] bg-[#373737] p-5 sm:p-6 shadow-2xs text-white">
       {/* ── Approach Header & Complexity Chips ────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b pb-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#4a4a4a] pb-4">
         <div>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">
-            Selected Strategy
+          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+            Selected Approach
           </span>
-          <h3 className="text-xl font-bold text-foreground mt-0.5">
+          <h3 className="text-xl sm:text-2xl font-bold text-white mt-0.5">
             {approach.name}
           </h3>
         </div>
@@ -35,19 +57,19 @@ export function ApproachOverview({ approach }: ApproachOverviewProps) {
           {(approach.timeComplexity || approach.spaceComplexity) && (
             <>
               {approach.timeComplexity && (
-                <div className="flex items-center gap-1.5 rounded-md border bg-muted/40 px-2.5 py-1">
-                  <Clock className="size-3.5 text-primary" />
-                  <span className="text-muted-foreground">Time:</span>
-                  <span className="font-mono font-semibold text-foreground">
+                <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-2.5 py-1 text-white">
+                  <Clock className="size-4 text-sky-400" />
+                  <span className="text-zinc-300">Time:</span>
+                  <span className="font-mono font-semibold text-white">
                     {approach.timeComplexity}
                   </span>
                 </div>
               )}
               {approach.spaceComplexity && (
-                <div className="flex items-center gap-1.5 rounded-md border bg-muted/40 px-2.5 py-1">
-                  <HardDrive className="size-3.5 text-primary" />
-                  <span className="text-muted-foreground">Space:</span>
-                  <span className="font-mono font-semibold text-foreground">
+                <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-2.5 py-1 text-white">
+                  <HardDrive className="size-4 text-purple-400" />
+                  <span className="text-zinc-300">Space:</span>
+                  <span className="font-mono font-semibold text-white">
                     {approach.spaceComplexity}
                   </span>
                 </div>
@@ -62,40 +84,40 @@ export function ApproachOverview({ approach }: ApproachOverviewProps) {
 
       {/* ── Core Idea (Visually Prominent) ────────────────────── */}
       {approach.coreIdea && (
-        <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
-          <div className="flex items-center gap-2 text-xs font-semibold text-primary uppercase tracking-wider">
-            <Lightbulb className="size-4 text-primary shrink-0" />
-            <span>Core Intuition</span>
+        <div className="rounded-xl border border-[#4a4a4a] bg-[#2a2a2a] p-5 text-white shadow-2xs">
+          <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-amber-400">
+            <Lightbulb className="size-5.5 text-amber-400 shrink-0" />
+            <span>Core Idea</span>
           </div>
-          <p className="mt-1.5 text-sm text-foreground leading-relaxed">
-            {approach.coreIdea}
+          <p className="mt-2 text-sm sm:text-base text-zinc-300 leading-relaxed font-normal">
+            {formatText(approach.coreIdea)}
           </p>
         </div>
       )}
 
       {/* ── Why It Works & When To Use ────────────────────────── */}
       {hasMechanics && (
-        <div className="grid gap-4 sm:grid-cols-2 text-xs">
+        <div className="grid gap-4 sm:grid-cols-2 text-sm">
           {approach.whyItWorks && (
-            <div className="rounded-lg border bg-muted/20 p-4">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground mb-1.5">
-                <Compass className="size-3.5 text-primary" />
-                <span>Why It Works / Invariant</span>
+            <div className="rounded-xl border border-[#4a4a4a] bg-[#2a2a2a] p-5 text-white shadow-2xs">
+              <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2.5">
+                <Compass className="size-5 text-sky-400 shrink-0" />
+                <span>Why It Works</span>
               </div>
-              <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">
-                {approach.whyItWorks}
+              <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                {formatText(approach.whyItWorks)}
               </p>
             </div>
           )}
 
           {approach.whenToUse && (
-            <div className="rounded-lg border bg-muted/20 p-4">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground mb-1.5">
-                <Compass className="size-3.5 text-primary" />
-                <span>When To Use / Signals</span>
+            <div className="rounded-xl border border-[#4a4a4a] bg-[#2a2a2a] p-5 text-white shadow-2xs">
+              <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2.5">
+                <Compass className="size-5 text-purple-400 shrink-0" />
+                <span>When To Use</span>
               </div>
-              <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">
-                {approach.whenToUse}
+              <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                {formatText(approach.whenToUse)}
               </p>
             </div>
           )}
@@ -104,27 +126,27 @@ export function ApproachOverview({ approach }: ApproachOverviewProps) {
 
       {/* ── Trade-offs (Pros & Cons) ──────────────────────────── */}
       {hasTradeoffs && (
-        <div className="grid gap-4 sm:grid-cols-2 text-xs">
+        <div className="grid gap-4 sm:grid-cols-2 text-sm">
           {approach.pros && (
-            <div className="rounded-lg border border-green-500/20 bg-green-500/5 p-4">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-green-700 dark:text-green-400 mb-1.5">
-                <CheckCircle2 className="size-3.5 text-green-600" />
-                <span>Advantages & Strengths</span>
+            <div className="rounded-xl border border-emerald-500/30 bg-[#2a2a2a] p-5 text-white shadow-2xs">
+              <div className="flex items-center gap-2.5 text-base font-bold text-emerald-400 mb-2.5">
+                <CheckCircle2 className="size-5 text-emerald-400 shrink-0" />
+                <span>Pros & Advantages</span>
               </div>
-              <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">
-                {approach.pros}
+              <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                {formatText(approach.pros)}
               </p>
             </div>
           )}
 
           {approach.cons && (
-            <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-red-700 dark:text-red-400 mb-1.5">
-                <AlertTriangle className="size-3.5 text-red-600" />
-                <span>Trade-offs & Limitations</span>
+            <div className="rounded-xl border border-rose-500/30 bg-[#2a2a2a] p-5 text-white shadow-2xs">
+              <div className="flex items-center gap-2.5 text-base font-bold text-rose-400 mb-2.5">
+                <AlertTriangle className="size-5 text-rose-400 shrink-0" />
+                <span>Cons & Limitations</span>
               </div>
-              <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">
-                {approach.cons}
+              <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                {formatText(approach.cons)}
               </p>
             </div>
           )}
@@ -133,26 +155,26 @@ export function ApproachOverview({ approach }: ApproachOverviewProps) {
 
       {/* ── Common Mistakes / Pitfalls ────────────────────────── */}
       {approach.mistakes && (
-        <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-xs">
-          <div className="flex items-center gap-1.5 font-semibold text-amber-800 dark:text-amber-400 mb-1.5">
-            <AlertTriangle className="size-3.5 text-amber-600" />
-            <span>Common Pitfalls to Avoid</span>
+        <div className="rounded-xl border border-amber-500/30 bg-[#2a2a2a] p-5 text-white shadow-2xs">
+          <div className="flex items-center gap-2.5 text-base font-bold text-amber-400 mb-2.5">
+            <AlertTriangle className="size-5 text-amber-400 shrink-0" />
+            <span>Common Mistakes to Avoid</span>
           </div>
-          <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">
-            {approach.mistakes}
+          <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+            {formatText(approach.mistakes)}
           </p>
         </div>
       )}
 
       {/* ── Notes ─────────────────────────────────────────────── */}
       {approach.notes && (
-        <div className="rounded-lg border bg-muted/10 p-3.5 text-xs">
-          <div className="flex items-center gap-1.5 font-medium text-foreground mb-1">
-            <FileText className="size-3.5 text-muted-foreground" />
+        <div className="rounded-xl border border-[#4a4a4a] bg-[#2a2a2a] p-5 text-white shadow-2xs">
+          <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2">
+            <FileText className="size-5 text-blue-400 shrink-0" />
             <span>Additional Notes</span>
           </div>
-          <p className="whitespace-pre-wrap text-muted-foreground leading-relaxed">
-            {approach.notes}
+          <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+            {formatText(approach.notes)}
           </p>
         </div>
       )}

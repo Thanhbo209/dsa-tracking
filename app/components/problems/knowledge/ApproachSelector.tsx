@@ -17,7 +17,7 @@ export function ApproachSelector({
   onSelect,
 }: ApproachSelectorProps) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b pb-4">
+    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#383838] pb-4">
       {/* Approach selector tabs */}
       <div
         role="tablist"
@@ -38,8 +38,8 @@ export function ApproachSelector({
               onClick={() => onSelect(index)}
               className={`flex items-center gap-2 rounded-lg border px-3.5 py-2 text-left transition-all text-xs outline-none focus-visible:ring-2 focus-visible:ring-primary ${
                 isSelected
-                  ? "border-primary bg-primary/10 text-primary font-semibold shadow-xs"
-                  : "border-border bg-card text-foreground hover:bg-muted/60"
+                  ? "border-primary bg-primary/20 text-white font-semibold shadow-xs"
+                  : "border-[#4a4a4a] bg-[#373737] text-white hover:bg-[#454545]"
               }`}
             >
               <span>{approach.name}</span>
@@ -47,8 +47,8 @@ export function ApproachSelector({
                 <span
                   className={`rounded px-1.5 py-0.5 text-[10px] font-mono ${
                     isSelected
-                      ? "bg-primary/20 text-primary"
-                      : "bg-muted text-muted-foreground"
+                      ? "bg-primary/30 text-white font-semibold"
+                      : "bg-[#2a2a2a] text-white border border-[#4a4a4a]"
                   }`}
                 >
                   {approach.timeComplexity || "—"}
