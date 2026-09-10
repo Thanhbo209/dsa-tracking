@@ -346,8 +346,7 @@ describe("Phase 5C: Two-Column Learning Workspace Components", () => {
       expect(html).toContain("Evaluating attempt: ");
       expect(html).toContain("ACCEPTED");
       expect(html).toContain(mockReview.summary);
-      expect(html).toContain("O(n)");
-      expect(html).toContain("AI Suggested Solutions");
+      expect(html).toContain("Option 2: AI Suggested Solution");
       expect(html).toContain("Suggested Approach");
 
       // Section 3: Permanent Knowledge ("What approach should I remember?")

@@ -215,6 +215,7 @@ export function SubmissionCard({
                 submissionCode={code}
                 submissionLanguage={language}
                 submissionStatus={status}
+                runtimeMs={runtimeMs}
                 initialAnalyses={analyses}
               />
             </div>

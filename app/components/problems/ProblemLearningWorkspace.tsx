@@ -300,6 +300,7 @@ export function ProblemLearningWorkspace({
               submissionCode={selectedSubmission.code}
               submissionLanguage={selectedSubmission.language}
               submissionStatus={selectedSubmission.status}
+              runtimeMs={selectedSubmission.runtimeMs}
               initialAnalyses={selectedSubmission.analyses}
             />
           </div>

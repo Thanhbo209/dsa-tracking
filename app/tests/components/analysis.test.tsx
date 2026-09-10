@@ -182,20 +182,45 @@ describe("Submission Analysis UI Components", () => {
       expect(html).toContain("Reject Draft");
 
       // Approach details
-      expect(html).toContain("Candidate Approach");
+      expect(html).toContain("Suggested Approach");
       expect(html).toContain("Hash Map Lookup");
       expect(html).toContain("Store visited numbers to find complement in O(1) time.");
       expect(html).toContain("Fast linear execution in a single pass.");
 
       // Solution details
-      expect(html).toContain("Candidate Solution");
+      expect(html).toContain("Suggested Method");
       expect(html).toContain("One-Pass Complement Search");
       expect(html).toContain("1. Create Map");
 
       // Code details
-      expect(html).toContain("Candidate Canonical Code");
-      expect(html).toContain("Generated knowledge draft — not saved");
+      expect(html).toContain("Optimized Implementation");
+      expect(html).toContain("AI-suggested optimized code — not saved");
       expect(html).toContain("function twoSum(nums: number[], target: number)");
+    });
+
+    it("renders dual vault options (user submission vs AI suggestion) when submissionCode is present", () => {
+      const html = renderToStaticMarkup(
+        <KnowledgeDraftSection
+          draft={mockDraft}
+          review={mockReview}
+          status="DRAFT_READY"
+          onAccept={async () => {}}
+          onReject={async () => {}}
+          isPromoting={false}
+          submissionCode="function myAttempt() { return [0, 1]; }"
+          submissionLanguage="typescript"
+          submissionStatus="ACCEPTED"
+          runtimeMs={45}
+        />,
+      );
+
+      // Vault option selector tabs
+      expect(html).toContain("Choose Vault Knowledge Model");
+      expect(html).toContain("Option 1: My Attempt &amp; AI Analytics");
+      expect(html).toContain("Option 2: AI Suggested Solution");
+      expect(html).toContain("Save My Attempt to Vault");
+      expect(html).toContain("My Accepted Implementation");
+      expect(html).toContain("function myAttempt() { return [0, 1]; }");
     });
 
     it("renders saved banner and hides actions when status is ACCEPTED", () => {

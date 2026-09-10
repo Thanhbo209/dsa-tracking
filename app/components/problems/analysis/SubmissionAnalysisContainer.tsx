@@ -17,6 +17,7 @@ interface SubmissionAnalysisContainerProps {
   submissionCode?: string | null;
   submissionLanguage?: string | null;
   submissionStatus?: string | null;
+  runtimeMs?: number | null;
   initialAnalyses?: SerializedSubmissionAnalysis[];
 }
 
@@ -36,6 +37,7 @@ export function SubmissionAnalysisContainer({
   submissionCode,
   submissionLanguage,
   submissionStatus,
+  runtimeMs,
   initialAnalyses = [],
 }: SubmissionAnalysisContainerProps) {
   const router = useRouter();
@@ -297,6 +299,7 @@ export function SubmissionAnalysisContainer({
                 <div className="pt-8 sm:pt-10 border-t border-[#444444]">
                   <KnowledgeDraftSection
                     draft={activeAnalysis.draft}
+                    review={activeAnalysis.review}
                     status={activeAnalysis.status}
                     onAccept={handleAccept}
                     onReject={handleReject}
@@ -304,6 +307,7 @@ export function SubmissionAnalysisContainer({
                     submissionCode={submissionCode}
                     submissionLanguage={submissionLanguage}
                     submissionStatus={submissionStatus}
+                    runtimeMs={runtimeMs}
                   />
                 </div>
               )}
