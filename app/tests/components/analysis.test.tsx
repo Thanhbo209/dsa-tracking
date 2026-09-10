@@ -177,7 +177,7 @@ describe("Submission Analysis UI Components", () => {
       expect(html).toContain("AI-generated draft — not saved to your knowledge base");
 
       // Action buttons
-      expect(html).toContain("Accept Draft");
+      expect(html).toContain("Save to Vault");
       expect(html).toContain("Edit Draft");
       expect(html).toContain("Reject Draft");
 
@@ -223,7 +223,7 @@ describe("Submission Analysis UI Components", () => {
       expect(html).toContain("function myAttempt() { return [0, 1]; }");
     });
 
-    it("renders saved banner and hides actions when status is ACCEPTED", () => {
+    it("renders active knowledge vault banner and keeps actions available when status is ACCEPTED", () => {
       const html = renderToStaticMarkup(
         <KnowledgeDraftSection
           draft={mockDraft}
@@ -234,10 +234,10 @@ describe("Submission Analysis UI Components", () => {
         />,
       );
 
-      expect(html).toContain("Saved to Knowledge — Approach, Solution, and Code have been added");
-      expect(html).not.toContain("Accept Draft");
+      expect(html).toContain("Knowledge Vault Active");
+      expect(html).toContain("Save to Vault");
+      expect(html).toContain("Edit Draft");
       expect(html).not.toContain("Reject Draft");
-      expect(html).not.toContain("Edit Draft");
     });
 
     it("renders rejected banner and hides actions when status is REJECTED", () => {

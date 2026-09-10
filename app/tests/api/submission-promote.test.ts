@@ -64,9 +64,9 @@ describe("/api/submissions/[id]/analyze/[analysisId] Accept and Reject Routes", 
       expect(promoteDraftToKnowledgeMock).toHaveBeenCalledWith("sub-1", "a-1", customDraft);
     });
 
-    it("returns 400 when analysis is not in DRAFT_READY status", async () => {
+    it("returns 400 when analysis cannot be accepted", async () => {
       promoteDraftToKnowledgeMock.mockRejectedValue(
-        new Error("Cannot accept analysis with status ACCEPTED"),
+        new Error("Cannot accept analysis with status REJECTED"),
       );
 
       const request = new Request("http://localhost/api/submissions/sub-1/analyze/a-1/accept", {
@@ -79,7 +79,7 @@ describe("/api/submissions/[id]/analyze/[analysisId] Accept and Reject Routes", 
 
       expect(response.status).toBe(400);
       const json = await response.json();
-      expect(json.error).toContain("Cannot accept analysis with status ACCEPTED");
+      expect(json.error).toContain("Cannot accept analysis with status REJECTED");
     });
 
     it("returns 404 when analysis is not found", async () => {

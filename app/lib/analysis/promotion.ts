@@ -95,9 +95,9 @@ export async function promoteDraftToKnowledge(
       throw new Error("Analysis does not belong to this submission");
     }
 
-    if (analysis.status !== "DRAFT_READY") {
+    if (analysis.status !== "DRAFT_READY" && analysis.status !== "ACCEPTED") {
       throw new Error(
-        `Cannot accept analysis with status ${analysis.status}. Only DRAFT_READY analyses can be accepted.`,
+        `Cannot accept analysis with status ${analysis.status}. Only DRAFT_READY or ACCEPTED analyses can be promoted to knowledge.`,
       );
     }
 
@@ -111,13 +111,11 @@ export async function promoteDraftToKnowledge(
       ? validatedEditedDraft
       : aiDraftSchema.parse(rawDraft);
 
-    // 3. Concurrency-safe atomic transition from DRAFT_READY -> ACCEPTED
-    // If another concurrent request already changed status to ACCEPTED/REJECTED,
-    // updateMany returns count === 0 and aborts immediately before creating records.
+    // 3. Concurrency-safe atomic transition from DRAFT_READY / ACCEPTED -> ACCEPTED
     const updateResult = await tx.submissionAnalysis.updateMany({
       where: {
         id: analysisId,
-        status: "DRAFT_READY",
+        status: { in: ["DRAFT_READY", "ACCEPTED"] },
       },
       data: {
         status: "ACCEPTED",
@@ -127,7 +125,7 @@ export async function promoteDraftToKnowledge(
 
     if (updateResult.count === 0) {
       throw new Error(
-        "Cannot accept analysis: analysis is no longer in DRAFT_READY status",
+        "Cannot accept analysis: analysis is no longer in DRAFT_READY or ACCEPTED status",
       );
     }
 

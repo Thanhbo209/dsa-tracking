@@ -233,8 +233,7 @@ export function KnowledgeDraftSection({
         <div className="flex items-center gap-2 rounded-lg border border-green-500/40 bg-green-500/20 px-3.5 py-2.5 text-xs text-white">
           <CheckCircle2 className="size-4 shrink-0 text-green-400" />
           <span className="font-semibold">
-            Saved to Knowledge — Approach, Solution, and Code have been added
-            to Your Knowledge.
+            Knowledge Vault Active — You can save your attempt analytics or the AI suggested solution anytime into your knowledge base.
           </span>
         </div>
       ) : status === "REJECTED" ? (
@@ -323,8 +322,8 @@ export function KnowledgeDraftSection({
               </p>
             </div>
 
-            {/* Action Bar (only when DRAFT_READY) */}
-            {status === "DRAFT_READY" && !confirmMode && (
+            {/* Action Bar (available anytime unless REJECTED) */}
+            {status !== "REJECTED" && !confirmMode && (
               <div className="flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
@@ -338,17 +337,19 @@ export function KnowledgeDraftSection({
                   <span>Edit Draft</span>
                 </Button>
 
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setConfirmMode("reject")}
-                  disabled={isPromoting}
-                  className="gap-1.5 border-red-500/40 bg-[#2a2a2a] text-white hover:bg-red-500/20"
-                >
-                  <X className="size-3.5 text-red-400" />
-                  <span>Reject Draft</span>
-                </Button>
+                {status === "DRAFT_READY" && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setConfirmMode("reject")}
+                    disabled={isPromoting}
+                    className="gap-1.5 border-red-500/40 bg-[#2a2a2a] text-white hover:bg-red-500/20"
+                  >
+                    <X className="size-3.5 text-red-400" />
+                    <span>Reject Draft</span>
+                  </Button>
+                )}
 
                 <Button
                   type="button"
@@ -363,7 +364,7 @@ export function KnowledgeDraftSection({
                       ? selectedVaultOption === "user"
                         ? "Save My Attempt to Vault"
                         : "Save AI Solution to Vault"
-                      : "Accept Draft"}
+                      : "Save to Vault"}
                   </span>
                 </Button>
               </div>
