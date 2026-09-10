@@ -1,4 +1,5 @@
 import type { KnowledgeApproach } from "./types";
+import { ApproachDialog } from "@/components/problems/dialogs/ApproachDialog";
 import {
   Lightbulb,
   Clock,
@@ -30,28 +31,33 @@ export function ApproachOverview({ approach }: ApproachOverviewProps) {
           </h3>
         </div>
 
-        {(approach.timeComplexity || approach.spaceComplexity) && (
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            {approach.timeComplexity && (
-              <div className="flex items-center gap-1.5 rounded-md border bg-muted/40 px-2.5 py-1">
-                <Clock className="size-3.5 text-primary" />
-                <span className="text-muted-foreground">Time:</span>
-                <span className="font-mono font-semibold text-foreground">
-                  {approach.timeComplexity}
-                </span>
-              </div>
-            )}
-            {approach.spaceComplexity && (
-              <div className="flex items-center gap-1.5 rounded-md border bg-muted/40 px-2.5 py-1">
-                <HardDrive className="size-3.5 text-primary" />
-                <span className="text-muted-foreground">Space:</span>
-                <span className="font-mono font-semibold text-foreground">
-                  {approach.spaceComplexity}
-                </span>
-              </div>
-            )}
-          </div>
-        )}
+        <div className="flex flex-wrap items-center gap-2 text-xs">
+          {(approach.timeComplexity || approach.spaceComplexity) && (
+            <>
+              {approach.timeComplexity && (
+                <div className="flex items-center gap-1.5 rounded-md border bg-muted/40 px-2.5 py-1">
+                  <Clock className="size-3.5 text-primary" />
+                  <span className="text-muted-foreground">Time:</span>
+                  <span className="font-mono font-semibold text-foreground">
+                    {approach.timeComplexity}
+                  </span>
+                </div>
+              )}
+              {approach.spaceComplexity && (
+                <div className="flex items-center gap-1.5 rounded-md border bg-muted/40 px-2.5 py-1">
+                  <HardDrive className="size-3.5 text-primary" />
+                  <span className="text-muted-foreground">Space:</span>
+                  <span className="font-mono font-semibold text-foreground">
+                    {approach.spaceComplexity}
+                  </span>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Edit Approach Dialog Trigger */}
+          <ApproachDialog mode="edit" approach={approach} />
+        </div>
       </div>
 
       {/* ── Core Idea (Visually Prominent) ────────────────────── */}

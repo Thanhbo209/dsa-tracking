@@ -5,7 +5,7 @@ import type { KnowledgeApproach } from "./types";
 import { ApproachSelector } from "./ApproachSelector";
 import { ApproachOverview } from "./ApproachOverview";
 import { SolutionTechniqueView } from "./SolutionTechniqueView";
-import { ApproachForm } from "@/components/problems/ApproachForm";
+import { ApproachDialog } from "@/components/problems/dialogs/ApproachDialog";
 import { BookOpen } from "lucide-react";
 
 interface KnowledgeWorkspaceProps {
@@ -39,7 +39,7 @@ export function KnowledgeWorkspace({
           review a submission to generate a candidate draft.
         </p>
         <div className="mt-5">
-          <ApproachForm problemId={problemId} />
+          <ApproachDialog mode="create" problemId={problemId} />
         </div>
       </div>
     );

@@ -3,7 +3,7 @@
 import { useState } from "react";
 import type { KnowledgeApproach } from "./types";
 import { KnowledgeCodeBlock } from "./KnowledgeCodeBlock";
-import { SolutionForm } from "@/components/problems/SolutionForm";
+import { SolutionDialog } from "@/components/problems/dialogs/SolutionDialog";
 import { ListOrdered, Layers, FileText } from "lucide-react";
 
 interface SolutionTechniqueViewProps {
@@ -31,7 +31,7 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
           recorded yet. Add a technique to document how this strategy executes.
         </p>
         <div className="mt-4">
-          <SolutionForm approachId={approach.id} />
+          <SolutionDialog mode="create" approach={approach} />
         </div>
       </div>
     );
@@ -80,8 +80,15 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
           )}
         </div>
 
-        <div className="shrink-0">
-          <SolutionForm approachId={approach.id} />
+        <div className="flex items-center gap-2 shrink-0">
+          {activeSolution && (
+            <SolutionDialog
+              mode="edit"
+              approach={approach}
+              solution={activeSolution}
+            />
+          )}
+          <SolutionDialog mode="create" approach={approach} />
         </div>
       </div>
 

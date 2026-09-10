@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { KnowledgeSolution } from "./types";
-import { CodeForm } from "@/components/problems/CodeForm";
+import { CodeDialog } from "@/components/problems/dialogs/CodeDialog";
 import { Copy, Check, Code2, FileCode } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -44,7 +44,7 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
           Add canonical code for this technique to complete your knowledge.
         </p>
         <div className="mt-3">
-          <CodeForm solutionId={solution.id} />
+          <CodeDialog mode="create" solution={solution} />
         </div>
       </div>
     );
@@ -116,8 +116,17 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
             )}
           </Button>
 
+          {/* Edit Code Action */}
+          {activeCode && (
+            <CodeDialog
+              mode="edit"
+              solution={solution}
+              codeRecord={activeCode}
+            />
+          )}
+
           {/* Add Code action */}
-          <CodeForm solutionId={solution.id} />
+          <CodeDialog mode="create" solution={solution} />
         </div>
       </div>
 

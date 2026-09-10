@@ -1,7 +1,7 @@
 "use client";
 
 import type { KnowledgeApproach } from "./types";
-import { ApproachForm } from "@/components/problems/ApproachForm";
+import { ApproachDialog } from "@/components/problems/dialogs/ApproachDialog";
 
 interface ApproachSelectorProps {
   problemId: string;
@@ -62,7 +62,7 @@ export function ApproachSelector({
 
       {/* Add Approach Action */}
       <div className="shrink-0">
-        <ApproachForm problemId={problemId} />
+        <ApproachDialog mode="create" problemId={problemId} />
       </div>
     </div>
   );
