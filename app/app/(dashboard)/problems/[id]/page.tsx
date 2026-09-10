@@ -55,6 +55,17 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
     notFound();
   }
 
+  const availableCodes = problem.approaches.flatMap((approach) =>
+    approach.solutions.flatMap((solution) =>
+      solution.codes.map((code) => ({
+        id: code.id,
+        language: code.language,
+        solutionName: solution.name,
+        approachName: approach.name,
+      })),
+    ),
+  );
+
   return (
     <main className="mx-auto max-w-5xl p-6">
       <div className="mb-8">
@@ -300,6 +311,9 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
               memoryBytes={submission.memoryBytes}
               submittedAt={submission.submittedAt}
               code={submission.code}
+              submissionId={submission.id}
+              linkedCodeId={submission.codeId}
+              availableCodes={availableCodes}
             />
           ))}
         </div>
