@@ -12,8 +12,6 @@ datasource db {
   provider = "postgresql"
 }
 
-
-
 model Problem {
   id          String      @id @default(cuid())
   leetcodeId  Int?        @unique
@@ -24,6 +22,7 @@ model Problem {
   description String?
   topics ProblemTopic[]
   submissions Submission[]
+  approaches Approach[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -55,6 +54,7 @@ model Submission {
 model Topic {
   id       String        @id @default(cuid())
   name     String        @unique
+  slug     String        @unique
   problems ProblemTopic[]
 
   createdAt DateTime @default(now())
@@ -90,4 +90,44 @@ enum SubmissionStatus {
   RUNTIME_ERROR
   COMPILE_ERROR
   UNKNOWN
+}
+
+model Approach {
+  id        String  @id @default(cuid())
+  problemId String
+  problem   Problem @relation(fields: [problemId], references: [id], onDelete: Cascade)
+
+  name            String
+  coreIdea        String?
+  algorithm       String?
+  whyItWorks     String?
+  whenToUse      String?
+  timeComplexity  String?
+  spaceComplexity String?
+
+  pros            String?
+  cons            String?
+  notes           String?
+  mistakes        String?
+  solutions Solution[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([problemId])
+}
+
+model Solution {
+  id         String   @id @default(cuid())
+  approachId String
+  approach   Approach @relation(fields: [approachId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  algorithm   String?
+  notes       String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([approachId])
 }
