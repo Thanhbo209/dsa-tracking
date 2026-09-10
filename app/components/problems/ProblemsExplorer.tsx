@@ -481,7 +481,7 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
         )}
       </div>
 
-      {/* ── Problems List / Table ──────────────────────────────────── */}
+      {/* ── Problems Grid (Cards) ─────────────────────────────────── */}
       {filteredProblems.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[#4a4a4a] bg-[#262626] p-12 text-center space-y-3">
           <Sparkles className="mx-auto size-8 text-zinc-500" />
@@ -503,128 +503,119 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
           </Button>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-[#383838] bg-[#262626] shadow-xs">
-          {/* Desktop Table Header */}
-          <div className="hidden sm:grid sm:grid-cols-12 items-center gap-4 border-b border-[#383838] bg-[#202020] px-5 py-3 text-xs font-semibold uppercase tracking-wider text-zinc-400">
-            <span className="col-span-1">Status</span>
-            <span className="col-span-5">Problem</span>
-            <span className="col-span-2">Difficulty</span>
-            <span className="col-span-3">Topics</span>
-            <span className="col-span-1 text-right">Knowledge</span>
-          </div>
-
-          {/* Rows */}
-          <div className="divide-y divide-[#333333]">
-            {filteredProblems.map((problem) => {
-              return (
-                <Link
-                  key={problem.id}
-                  href={`/problems/${problem.slug}`}
-                  className="group block p-4 sm:px-5 sm:py-3.5 transition-colors hover:bg-white/[0.04]"
-                >
-                  <div className="sm:grid sm:grid-cols-12 sm:items-center sm:gap-4 flex flex-col gap-2.5">
-                    {/* Status Column */}
-                    <div className="sm:col-span-1 flex items-center gap-1.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {filteredProblems.map((problem) => {
+            return (
+              <Link
+                key={problem.id}
+                href={`/problems/${problem.slug}`}
+                className="group relative flex flex-col justify-between rounded-xl border border-[#383838] bg-[#262626] p-5 shadow-xs transition-all hover:border-[#525252] hover:bg-[#2b2b2b] hover:shadow-md"
+              >
+                <div>
+                  {/* Card Header: Status & Difficulty Badges */}
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <div className="flex items-center gap-1.5">
                       {problem.status === "SOLVED" ? (
                         <span
-                          className="flex items-center gap-1.5 text-xs font-semibold text-emerald-400"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-400"
                           title="Solved on LeetCode"
                         >
-                          <CheckCircle2 className="size-4 shrink-0 text-emerald-400" />
-                          <span className="sm:hidden">Solved</span>
+                          <CheckCircle2 className="size-3.5 text-emerald-400" />
+                          <span>Solved</span>
                         </span>
                       ) : problem.status === "ATTEMPTED" ? (
                         <span
-                          className="flex items-center gap-1.5 text-xs font-semibold text-amber-400"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-400"
                           title="Attempted"
                         >
-                          <Clock className="size-4 shrink-0 text-amber-400" />
-                          <span className="sm:hidden">Attempted</span>
+                          <Clock className="size-3.5 text-amber-400" />
+                          <span>Attempted</span>
                         </span>
                       ) : (
                         <span
-                          className="flex items-center gap-1.5 text-xs text-zinc-500"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-zinc-700/60 bg-zinc-800 px-2.5 py-0.5 text-xs font-medium text-zinc-400"
                           title="Todo"
                         >
-                          <Circle className="size-3.5 shrink-0 text-zinc-600" />
-                          <span className="sm:hidden">Todo</span>
+                          <Circle className="size-2.5 text-zinc-500" />
+                          <span>Todo</span>
                         </span>
                       )}
                     </div>
 
-                    {/* Problem Number & Title Column */}
-                    <div className="sm:col-span-5 min-w-0">
-                      <div className="flex items-center gap-2">
-                        {problem.leetcodeId !== null && (
-                          <span className="font-mono text-xs text-zinc-400 shrink-0">
-                            #{problem.leetcodeId}
-                          </span>
-                        )}
-                        <h2 className="font-semibold text-white group-hover:text-primary transition-colors truncate text-sm sm:text-base">
-                          {problem.title}
-                        </h2>
-                      </div>
-                    </div>
+                    {problem.difficulty ? (
+                      <span
+                        className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${difficultyClass(
+                          problem.difficulty,
+                        )}`}
+                      >
+                        {problem.difficulty}
+                      </span>
+                    ) : null}
+                  </div>
 
-                    {/* Difficulty Column */}
-                    <div className="sm:col-span-2 flex items-center">
-                      {problem.difficulty ? (
+                  {/* LeetCode Number & Title */}
+                  <div className="space-y-1.5">
+                    {problem.leetcodeId !== null && (
+                      <span className="font-mono text-xs font-medium text-zinc-400">
+                        #{problem.leetcodeId}
+                      </span>
+                    )}
+                    <h2 className="text-base font-bold text-white group-hover:text-primary transition-colors line-clamp-2">
+                      {problem.title}
+                    </h2>
+                  </div>
+
+                  {/* Topics Chips */}
+                  {problem.topics.length > 0 && (
+                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                      {problem.topics.slice(0, 3).map((topicName) => (
                         <span
-                          className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${difficultyClass(
-                            problem.difficulty,
-                          )}`}
+                          key={topicName}
+                          className="rounded bg-[#1a1a1a] border border-[#444444] px-2 py-0.5 text-[11px] text-zinc-300"
                         >
-                          {problem.difficulty}
+                          {topicName}
                         </span>
-                      ) : (
-                        <span className="text-xs text-zinc-500">—</span>
-                      )}
-                    </div>
-
-                    {/* Topics Column */}
-                    <div className="sm:col-span-3 flex flex-wrap items-center gap-1.5 min-w-0">
-                      {problem.topics.length > 0 ? (
-                        problem.topics.slice(0, 3).map((topicName) => (
-                          <span
-                            key={topicName}
-                            className="rounded bg-[#1a1a1a] border border-[#444444] px-2 py-0.5 text-[11px] text-zinc-300 truncate"
-                          >
-                            {topicName}
-                          </span>
-                        ))
-                      ) : (
-                        <span className="text-xs text-zinc-500">—</span>
-                      )}
+                      ))}
                       {problem.topics.length > 3 && (
-                        <span className="text-[11px] text-zinc-500">
+                        <span className="text-[11px] text-zinc-500 font-medium">
                           +{problem.topics.length - 3}
                         </span>
                       )}
                     </div>
+                  )}
+                </div>
 
-                    {/* Knowledge Column */}
-                    <div className="sm:col-span-1 flex items-center justify-between sm:justify-end gap-2 text-right">
-                      {problem.approachCount > 0 ? (
-                        <span
-                          className="flex items-center gap-1 text-xs font-medium text-amber-300 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded"
-                          title={`${problem.approachCount} approach${problem.approachCount > 1 ? "es" : ""} saved in Knowledge Vault`}
-                        >
-                          <BookOpen className="size-3" />
-                          <span>{problem.approachCount}</span>
+                {/* Card Footer: Knowledge Vault & Open Action */}
+                <div className="mt-5 flex items-center justify-between border-t border-[#383838] pt-3 text-xs">
+                  <div>
+                    {problem.approachCount > 0 ? (
+                      <span
+                        className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-300"
+                        title={`${problem.approachCount} approach${problem.approachCount > 1 ? "es" : ""} saved in Knowledge Vault`}
+                      >
+                        <BookOpen className="size-3.5" />
+                        <span>
+                          {problem.approachCount}{" "}
+                          {problem.approachCount === 1
+                            ? "approach"
+                            : "approaches"}
                         </span>
-                      ) : (
-                        <span className="hidden sm:inline text-xs text-zinc-600">
-                          —
-                        </span>
-                      )}
-
-                      <ChevronRight className="size-4 text-zinc-500 group-hover:text-white transition-transform group-hover:translate-x-0.5 shrink-0" />
-                    </div>
+                      </span>
+                    ) : (
+                      <span className="text-[11px] text-zinc-500">
+                        No vault notes yet
+                      </span>
+                    )}
                   </div>
-                </Link>
-              );
-            })}
-          </div>
+
+                  <div className="flex items-center gap-1 font-medium text-zinc-400 group-hover:text-white transition-colors">
+                    <span>Practice</span>
+                    <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5 text-zinc-400 group-hover:text-white" />
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>
