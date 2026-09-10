@@ -28,6 +28,13 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
         orderBy: {
           submittedAt: "desc",
         },
+        include: {
+          analyses: {
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
       },
       approaches: {
         orderBy: {
@@ -311,12 +318,24 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
             {problem.submissions.map((submission) => (
               <SubmissionCard
                 key={submission.id}
+                id={submission.id}
                 status={submission.status}
                 language={submission.language}
                 runtimeMs={submission.runtimeMs}
                 memoryBytes={submission.memoryBytes}
                 submittedAt={submission.submittedAt}
                 code={submission.code}
+                analyses={submission.analyses.map((a) => ({
+                  id: a.id,
+                  submissionId: a.submissionId,
+                  status: a.status,
+                  modelName: a.modelName,
+                  review: a.review as any,
+                  draft: a.draft as any,
+                  errorMessage: a.errorMessage,
+                  createdAt: a.createdAt.toISOString(),
+                  updatedAt: a.updatedAt.toISOString(),
+                }))}
               />
             ))}
           </div>
