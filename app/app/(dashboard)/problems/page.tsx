@@ -1,48 +1,68 @@
-import Link from "next/link";
-
 import { prisma } from "@/lib/db/prisma";
+import {
+  ProblemsExplorer,
+  type ProblemExplorerItem,
+  type ProblemStatus,
+} from "@/components/problems/ProblemsExplorer";
 
 export default async function ProblemsPage() {
-  const problems = await prisma.problem.findMany({
+  const rawProblems = await prisma.problem.findMany({
     orderBy: {
-      updatedAt: "desc",
+      leetcodeId: "asc",
+    },
+    include: {
+      topics: {
+        include: {
+          topic: true,
+        },
+      },
+      submissions: {
+        select: {
+          status: true,
+        },
+      },
+      approaches: {
+        select: {
+          id: true,
+        },
+      },
     },
   });
 
+  const problems: ProblemExplorerItem[] = rawProblems.map((p) => {
+    const isSolved = p.submissions.some((s) => s.status === "ACCEPTED");
+    const isAttempted = !isSolved && p.submissions.length > 0;
+    const status: ProblemStatus = isSolved
+      ? "SOLVED"
+      : isAttempted
+        ? "ATTEMPTED"
+        : "TODO";
+
+    return {
+      id: p.id,
+      slug: p.slug,
+      leetcodeId: p.leetcodeId,
+      title: p.title,
+      difficulty: p.difficulty,
+      topics: p.topics.map((t) => t.topic.name),
+      status,
+      approachCount: p.approaches.length,
+      updatedAt: p.updatedAt.toISOString(),
+    };
+  });
+
   return (
-    <main className="mx-auto max-w-5xl p-6">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Problems</h1>
-        <p className="mt-2 text-muted-foreground">
-          {problems.length} problems tracked
+    <main className="w-full px-4 py-8 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+      <div className="mb-6 space-y-1">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+          Problems
+        </h1>
+        <p className="text-sm text-zinc-400">
+          Practice library, historical attempts, and permanent algorithmic knowledge.
         </p>
       </div>
 
-      <div className="space-y-3">
-        {problems.map((problem) => (
-          <Link
-            key={problem.id}
-            href={`/problems/${problem.slug}`}
-            className="block rounded-lg border p-4 transition-colors hover:bg-muted"
-          >
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <p className="text-sm text-muted-foreground">
-                  LeetCode #{problem.leetcodeId}
-                </p>
-
-                <h2 className="mt-1 font-semibold">{problem.title}</h2>
-              </div>
-
-              {problem.difficulty && (
-                <span className="rounded-full border px-3 py-1 text-sm">
-                  {problem.difficulty}
-                </span>
-              )}
-            </div>
-          </Link>
-        ))}
-      </div>
+      <ProblemsExplorer problems={problems} />
     </main>
   );
 }
