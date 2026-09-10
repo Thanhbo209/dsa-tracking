@@ -87,12 +87,23 @@ export function ProblemDetailPanel({
       </div>
 
       <div className="border-t border-[#383838] pt-4">
-        <h2 className="text-sm sm:text-base font-semibold uppercase tracking-wider text-white mb-3">
+        <h2 className="text-sm sm:text-base font-semibold uppercase tracking-wider text-white mb-4">
           Problem Description
         </h2>
 
         <div
-          className="prose dark:prose-invert max-w-none text-sm sm:text-base leading-relaxed break-words text-white [&_*]:text-white [&_pre]:bg-[#373737] [&_pre]:p-3 [&_pre]:rounded-md [&_pre]:border [&_pre]:border-[#4a4a4a] [&_code]:text-white [&_code]:font-mono"
+          className="max-w-none text-sm sm:text-base leading-relaxed break-words text-white space-y-4
+            [&_p]:my-4.5 [&_p]:leading-relaxed [&_p]:text-zinc-200
+            [&_p:has(strong)]:mt-7 [&_p:has(strong)]:mb-3
+            [&_p:has(.example)]:mt-7 [&_p:has(.example)]:mb-3
+            [&_strong]:font-bold [&_strong]:text-white
+            [&_pre]:mt-3 [&_pre]:mb-8 [&_pre]:p-4.5 sm:[&_pre]:p-5 [&_pre]:rounded-xl [&_pre]:border [&_pre]:border-[#4a4a4a] [&_pre]:bg-[#333333] [&_pre]:font-mono [&_pre]:text-xs sm:[&_pre]:text-sm [&_pre]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:shadow-xs
+            [&_code]:rounded-md [&_code]:bg-[#373737] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs sm:[&_code]:text-[13px] [&_code]:border [&_code]:border-[#4a4a4a] [&_code]:text-zinc-200
+            [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:border-0 [&_pre_code]:text-zinc-100 [&_pre_code]:text-xs sm:[&_pre_code]:text-sm
+            [&_ul]:my-4 [&_ul]:pl-5 [&_ul]:list-disc [&_ul]:space-y-2
+            [&_ol]:my-4 [&_ol]:pl-5 [&_ol]:list-decimal [&_ol]:space-y-2
+            [&_li]:text-zinc-200 [&_li]:leading-relaxed
+            [&_img]:my-4 [&_img]:rounded-lg [&_img]:border [&_img]:border-[#4a4a4a]"
           dangerouslySetInnerHTML={{
             __html: description ?? "<p>No description available.</p>",
           }}
