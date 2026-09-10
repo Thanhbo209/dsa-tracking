@@ -55,17 +55,6 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
     notFound();
   }
 
-  const availableCodes = problem.approaches.flatMap((approach) =>
-    approach.solutions.flatMap((solution) =>
-      solution.codes.map((code) => ({
-        id: code.id,
-        language: code.language,
-        solutionName: solution.name,
-        approachName: approach.name,
-      })),
-    ),
-  );
-
   return (
     <main className="mx-auto max-w-5xl p-6">
       {/* ── Problem Header ──────────────────────────────────────── */}
@@ -307,8 +296,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             Historical attempts imported from LeetCode. Expand a submission to
-            see its original code. Link it to a knowledge entry to track which
-            approach you used.
+            see its original code.
           </p>
         </div>
 
@@ -329,9 +317,6 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
                 memoryBytes={submission.memoryBytes}
                 submittedAt={submission.submittedAt}
                 code={submission.code}
-                submissionId={submission.id}
-                linkedCodeId={submission.codeId}
-                availableCodes={availableCodes}
               />
             ))}
           </div>
