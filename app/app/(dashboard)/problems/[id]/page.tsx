@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { SubmissionCard } from "@/components/problems/SubmissionCard";
 import { ApproachForm } from "@/components/problems/ApproachForm";
 import { prisma } from "@/lib/db/prisma";
+import { SolutionForm } from "@/components/problems/SolutionForm";
 interface ProblemPageProps {
   params: Promise<{
     id: string;
@@ -29,6 +30,13 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
       approaches: {
         orderBy: {
           createdAt: "asc",
+        },
+        include: {
+          solutions: {
+            orderBy: {
+              createdAt: "asc",
+            },
+          },
         },
       },
     },
@@ -154,6 +162,60 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
                     </p>
                   </div>
                 )}
+
+                <div className="mt-6 border-t pt-5">
+                  <div className="mb-3 flex items-center justify-between">
+                    <div>
+                      <h4 className="font-medium">Solutions</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Concrete techniques within this approach.
+                      </p>
+                    </div>
+
+                    <span className="text-sm text-muted-foreground">
+                      {approach.solutions.length} total
+                    </span>
+                  </div>
+
+                  {approach.solutions.length > 0 && (
+                    <div className="space-y-3">
+                      {approach.solutions.map((solution) => (
+                        <div
+                          key={solution.id}
+                          className="rounded-md border bg-muted/20 p-4"
+                        >
+                          <h5 className="font-medium">{solution.name}</h5>
+
+                          {solution.description && (
+                            <p className="mt-2 text-sm text-muted-foreground">
+                              {solution.description}
+                            </p>
+                          )}
+
+                          {solution.algorithm && (
+                            <div className="mt-3">
+                              <p className="text-sm font-medium">Algorithm</p>
+                              <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
+                                {solution.algorithm}
+                              </p>
+                            </div>
+                          )}
+
+                          {solution.notes && (
+                            <div className="mt-3">
+                              <p className="text-sm font-medium">Notes</p>
+                              <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
+                                {solution.notes}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <SolutionForm approachId={approach.id} />
+                </div>
               </article>
             ))}
           </div>
