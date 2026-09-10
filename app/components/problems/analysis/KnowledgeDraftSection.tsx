@@ -639,11 +639,20 @@ export function KnowledgeDraftSection({
               <div className="mt-6 border-t border-[#383838] pt-5 space-y-3.5">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-400">
-                      {selectedVaultOption === "user"
-                        ? "My Accepted Implementation"
-                        : "Optimized Implementation"}
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-400">
+                        {selectedVaultOption === "user"
+                          ? "My Accepted Implementation"
+                          : "Optimized Implementation"}
+                      </span>
+                      {submissionCode &&
+                        draft.code.code &&
+                        submissionCode.trim() === draft.code.code.trim() && (
+                          <span className="rounded bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[11px] font-medium text-amber-300">
+                            AI suggested code matches your submission
+                          </span>
+                        )}
+                    </div>
                     <p className="text-xs sm:text-sm text-zinc-300 mt-0.5">
                       {selectedVaultOption === "user"
                         ? "Your actual code submitted on LeetCode for this attempt"

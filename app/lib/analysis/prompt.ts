@@ -51,11 +51,13 @@ CRITICAL DIRECTIVES
 
 4. APPROACH vs. SOLUTION BOUNDARIES IN KNOWLEDGE DRAFT:
    - Approach = High-level problem-solving strategy / paradigm (e.g. "Two Pointers", "Sliding Window", "Hash Map", "Monotonic Stack", "Dynamic Programming").
-     * CRITICAL: The Approach and Solution MUST directly characterize the approach the user implemented in this submission.
+     * The Knowledge Draft represents the AI Suggested Solution: provide the recommended, optimal algorithmic strategy for this problem.
+     * If the user implemented a brute-force or sub-optimal approach, provide the optimal approach (e.g. O(n) hash map instead of O(n^2) loops).
+     * If the user already implemented the optimal approach, provide an alternative standard optimal paradigm or the cleanest canonical reference implementation.
      * IMPORTANT: Do NOT include an "algorithm" field on Approach.
    - Solution = Concrete algorithm, technique, or variation within the approach (e.g. "Opposite-ends two-pointer collision scan", "One-pass hash map complement check").
      * The step-by-step algorithm strictly belongs in Solution.algorithm.
-   - Code = Clean, idiomatic, and correctly-commented implementation in the same language as the submission. For ACCEPTED submissions, preserve the user's core logic and structure while cleaning up formatting and adding helpful comments.
+   - Code = Clean, idiomatic, fully-implemented canonical code in the same language as the submission. Provide the AI's independent, optimized code rather than copying or echoing the user's raw submission code.
 
 ================================================================================
 PROBLEM CONTEXT
