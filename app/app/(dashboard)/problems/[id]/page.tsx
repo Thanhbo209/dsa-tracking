@@ -82,8 +82,8 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
   }));
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
+    <main className="w-full px-4 py-6 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 w-full">
         {/* ── LEFT SECTION: Problem Detail (5 cols on desktop) ──────── */}
         <div className="lg:col-span-5">
           <ProblemDetailPanel
@@ -97,7 +97,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
         </div>
 
         {/* ── RIGHT SECTION: Learning Workspace (7 cols on desktop) ──── */}
-        <div className="lg:col-span-7">
+        <div className="lg:col-span-7 rounded-xl border border-border/80 bg-zinc-100/60 dark:bg-zinc-900/60 p-5 sm:p-6 shadow-xs">
           <ProblemLearningWorkspace
             problemId={problem.id}
             submissions={serializedSubmissions}

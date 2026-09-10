@@ -31,7 +31,7 @@ export function ProblemDetailPanel({
   description,
 }: ProblemDetailPanelProps) {
   return (
-    <aside className="space-y-6 lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto pr-1">
+    <aside className="space-y-6 rounded-xl border border-border/80 bg-zinc-100/60 dark:bg-zinc-900/60 p-5 sm:p-6 shadow-xs lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto">
       {/* ── Problem Header ─────────────────────────────────────────── */}
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-2">
