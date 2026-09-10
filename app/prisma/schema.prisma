@@ -47,6 +47,8 @@ model Submission {
   submittedAt DateTime?
   createdAt   DateTime @default(now())
 
+  analyses SubmissionAnalysis[]
+
   @@unique([source, externalId])
   @@index([problemId])
 }
@@ -99,7 +101,6 @@ model Approach {
 
   name            String
   coreIdea        String?
-  algorithm       String?
   whyItWorks     String?
   whenToUse      String?
   timeComplexity  String?
@@ -109,9 +110,68 @@ model Approach {
   cons            String?
   notes           String?
   mistakes        String?
-
+  solutions Solution[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([problemId])
 }
+
+model Solution {
+  id         String   @id @default(cuid())
+  approachId String
+  approach   Approach @relation(fields: [approachId], references: [id], onDelete: Cascade)
+
+  name        String
+  description String?
+  algorithm   String?
+  notes       String?
+
+  codes Code[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([approachId])
+}
+
+model Code {
+  id         String   @id @default(cuid())
+  solutionId String
+  solution   Solution @relation(fields: [solutionId], references: [id], onDelete: Cascade)
+
+  language String
+  code     String
+  notes    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([solutionId])
+}
+
+enum AnalysisStatus {
+  GENERATING
+  DRAFT_READY
+  ACCEPTED
+  REJECTED
+  FAILED
+}
+
+model SubmissionAnalysis {
+  id           String         @id @default(cuid())
+  submissionId String
+  submission   Submission     @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  status       AnalysisStatus @default(GENERATING)
+
+  modelName    String?
+  review       Json?
+  draft        Json?
+  errorMessage String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([submissionId])
+}

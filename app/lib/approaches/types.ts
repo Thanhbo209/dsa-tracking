@@ -2,7 +2,6 @@ export interface CreateApproachInput {
   problemId: string;
   name: string;
   coreIdea?: string;
-  algorithm?: string;
   whyItWorks?: string;
   whenToUse?: string;
   timeComplexity?: string;
@@ -16,7 +15,6 @@ export interface CreateApproachInput {
 export interface UpdateApproachInput {
   name?: string;
   coreIdea?: string;
-  algorithm?: string;
   whyItWorks?: string;
   whenToUse?: string;
   timeComplexity?: string;

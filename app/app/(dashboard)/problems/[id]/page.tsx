@@ -1,7 +1,8 @@
 import { notFound } from "next/navigation";
 import { SubmissionCard } from "@/components/problems/SubmissionCard";
-import { ApproachForm } from "@/components/problems/ApproachForm";
+import { KnowledgeWorkspace } from "@/components/problems/knowledge/KnowledgeWorkspace";
 import { prisma } from "@/lib/db/prisma";
+
 interface ProblemPageProps {
   params: Promise<{
     id: string;
@@ -25,10 +26,31 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
         orderBy: {
           submittedAt: "desc",
         },
+        include: {
+          analyses: {
+            orderBy: {
+              createdAt: "desc",
+            },
+          },
+        },
       },
       approaches: {
         orderBy: {
           createdAt: "asc",
+        },
+        include: {
+          solutions: {
+            orderBy: {
+              createdAt: "asc",
+            },
+            include: {
+              codes: {
+                orderBy: {
+                  createdAt: "asc",
+                },
+              },
+            },
+          },
         },
       },
     },
@@ -40,6 +62,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
 
   return (
     <main className="mx-auto max-w-5xl p-6">
+      {/* ── Problem Header ──────────────────────────────────────── */}
       <div className="mb-8">
         <p className="text-sm text-muted-foreground">
           LeetCode #{problem.leetcodeId}
@@ -67,6 +90,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
         </div>
       </div>
 
+      {/* ── Description ─────────────────────────────────────────── */}
       <section className="mb-10">
         <h2 className="mb-3 text-xl font-semibold">Description</h2>
 
@@ -78,110 +102,67 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
         />
       </section>
 
-      <section className="mb-10">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold">Approaches</h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Algorithmic strategies for solving this problem.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <span className="text-sm text-muted-foreground">
-              {problem.approaches.length} total
-            </span>
-
-            <ApproachForm problemId={problem.id} />
-          </div>
+      {/* ══ YOUR KNOWLEDGE ══════════════════════════════════════════ */}
+      <section className="mb-12">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold tracking-tight">Your Knowledge</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Approaches, solutions, and canonical code you have intentionally
+            organized and understood.
+          </p>
         </div>
 
-        {problem.approaches.length === 0 ? (
-          <div className="rounded-lg border border-dashed p-6 text-center">
+        <KnowledgeWorkspace
+          problemId={problem.id}
+          approaches={problem.approaches as any}
+        />
+      </section>
+
+      {/* ══ SUBMISSION HISTORY ══════════════════════════════════════ */}
+      <section>
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold tracking-tight">
+            Submission History
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Historical attempts imported from LeetCode. Expand a submission to
+            see its original code.
+          </p>
+        </div>
+
+        {problem.submissions.length === 0 ? (
+          <div className="rounded-lg border border-dashed p-8 text-center">
             <p className="text-sm text-muted-foreground">
-              No approaches recorded yet.
+              No submissions imported yet.
             </p>
           </div>
         ) : (
-          <div className="space-y-4">
-            {problem.approaches.map((approach) => (
-              <article key={approach.id} className="rounded-lg border p-5">
-                <div className="flex items-start justify-between gap-4">
-                  <h3 className="text-lg font-semibold">{approach.name}</h3>
-
-                  <div className="text-right text-sm text-muted-foreground">
-                    {approach.timeComplexity && (
-                      <p>Time: {approach.timeComplexity}</p>
-                    )}
-                    {approach.spaceComplexity && (
-                      <p>Space: {approach.spaceComplexity}</p>
-                    )}
-                  </div>
-                </div>
-
-                {approach.coreIdea && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium">Core idea</h4>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                      {approach.coreIdea}
-                    </p>
-                  </div>
-                )}
-
-                {approach.algorithm && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium">Algorithm</h4>
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
-                      {approach.algorithm}
-                    </p>
-                  </div>
-                )}
-
-                {approach.whyItWorks && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium">Why it works</h4>
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
-                      {approach.whyItWorks}
-                    </p>
-                  </div>
-                )}
-
-                {approach.whenToUse && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium">When to use</h4>
-                    <p className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">
-                      {approach.whenToUse}
-                    </p>
-                  </div>
-                )}
-              </article>
+          <div className="space-y-3">
+            {problem.submissions.map((submission) => (
+              <SubmissionCard
+                key={submission.id}
+                id={submission.id}
+                status={submission.status}
+                language={submission.language}
+                runtimeMs={submission.runtimeMs}
+                memoryBytes={submission.memoryBytes}
+                submittedAt={submission.submittedAt}
+                code={submission.code}
+                analyses={submission.analyses.map((a) => ({
+                  id: a.id,
+                  submissionId: a.submissionId,
+                  status: a.status,
+                  modelName: a.modelName,
+                  review: a.review as any,
+                  draft: a.draft as any,
+                  errorMessage: a.errorMessage,
+                  createdAt: a.createdAt.toISOString(),
+                  updatedAt: a.updatedAt.toISOString(),
+                }))}
+              />
             ))}
           </div>
         )}
-      </section>
-
-      <section>
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Submissions</h2>
-
-          <span className="text-sm text-muted-foreground">
-            {problem.submissions.length} total
-          </span>
-        </div>
-
-        <div className="space-y-3">
-          {problem.submissions.map((submission) => (
-            <SubmissionCard
-              key={submission.id}
-              status={submission.status}
-              language={submission.language}
-              runtimeMs={submission.runtimeMs}
-              memoryBytes={submission.memoryBytes}
-              submittedAt={submission.submittedAt}
-              code={submission.code}
-            />
-          ))}
-        </div>
       </section>
     </main>
   );
