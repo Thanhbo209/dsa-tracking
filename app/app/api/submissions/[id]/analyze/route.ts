@@ -3,6 +3,7 @@ import {
   analyzeSubmission,
   getSubmissionAnalyses,
 } from "@/lib/analysis/service";
+import { getCurrentUser } from "@/lib/auth/session";
 
 interface AnalyzeRouteProps {
   params: Promise<{
@@ -12,6 +13,11 @@ interface AnalyzeRouteProps {
 
 export async function POST(_request: Request, { params }: AnalyzeRouteProps) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
 
     if (!id || typeof id !== "string") {
@@ -21,13 +27,13 @@ export async function POST(_request: Request, { params }: AnalyzeRouteProps) {
       );
     }
 
-    const analysis = await analyzeSubmission(id);
+    const analysis = await analyzeSubmission(user.id, id);
     return NextResponse.json(analysis, { status: 201 });
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Failed to analyze submission";
 
-    if (message === "Submission not found") {
+    if (message.includes("not found") || message.includes("unauthorized")) {
       return NextResponse.json({ error: message }, { status: 404 });
     }
 
@@ -41,6 +47,11 @@ export async function POST(_request: Request, { params }: AnalyzeRouteProps) {
 
 export async function GET(_request: Request, { params }: AnalyzeRouteProps) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
 
     if (!id || typeof id !== "string") {
@@ -50,7 +61,7 @@ export async function GET(_request: Request, { params }: AnalyzeRouteProps) {
       );
     }
 
-    const analyses = await getSubmissionAnalyses(id);
+    const analyses = await getSubmissionAnalyses(user.id, id);
     return NextResponse.json(analyses);
   } catch (error) {
     console.error("Failed to fetch submission analyses:", error);
@@ -60,3 +71,4 @@ export async function GET(_request: Request, { params }: AnalyzeRouteProps) {
     );
   }
 }
+

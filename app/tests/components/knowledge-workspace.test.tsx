@@ -123,23 +123,23 @@ describe("KnowledgeWorkspace Components (Phase 5A)", () => {
       expect(html).toContain("O(n)");
 
       // Core idea prominently displayed
-      expect(html).toContain("Core Intuition");
+      expect(html).toContain("Core Idea");
       expect(html).toContain("Trade auxiliary space for constant time lookups of complements.");
 
       // Why it works & When to use
-      expect(html).toContain("Why It Works / Invariant");
+      expect(html).toContain("Why It Works");
       expect(html).toContain("For any element x, complement target - x is uniquely defined.");
-      expect(html).toContain("When To Use / Signals");
+      expect(html).toContain("When To Use");
       expect(html).toContain("When searching for pair sums in unsorted arrays.");
 
       // Pros & Cons
-      expect(html).toContain("Advantages &amp; Strengths");
+      expect(html).toContain("Pros &amp; Advantages");
       expect(html).toContain("Fast O(n) linear execution in a single pass.");
-      expect(html).toContain("Trade-offs &amp; Limitations");
+      expect(html).toContain("Cons &amp; Limitations");
       expect(html).toContain("Allocates O(n) memory proportional to the input array.");
 
       // Common pitfalls / mistakes
-      expect(html).toContain("Common Pitfalls to Avoid");
+      expect(html).toContain("Common Mistakes to Avoid");
       expect(html).toContain("Inserting elements before checking complement can cause self-matching bugs.");
 
       // Additional notes
@@ -164,11 +164,11 @@ describe("KnowledgeWorkspace Components (Phase 5A)", () => {
       expect(html).toContain("Simple intuition only.");
 
       // Should not render unpopulated sections
-      expect(html).not.toContain("Why It Works / Invariant");
-      expect(html).not.toContain("When To Use / Signals");
-      expect(html).not.toContain("Advantages & Strengths");
-      expect(html).not.toContain("Trade-offs & Limitations");
-      expect(html).not.toContain("Common Pitfalls to Avoid");
+      expect(html).not.toContain("Why It Works");
+      expect(html).not.toContain("When To Use");
+      expect(html).not.toContain("Pros &amp; Advantages");
+      expect(html).not.toContain("Cons &amp; Limitations");
+      expect(html).not.toContain("Common Mistakes to Avoid");
       expect(html).not.toContain("Additional Notes");
     });
   });
@@ -179,8 +179,8 @@ describe("KnowledgeWorkspace Components (Phase 5A)", () => {
         <SolutionTechniqueView approach={mockApproach2} />,
       );
 
-      expect(html).toContain("No Techniques Recorded Yet");
-      expect(html).toContain("does not have any concrete algorithmic variations recorded yet");
+      expect(html).toContain("No Methods Recorded Yet");
+      expect(html).toContain("does not have any concrete methods recorded yet");
       expect(html).toContain("+ Add Solution");
     });
 
@@ -189,10 +189,10 @@ describe("KnowledgeWorkspace Components (Phase 5A)", () => {
         <SolutionTechniqueView approach={mockApproach1} />,
       );
 
-      expect(html).toContain("Techniques &amp; Algorithms");
+      expect(html).toContain("Methods &amp; Algorithms");
       expect(html).toContain("One-Pass Complement Lookup");
       expect(html).toContain("Two-Pass Pre-populated Map");
-      expect(html).toContain("Algorithm Steps");
+      expect(html).toContain("Step-by-Step Guide");
       expect(html).toContain("1. Initialize empty map");
     });
 
@@ -208,7 +208,7 @@ describe("KnowledgeWorkspace Components (Phase 5A)", () => {
 
       // Header shows technique name directly
       expect(html).toContain("— One-Pass Complement Lookup");
-      expect(html).toContain("Algorithm Steps");
+      expect(html).toContain("Step-by-Step Guide");
     });
   });
 
@@ -226,7 +226,7 @@ describe("KnowledgeWorkspace Components (Phase 5A)", () => {
       );
 
       expect(html).toContain("No Implementation Recorded");
-      expect(html).toContain("Add canonical code for this technique");
+      expect(html).toContain("Add an optimized implementation for this method");
       expect(html).toContain("+ Add Code");
     });
 
@@ -235,7 +235,7 @@ describe("KnowledgeWorkspace Components (Phase 5A)", () => {
         <KnowledgeCodeBlock solution={mockApproach1.solutions[0]} />,
       );
 
-      expect(html).toContain("Canonical Implementation");
+      expect(html).toContain("Optimized Implementation");
       expect(html).toContain("Reusable Knowledge");
 
       // Language selector tabs

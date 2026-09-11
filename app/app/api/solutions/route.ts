@@ -2,8 +2,14 @@ import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 
 import { createSolution, getSolutions } from "@/lib/solutions/service";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export async function GET(request: Request) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const approachId = searchParams.get("approachId");
 
@@ -16,16 +22,21 @@ export async function GET(request: Request) {
     );
   }
 
-  const solutions = await getSolutions(approachId);
+  const solutions = await getSolutions(user.id, approachId);
 
   return NextResponse.json(solutions);
 }
 
 export async function POST(request: Request) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
 
-    const solution = await createSolution(body);
+    const solution = await createSolution(user.id, body);
 
     return NextResponse.json(solution, {
       status: 201,
@@ -41,6 +52,10 @@ export async function POST(request: Request) {
       );
     }
 
+    if (error instanceof Error && error.message.includes("unauthorized")) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+
     console.error("Solution creation failed:", error);
 
     return NextResponse.json(
@@ -51,3 +66,4 @@ export async function POST(request: Request) {
     );
   }
 }
+

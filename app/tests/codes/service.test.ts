@@ -1,18 +1,22 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockCode } = vi.hoisted(() => ({
+const { mockCode, mockSolution } = vi.hoisted(() => ({
   mockCode: {
     create: vi.fn(),
     findMany: vi.fn(),
-    findUnique: vi.fn(),
+    findFirst: vi.fn(),
     update: vi.fn(),
     delete: vi.fn(),
+  },
+  mockSolution: {
+    findFirst: vi.fn(),
   },
 }));
 
 vi.mock("@/lib/db/prisma", () => ({
   prisma: {
     code: mockCode,
+    solution: mockSolution,
   },
 }));
 
@@ -39,12 +43,22 @@ describe("code service", () => {
         notes: null,
       };
 
+      mockSolution.findFirst.mockResolvedValue({ id: "solution-1" });
       mockCode.create.mockResolvedValue(code);
 
-      const result = await createCode({
+      const result = await createCode("user-1", {
         solutionId: "solution-1",
         language: "Python",
         code: "print('hello')",
+      });
+
+      expect(mockSolution.findFirst).toHaveBeenCalledWith({
+        where: {
+          id: "solution-1",
+          approach: {
+            userId: "user-1",
+          },
+        },
       });
 
       expect(mockCode.create).toHaveBeenCalledWith({
@@ -60,7 +74,7 @@ describe("code service", () => {
 
     it("rejects invalid input before calling Prisma", async () => {
       await expect(
-        createCode({
+        createCode("user-1", {
           solutionId: "solution-1",
           language: "",
           code: "print('hello')",
@@ -88,9 +102,19 @@ describe("code service", () => {
         },
       ];
 
+      mockSolution.findFirst.mockResolvedValue({ id: "solution-1" });
       mockCode.findMany.mockResolvedValue(codes);
 
-      const result = await getCodes("solution-1");
+      const result = await getCodes("user-1", "solution-1");
+
+      expect(mockSolution.findFirst).toHaveBeenCalledWith({
+        where: {
+          id: "solution-1",
+          approach: {
+            userId: "user-1",
+          },
+        },
+      });
 
       expect(mockCode.findMany).toHaveBeenCalledWith({
         where: {
@@ -114,13 +138,18 @@ describe("code service", () => {
         code: "print('hello')",
       };
 
-      mockCode.findUnique.mockResolvedValue(code);
+      mockCode.findFirst.mockResolvedValue(code);
 
-      const result = await getCode("code-1");
+      const result = await getCode("user-1", "code-1");
 
-      expect(mockCode.findUnique).toHaveBeenCalledWith({
+      expect(mockCode.findFirst).toHaveBeenCalledWith({
         where: {
           id: "code-1",
+          solution: {
+            approach: {
+              userId: "user-1",
+            },
+          },
         },
       });
 
@@ -137,9 +166,10 @@ describe("code service", () => {
         code: "console.log('hello')",
       };
 
+      mockCode.findFirst.mockResolvedValue(code);
       mockCode.update.mockResolvedValue(code);
 
-      const result = await updateCode("code-1", {
+      const result = await updateCode("user-1", "code-1", {
         language: "TypeScript",
       });
 
@@ -157,7 +187,7 @@ describe("code service", () => {
 
     it("rejects invalid input before calling Prisma", async () => {
       await expect(
-        updateCode("code-1", {
+        updateCode("user-1", "code-1", {
           language: "   ",
         }),
       ).rejects.toThrow();
@@ -175,9 +205,10 @@ describe("code service", () => {
         code: "print('hello')",
       };
 
+      mockCode.findFirst.mockResolvedValue(code);
       mockCode.delete.mockResolvedValue(code);
 
-      const result = await deleteCode("code-1");
+      const result = await deleteCode("user-1", "code-1");
 
       expect(mockCode.delete).toHaveBeenCalledWith({
         where: {

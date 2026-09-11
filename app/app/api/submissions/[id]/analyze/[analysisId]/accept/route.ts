@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { promoteDraftToKnowledge } from "@/lib/analysis/promotion";
+import { getCurrentUser } from "@/lib/auth/session";
 
 interface AcceptRouteProps {
   params: Promise<{
@@ -11,6 +12,11 @@ interface AcceptRouteProps {
 
 export async function POST(request: Request, { params }: AcceptRouteProps) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id, analysisId } = await params;
 
     if (!id || !analysisId) {
@@ -30,7 +36,12 @@ export async function POST(request: Request, { params }: AcceptRouteProps) {
       // Empty body is valid when accepting without edits
     }
 
-    const result = await promoteDraftToKnowledge(id, analysisId, editedDraft);
+    const result = await promoteDraftToKnowledge(
+      user.id,
+      id,
+      analysisId,
+      editedDraft,
+    );
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
     if (error instanceof ZodError) {
@@ -43,7 +54,7 @@ export async function POST(request: Request, { params }: AcceptRouteProps) {
     const message =
       error instanceof Error ? error.message : "Failed to accept draft";
 
-    if (message.includes("not found")) {
+    if (message.includes("not found") || message.includes("unauthorized")) {
       return NextResponse.json({ error: message }, { status: 404 });
     }
 

@@ -175,13 +175,13 @@ describe("Phase 5B Dialog Components", () => {
       // Specific field labels
       expect(html).toContain("Name");
       expect(html).toContain("Core Intuition");
-      expect(html).toContain("Why It Works / Invariant");
-      expect(html).toContain("When To Use / Signals");
+      expect(html).toContain("Why It Works");
+      expect(html).toContain("When To Use");
       expect(html).toContain("Time Complexity");
       expect(html).toContain("Space Complexity");
-      expect(html).toContain("Advantages &amp; Strengths");
-      expect(html).toContain("Trade-offs &amp; Limitations");
-      expect(html).toContain("Common Pitfalls to Avoid");
+      expect(html).toContain("Pros &amp; Advantages");
+      expect(html).toContain("Cons &amp; Limitations");
+      expect(html).toContain("Common Mistakes to Avoid");
       expect(html).toContain("Additional Notes");
 
       // Actions
@@ -318,7 +318,7 @@ describe("Phase 5B Dialog Components", () => {
         <SolutionTechniqueView approach={mockApproach} />,
       );
 
-      expect(html).toContain("Techniques &amp; Algorithms");
+      expect(html).toContain("Methods &amp; Algorithms");
       expect(html).toContain("Edit Solution");
       expect(html).toContain("+ Add Solution");
     });
@@ -328,7 +328,7 @@ describe("Phase 5B Dialog Components", () => {
         <KnowledgeCodeBlock solution={mockSolution} />,
       );
 
-      expect(html).toContain("Canonical Implementation");
+      expect(html).toContain("Optimized Implementation");
       expect(html).toContain("Copy Code");
       expect(html).toContain("Edit Code");
       expect(html).toContain("+ Add Code");

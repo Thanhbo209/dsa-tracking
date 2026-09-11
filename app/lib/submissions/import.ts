@@ -4,6 +4,7 @@ import type { SubmissionImportResult } from "./types";
 import { syncProblem } from "@/lib/leetcode/sync";
 
 export async function importSubmission(
+  userId: string,
   input: unknown,
 ): Promise<SubmissionImportResult> {
   const data = submissionImportSchema.parse(input);
@@ -27,7 +28,8 @@ export async function importSubmission(
 
   const existing = await prisma.submission.findUnique({
     where: {
-      source_externalId: {
+      userId_source_externalId: {
+        userId,
         source: "LEETCODE",
         externalId: data.externalId,
       },
@@ -46,6 +48,7 @@ export async function importSubmission(
 
   const submission = await prisma.submission.create({
     data: {
+      userId,
       problemId: problem.id,
       source: "LEETCODE",
       externalId: data.externalId,

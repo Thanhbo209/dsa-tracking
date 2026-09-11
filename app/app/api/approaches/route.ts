@@ -1,15 +1,19 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { getApproaches } from "@/lib/approaches/service";
-import { createApproach } from "@/lib/approaches/service";
+import { getApproaches, createApproach } from "@/lib/approaches/service";
 import { prisma } from "@/lib/db/prisma";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export async function POST(request: Request) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
 
     // Validate that problemId refers to an actual Problem.id (not a slug).
-    // This produces a clear 404 instead of a cryptic P2003 FK violation.
     const problemExists = await prisma.problem.findUnique({
       where: { id: body?.problemId },
       select: { id: true },
@@ -22,7 +26,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const approach = await createApproach(body);
+    const approach = await createApproach(user.id, body);
 
     return NextResponse.json(approach, {
       status: 201,
@@ -50,6 +54,11 @@ export async function POST(request: Request) {
 }
 
 export async function GET(request: Request) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const problemId = searchParams.get("problemId");
 
@@ -62,7 +71,7 @@ export async function GET(request: Request) {
     );
   }
 
-  const approaches = await getApproaches(problemId);
+  const approaches = await getApproaches(user.id, problemId);
 
   return NextResponse.json(approaches);
 }

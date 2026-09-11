@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { createCode, getCodes } from "@/lib/codes/service";
+import { getCurrentUser } from "@/lib/auth/session";
 
 export async function GET(request: Request) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { searchParams } = new URL(request.url);
   const solutionId = searchParams.get("solutionId");
 
@@ -13,16 +19,21 @@ export async function GET(request: Request) {
     );
   }
 
-  const codes = await getCodes(solutionId);
+  const codes = await getCodes(user.id, solutionId);
 
   return NextResponse.json(codes);
 }
 
 export async function POST(request: Request) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const body = await request.json();
 
-    const code = await createCode(body);
+    const code = await createCode(user.id, body);
 
     return NextResponse.json(code, { status: 201 });
   } catch (error) {
@@ -36,6 +47,10 @@ export async function POST(request: Request) {
       );
     }
 
+    if (error instanceof Error && error.message.includes("unauthorized")) {
+      return NextResponse.json({ error: error.message }, { status: 403 });
+    }
+
     console.error("Code creation failed:", error);
 
     return NextResponse.json(
@@ -44,3 +59,4 @@ export async function POST(request: Request) {
     );
   }
 }
+

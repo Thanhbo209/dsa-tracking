@@ -1,7 +1,8 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ProblemDetailPanel } from "@/components/problems/ProblemDetailPanel";
 import { ProblemLearningWorkspace } from "@/components/problems/ProblemLearningWorkspace";
 import { prisma } from "@/lib/db/prisma";
+import { getCurrentUser } from "@/lib/auth/session";
 
 interface ProblemPageProps {
   params: Promise<{
@@ -10,6 +11,11 @@ interface ProblemPageProps {
 }
 
 export default async function ProblemPage({ params }: ProblemPageProps) {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect(`/login?callbackUrl=/problems`);
+  }
+
   const { id } = await params;
 
   const problem = await prisma.problem.findUnique({
@@ -23,6 +29,9 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
         },
       },
       submissions: {
+        where: {
+          userId: user.id,
+        },
         orderBy: {
           submittedAt: "desc",
         },
@@ -35,6 +44,9 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
         },
       },
       approaches: {
+        where: {
+          userId: user.id,
+        },
         orderBy: {
           createdAt: "asc",
         },

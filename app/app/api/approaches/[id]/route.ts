@@ -6,6 +6,7 @@ import {
   getApproach,
   deleteApproach,
 } from "@/lib/approaches/service";
+import { getCurrentUser } from "@/lib/auth/session";
 
 interface ApproachRouteProps {
   params: Promise<{
@@ -14,9 +15,14 @@ interface ApproachRouteProps {
 }
 
 export async function GET(_request: Request, { params }: ApproachRouteProps) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const { id } = await params;
 
-  const approach = await getApproach(id);
+  const approach = await getApproach(user.id, id);
 
   if (!approach) {
     return NextResponse.json(
@@ -32,10 +38,15 @@ export async function GET(_request: Request, { params }: ApproachRouteProps) {
 
 export async function PATCH(request: Request, { params }: ApproachRouteProps) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
     const body = await request.json();
 
-    const approach = await updateApproach(id, body);
+    const approach = await updateApproach(user.id, id, body);
 
     return NextResponse.json(approach);
   } catch (error) {
@@ -65,9 +76,14 @@ export async function DELETE(
   { params }: ApproachRouteProps,
 ) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { id } = await params;
 
-    await deleteApproach(id);
+    await deleteApproach(user.id, id);
 
     return new NextResponse(null, {
       status: 204,
@@ -83,3 +99,4 @@ export async function DELETE(
     );
   }
 }
+

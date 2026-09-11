@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { importSubmission } from "@/lib/submissions/import";
+import { getCurrentUser } from "@/lib/auth/session";
 
 const ALLOWED_ORIGIN = "https://leetcode.com";
 
@@ -11,19 +12,38 @@ export async function OPTIONS() {
       "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
       "Access-Control-Allow-Methods": "POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Allow-Credentials": "true",
     },
   });
 }
 
 export async function POST(request: Request) {
   try {
+    const user = await getCurrentUser();
+    if (!user) {
+      return NextResponse.json(
+        {
+          error:
+            "Authentication required to import submissions. Please log in to DSA Tracking.",
+        },
+        {
+          status: 401,
+          headers: {
+            "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+            "Access-Control-Allow-Credentials": "true",
+          },
+        },
+      );
+    }
+
     const body = await request.json();
-    const result = await importSubmission(body);
+    const result = await importSubmission(user.id, body);
 
     return NextResponse.json(result, {
       status: result.created ? 201 : 200,
       headers: {
         "Access-Control-Allow-Origin": ALLOWED_ORIGIN,
+        "Access-Control-Allow-Credentials": "true",
       },
     });
   } catch (error) {

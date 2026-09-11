@@ -1,13 +1,13 @@
 import { afterAll, beforeEach, describe, expect, it, vi } from "vitest";
 
 const {
-  submissionFindUniqueMock,
+  submissionFindFirstMock,
   analysisCreateMock,
   analysisUpdateMock,
   analysisFindManyMock,
   callGeminiMock,
 } = vi.hoisted(() => ({
-  submissionFindUniqueMock: vi.fn(),
+  submissionFindFirstMock: vi.fn(),
   analysisCreateMock: vi.fn(),
   analysisUpdateMock: vi.fn(),
   analysisFindManyMock: vi.fn(),
@@ -17,7 +17,8 @@ const {
 vi.mock("@/lib/db/prisma", () => ({
   prisma: {
     submission: {
-      findUnique: submissionFindUniqueMock,
+      findUnique: submissionFindFirstMock,
+      findFirst: submissionFindFirstMock,
     },
     submissionAnalysis: {
       create: analysisCreateMock,
@@ -129,7 +130,7 @@ describe("analyzeSubmission", () => {
       problem: mockProblem,
     };
 
-    submissionFindUniqueMock.mockResolvedValue(mockSubmission);
+    submissionFindFirstMock.mockResolvedValue(mockSubmission);
 
     const initialAnalysis = {
       id: "analysis-1",
@@ -153,10 +154,10 @@ describe("analyzeSubmission", () => {
     };
     analysisUpdateMock.mockResolvedValue(readyAnalysis);
 
-    const result = await analyzeSubmission("sub-accepted-1");
+    const result = await analyzeSubmission("user-1", "sub-accepted-1");
 
-    expect(submissionFindUniqueMock).toHaveBeenCalledWith(
-      expect.objectContaining({ where: { id: "sub-accepted-1" } }),
+    expect(submissionFindFirstMock).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: "sub-accepted-1", userId: "user-1" } }),
     );
 
     expect(analysisCreateMock).toHaveBeenCalledWith({
@@ -203,7 +204,7 @@ describe("analyzeSubmission", () => {
       problem: mockProblem,
     };
 
-    submissionFindUniqueMock.mockResolvedValue(mockFailedSubmission);
+    submissionFindFirstMock.mockResolvedValue(mockFailedSubmission);
 
     analysisCreateMock.mockResolvedValue({
       id: "analysis-failed-1",
@@ -222,7 +223,7 @@ describe("analyzeSubmission", () => {
       status: "DRAFT_READY",
     });
 
-    const result = await analyzeSubmission("sub-failed-1");
+    const result = await analyzeSubmission("user-1", "sub-failed-1");
 
     expect(callGeminiMock).toHaveBeenCalled();
     const promptArg = callGeminiMock.mock.calls[0][0];
@@ -245,7 +246,7 @@ describe("analyzeSubmission", () => {
       problem: mockProblem,
     };
 
-    submissionFindUniqueMock.mockResolvedValue(mockNoCodeSubmission);
+    submissionFindFirstMock.mockResolvedValue(mockNoCodeSubmission);
 
     const failedAnalysis = {
       id: "analysis-no-code",
@@ -255,7 +256,7 @@ describe("analyzeSubmission", () => {
     };
     analysisCreateMock.mockResolvedValue(failedAnalysis);
 
-    const result = await analyzeSubmission("sub-no-code");
+    const result = await analyzeSubmission("user-1", "sub-no-code");
 
     expect(callGeminiMock).not.toHaveBeenCalled();
     expect(analysisCreateMock).toHaveBeenCalledWith({
@@ -281,7 +282,7 @@ describe("analyzeSubmission", () => {
       problem: mockProblem,
     };
 
-    submissionFindUniqueMock.mockResolvedValue(mockSubmission);
+    submissionFindFirstMock.mockResolvedValue(mockSubmission);
     analysisCreateMock.mockResolvedValue({
       id: "analysis-malformed",
       submissionId: "sub-malformed",
@@ -299,7 +300,7 @@ describe("analyzeSubmission", () => {
       errorMessage: "Malformed Gemini response: failed to parse JSON",
     });
 
-    const result = await analyzeSubmission("sub-malformed");
+    const result = await analyzeSubmission("user-1", "sub-malformed");
 
     expect(analysisUpdateMock).toHaveBeenCalledWith({
       where: { id: "analysis-malformed" },
@@ -323,7 +324,7 @@ describe("analyzeSubmission", () => {
       problem: mockProblem,
     };
 
-    submissionFindUniqueMock.mockResolvedValue(mockSubmission);
+    submissionFindFirstMock.mockResolvedValue(mockSubmission);
     analysisCreateMock.mockResolvedValue({
       id: "analysis-invalid-schema",
       submissionId: "sub-invalid-schema",
@@ -386,7 +387,7 @@ describe("analyzeSubmission", () => {
       errorMessage: "Validation failed on Gemini output: review.timeComplexity.reasoning: Required",
     });
 
-    const result = await analyzeSubmission("sub-invalid-schema");
+    const result = await analyzeSubmission("user-1", "sub-invalid-schema");
 
     expect(analysisUpdateMock).toHaveBeenCalledWith({
       where: { id: "analysis-invalid-schema" },
@@ -410,7 +411,7 @@ describe("analyzeSubmission", () => {
       problem: mockProblem,
     };
 
-    submissionFindUniqueMock.mockResolvedValue(mockSubmission);
+    submissionFindFirstMock.mockResolvedValue(mockSubmission);
     analysisCreateMock.mockResolvedValue({
       id: "analysis-api-error",
       submissionId: "sub-api-error",
@@ -427,7 +428,7 @@ describe("analyzeSubmission", () => {
       errorMessage: "Gemini API error: Rate limit exceeded",
     });
 
-    const result = await analyzeSubmission("sub-api-error");
+    const result = await analyzeSubmission("user-1", "sub-api-error");
 
     expect(analysisUpdateMock).toHaveBeenCalledWith({
       where: { id: "analysis-api-error" },
@@ -440,9 +441,9 @@ describe("analyzeSubmission", () => {
   });
 
   it("throws when submission is not found", async () => {
-    submissionFindUniqueMock.mockResolvedValue(null);
+    submissionFindFirstMock.mockResolvedValue(null);
 
-    await expect(analyzeSubmission("non-existent-sub")).rejects.toThrow(
+    await expect(analyzeSubmission("user-1", "non-existent-sub")).rejects.toThrow(
       "Submission not found",
     );
 
@@ -462,7 +463,7 @@ describe("analyzeSubmission", () => {
       problem: mockProblem,
     };
 
-    submissionFindUniqueMock.mockResolvedValue(mockSubmission);
+    submissionFindFirstMock.mockResolvedValue(mockSubmission);
 
     callGeminiMock.mockResolvedValue({
       rawText: validOutputJson,
@@ -480,7 +481,7 @@ describe("analyzeSubmission", () => {
       status: "DRAFT_READY",
     });
 
-    const firstResult = await analyzeSubmission("sub-repeat-1");
+    const firstResult = await analyzeSubmission("user-1", "sub-repeat-1");
 
     // Second call returns analysis #2
     analysisCreateMock.mockResolvedValueOnce({
@@ -493,7 +494,7 @@ describe("analyzeSubmission", () => {
       status: "DRAFT_READY",
     });
 
-    const secondResult = await analyzeSubmission("sub-repeat-1");
+    const secondResult = await analyzeSubmission("user-1", "sub-repeat-1");
 
     expect(analysisCreateMock).toHaveBeenCalledTimes(2);
     expect(analysisCreateMock).toHaveBeenNthCalledWith(1, {
@@ -509,12 +510,13 @@ describe("analyzeSubmission", () => {
   });
 
   it("retrieves submission analysis history via getSubmissionAnalyses", async () => {
+    submissionFindFirstMock.mockResolvedValue({ id: "sub-repeat-1", userId: "user-1" });
     analysisFindManyMock.mockResolvedValue([
       { id: "analysis-2", createdAt: new Date("2026-09-10T12:00:00Z") },
       { id: "analysis-1", createdAt: new Date("2026-09-10T10:00:00Z") },
     ]);
 
-    const history = await getSubmissionAnalyses("sub-repeat-1");
+    const history = await getSubmissionAnalyses("user-1", "sub-repeat-1");
 
     expect(analysisFindManyMock).toHaveBeenCalledWith({
       where: { submissionId: "sub-repeat-1" },
@@ -536,7 +538,7 @@ describe("analyzeSubmission", () => {
       submittedAt: null,
       problem: mockProblem,
     };
-    submissionFindUniqueMock.mockResolvedValue(mockSubmission);
+    submissionFindFirstMock.mockResolvedValue(mockSubmission);
     callGeminiMock.mockResolvedValue({
       rawText: validOutputJson,
       modelName: "gemini-custom-env",
@@ -551,7 +553,7 @@ describe("analyzeSubmission", () => {
       status: "DRAFT_READY",
     });
 
-    await analyzeSubmission("sub-env-model");
+    await analyzeSubmission("user-1", "sub-env-model");
 
     expect(analysisCreateMock).toHaveBeenCalledWith({
       data: {
@@ -579,7 +581,7 @@ describe("analyzeSubmission", () => {
       submittedAt: null,
       problem: mockProblem,
     };
-    submissionFindUniqueMock.mockResolvedValue(mockSubmission);
+    submissionFindFirstMock.mockResolvedValue(mockSubmission);
     callGeminiMock.mockResolvedValue({
       rawText: validOutputJson,
       modelName: "gemini-options-explicit",
@@ -594,7 +596,7 @@ describe("analyzeSubmission", () => {
       status: "DRAFT_READY",
     });
 
-    await analyzeSubmission("sub-opt-model", {
+    await analyzeSubmission("user-1", "sub-opt-model", {
       modelName: "gemini-options-explicit",
     });
 

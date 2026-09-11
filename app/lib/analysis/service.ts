@@ -10,11 +10,15 @@ import { callGeminiForAnalysis, type GeminiAnalysisOptions } from "./gemini";
 export interface AnalyzeSubmissionOptions extends GeminiAnalysisOptions {}
 
 export async function analyzeSubmission(
+  userId: string,
   submissionId: string,
   options?: AnalyzeSubmissionOptions,
 ) {
-  const submission = await prisma.submission.findUnique({
-    where: { id: submissionId },
+  const submission = await prisma.submission.findFirst({
+    where: {
+      id: submissionId,
+      userId,
+    },
     include: {
       problem: {
         include: {
@@ -24,6 +28,9 @@ export async function analyzeSubmission(
             },
           },
           approaches: {
+            where: {
+              userId,
+            },
             include: {
               solutions: true,
             },
@@ -34,7 +41,7 @@ export async function analyzeSubmission(
   });
 
   if (!submission) {
-    throw new Error("Submission not found");
+    throw new Error("Submission not found or unauthorized");
   }
 
   // If the submission has no code to analyze, do not call Gemini
@@ -166,15 +173,32 @@ export async function analyzeSubmission(
   }
 }
 
-export async function getSubmissionAnalyses(submissionId: string) {
+export async function getSubmissionAnalyses(
+  userId: string,
+  submissionId: string,
+) {
+  const submission = await prisma.submission.findFirst({
+    where: { id: submissionId, userId },
+  });
+
+  if (!submission) {
+    return [];
+  }
+
   return prisma.submissionAnalysis.findMany({
     where: { submissionId },
     orderBy: { createdAt: "desc" },
   });
 }
 
-export async function getSubmissionAnalysis(id: string) {
-  return prisma.submissionAnalysis.findUnique({
-    where: { id },
+export async function getSubmissionAnalysis(userId: string, id: string) {
+  return prisma.submissionAnalysis.findFirst({
+    where: {
+      id,
+      submission: {
+        userId,
+      },
+    },
   });
 }
+

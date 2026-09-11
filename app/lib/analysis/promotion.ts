@@ -58,6 +58,7 @@ export const TRANSACTION_OPTIONS = {
 };
 
 export async function promoteDraftToKnowledge(
+  userId: string,
   submissionId: string,
   analysisId: string,
   editedDraftInput?: unknown,
@@ -82,13 +83,14 @@ export async function promoteDraftToKnowledge(
           select: {
             id: true,
             problemId: true,
+            userId: true,
           },
         },
       },
     });
 
-    if (!analysis) {
-      throw new Error("Analysis not found");
+    if (!analysis || analysis.submission.userId !== userId) {
+      throw new Error("Analysis not found or unauthorized");
     }
 
     if (analysis.submissionId !== submissionId) {
@@ -129,9 +131,10 @@ export async function promoteDraftToKnowledge(
       );
     }
 
-    // 4. Create Approach under the server-derived problemId
+    // 4. Create Approach under the server-derived problemId and authenticated userId
     const approach = await tx.approach.create({
       data: {
+        userId,
         problemId: analysis.submission.problemId,
         name: draftToUse.approach.name,
         coreIdea: draftToUse.approach.coreIdea,
@@ -182,6 +185,7 @@ export async function promoteDraftToKnowledge(
 }
 
 export async function rejectDraft(
+  userId: string,
   submissionId: string,
   analysisId: string,
 ) {
@@ -192,10 +196,18 @@ export async function rejectDraft(
   return await prisma.$transaction(async (tx) => {
     const analysis = await tx.submissionAnalysis.findUnique({
       where: { id: analysisId },
+      include: {
+        submission: {
+          select: {
+            id: true,
+            userId: true,
+          },
+        },
+      },
     });
 
-    if (!analysis) {
-      throw new Error("Analysis not found");
+    if (!analysis || analysis.submission.userId !== userId) {
+      throw new Error("Analysis not found or unauthorized");
     }
 
     if (analysis.submissionId !== submissionId) {

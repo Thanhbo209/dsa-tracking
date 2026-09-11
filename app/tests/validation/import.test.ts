@@ -9,6 +9,20 @@ describe("importSubmission", () => {
     await prisma.topic.deleteMany();
     await prisma.problem.deleteMany();
 
+    await prisma.user.upsert({
+      where: { id: "test-user-import" },
+      update: {},
+      create: {
+        id: "test-user-import",
+        name: "Test User",
+        email: "test-import@example.com",
+        username: "testimport",
+        emailVerified: true,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    });
+
     await prisma.problem.create({
       data: {
         leetcodeId: 1,
@@ -21,7 +35,7 @@ describe("importSubmission", () => {
   });
 
   it("creates a submission for an existing problem", async () => {
-    const result = await importSubmission({
+    const result = await importSubmission("test-user-import", {
       externalId: "submission-001",
       problemSlug: "two-sum",
       status: "ACCEPTED",
@@ -53,8 +67,8 @@ describe("importSubmission", () => {
       language: "python3",
     };
 
-    const first = await importSubmission(input);
-    const second = await importSubmission(input);
+    const first = await importSubmission("test-user-import", input);
+    const second = await importSubmission("test-user-import", input);
 
     expect(first.created).toBe(true);
     expect(second.created).toBe(false);
@@ -71,12 +85,12 @@ describe("importSubmission", () => {
 
   it("rejects a submission for an unknown problem", async () => {
     await expect(
-      importSubmission({
+      importSubmission("test-user-import", {
         externalId: "submission-003",
         problemSlug: "does-not-exist",
         status: "ACCEPTED",
         language: "python3",
       }),
-    ).rejects.toThrow("Problem not found for slug: does-not-exist");
+    ).rejects.toThrow("LeetCode problem not found");
   });
 });

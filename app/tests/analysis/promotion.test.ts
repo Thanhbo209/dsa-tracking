@@ -84,6 +84,7 @@ describe("Knowledge Draft Promotion Service", () => {
     submission: {
       id: "sub-1",
       problemId: "problem-100",
+      userId: "user-1",
     },
   };
 
@@ -144,13 +145,13 @@ describe("Knowledge Draft Promotion Service", () => {
         status: "ACCEPTED",
       });
 
-      const result = await promoteDraftToKnowledge("sub-1", "analysis-1");
+      const result = await promoteDraftToKnowledge("user-1", "sub-1", "analysis-1");
 
       // Verifies atomic update transition
       expect(submissionAnalysisUpdateManyMock).toHaveBeenCalledWith({
         where: {
           id: "analysis-1",
-          status: "DRAFT_READY",
+          status: { in: ["DRAFT_READY", "ACCEPTED"] },
         },
         data: {
           status: "ACCEPTED",
@@ -161,6 +162,7 @@ describe("Knowledge Draft Promotion Service", () => {
       expect(approachCreateMock).toHaveBeenCalledWith({
         data: expect.objectContaining({
           problemId: "problem-100",
+          userId: "user-1",
           name: "Hash Map Lookup",
           timeComplexity: "O(n)",
         }),
@@ -180,28 +182,30 @@ describe("Knowledge Draft Promotion Service", () => {
         data: expect.objectContaining({
           solutionId: "sol-1",
           language: "typescript",
+          code: validDraft.code.code,
         }),
       });
 
+      // Verifies result object
       expect(result.analysis.status).toBe("ACCEPTED");
       expect(result.approach.id).toBe("app-1");
       expect(result.solution.id).toBe("sol-1");
       expect(result.code.id).toBe("code-1");
 
-      // Verifies custom transaction timeout options were passed to prevent P2028
+      // Verifies transaction options were applied
       expect(transactionMock).toHaveBeenCalledWith(
         expect.any(Function),
         TRANSACTION_OPTIONS,
       );
     });
 
-    it("supports promoting a user-edited draft", async () => {
+    it("allows user to supply edited draft overrides on promotion", async () => {
       submissionAnalysisFindUniqueMock.mockResolvedValue(mockAnalysisRecord);
       submissionAnalysisUpdateManyMock.mockResolvedValue({ count: 1 });
 
-      approachCreateMock.mockResolvedValue({ id: "app-custom", problemId: "problem-100" });
-      solutionCreateMock.mockResolvedValue({ id: "sol-custom", approachId: "app-custom" });
-      codeCreateMock.mockResolvedValue({ id: "code-custom", solutionId: "sol-custom" });
+      approachCreateMock.mockResolvedValue({ id: "app-1", problemId: "problem-100" });
+      solutionCreateMock.mockResolvedValue({ id: "sol-1", approachId: "app-1" });
+      codeCreateMock.mockResolvedValue({ id: "code-1", solutionId: "sol-1" });
 
       submissionAnalysisFindUniqueOrThrowMock.mockResolvedValue({
         ...mockAnalysisRecord,
@@ -223,7 +227,7 @@ describe("Knowledge Draft Promotion Service", () => {
         },
       };
 
-      await promoteDraftToKnowledge("sub-1", "analysis-1", editedDraft);
+      await promoteDraftToKnowledge("user-1", "sub-1", "analysis-1", editedDraft);
 
       expect(approachCreateMock).toHaveBeenCalledWith({
         data: expect.objectContaining({
@@ -248,21 +252,21 @@ describe("Knowledge Draft Promotion Service", () => {
       };
 
       await expect(
-        promoteDraftToKnowledge("sub-1", "analysis-1", invalidEditedDraft),
+        promoteDraftToKnowledge("user-1", "sub-1", "analysis-1", invalidEditedDraft),
       ).rejects.toThrow();
 
       expect(approachCreateMock).not.toHaveBeenCalled();
     });
 
-    it("throws error if analysis is not in DRAFT_READY status", async () => {
+    it("throws error if analysis is not in DRAFT_READY or ACCEPTED status", async () => {
       submissionAnalysisFindUniqueMock.mockResolvedValue({
         ...mockAnalysisRecord,
-        status: "ACCEPTED", // already accepted
+        status: "FAILED",
       });
 
       await expect(
-        promoteDraftToKnowledge("sub-1", "analysis-1"),
-      ).rejects.toThrow("Cannot accept analysis with status ACCEPTED");
+        promoteDraftToKnowledge("user-1", "sub-1", "analysis-1"),
+      ).rejects.toThrow("Cannot accept analysis with status FAILED. Only DRAFT_READY or ACCEPTED analyses can be promoted to knowledge.");
 
       expect(approachCreateMock).not.toHaveBeenCalled();
     });
@@ -274,7 +278,7 @@ describe("Knowledge Draft Promotion Service", () => {
       });
 
       await expect(
-        promoteDraftToKnowledge("sub-1", "analysis-1"),
+        promoteDraftToKnowledge("user-1", "sub-1", "analysis-1"),
       ).rejects.toThrow("Analysis does not belong to this submission");
 
       expect(approachCreateMock).not.toHaveBeenCalled();
@@ -286,8 +290,8 @@ describe("Knowledge Draft Promotion Service", () => {
       submissionAnalysisUpdateManyMock.mockResolvedValue({ count: 0 });
 
       await expect(
-        promoteDraftToKnowledge("sub-1", "analysis-1"),
-      ).rejects.toThrow("Cannot accept analysis: analysis is no longer in DRAFT_READY status");
+        promoteDraftToKnowledge("user-1", "sub-1", "analysis-1"),
+      ).rejects.toThrow("Cannot accept analysis: analysis is no longer in DRAFT_READY or ACCEPTED status");
 
       // No Approach, Solution, or Code was created
       expect(approachCreateMock).not.toHaveBeenCalled();
@@ -304,7 +308,7 @@ describe("Knowledge Draft Promotion Service", () => {
       codeCreateMock.mockRejectedValue(new Error("Database connection lost"));
 
       await expect(
-        promoteDraftToKnowledge("sub-1", "analysis-1"),
+        promoteDraftToKnowledge("user-1", "sub-1", "analysis-1"),
       ).rejects.toThrow("Database connection lost");
     });
   });
@@ -318,7 +322,7 @@ describe("Knowledge Draft Promotion Service", () => {
         status: "REJECTED",
       });
 
-      const result = await rejectDraft("sub-1", "analysis-1");
+      const result = await rejectDraft("user-1", "sub-1", "analysis-1");
 
       expect(submissionAnalysisUpdateManyMock).toHaveBeenCalledWith({
         where: {
@@ -346,7 +350,7 @@ describe("Knowledge Draft Promotion Service", () => {
         status: "REJECTED",
       });
 
-      await expect(rejectDraft("sub-1", "analysis-1")).rejects.toThrow(
+      await expect(rejectDraft("user-1", "sub-1", "analysis-1")).rejects.toThrow(
         "Cannot reject analysis with status REJECTED",
       );
 

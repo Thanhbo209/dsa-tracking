@@ -1,4 +1,6 @@
+import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
+import { getCurrentUser } from "@/lib/auth/session";
 import {
   ProblemsExplorer,
   type ProblemExplorerItem,
@@ -6,6 +8,11 @@ import {
 } from "@/components/problems/ProblemsExplorer";
 
 export default async function ProblemsPage() {
+  const user = await getCurrentUser();
+  if (!user) {
+    redirect("/login?callbackUrl=/problems");
+  }
+
   const rawProblems = await prisma.problem.findMany({
     orderBy: {
       leetcodeId: "asc",
@@ -17,11 +24,17 @@ export default async function ProblemsPage() {
         },
       },
       submissions: {
+        where: {
+          userId: user.id,
+        },
         select: {
           status: true,
         },
       },
       approaches: {
+        where: {
+          userId: user.id,
+        },
         select: {
           id: true,
         },
