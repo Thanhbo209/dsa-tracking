@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { ProblemDetailPanel } from "@/components/problems/ProblemDetailPanel";
 import { ProblemLearningWorkspace } from "@/components/problems/ProblemLearningWorkspace";
@@ -8,6 +9,25 @@ interface ProblemPageProps {
   params: Promise<{
     id: string;
   }>;
+}
+
+export async function generateMetadata({
+  params,
+}: ProblemPageProps): Promise<Metadata> {
+  const { id } = await params;
+  const problem = await prisma.problem.findUnique({
+    where: { slug: id },
+    select: { title: true, leetcodeId: true },
+  });
+
+  if (!problem) {
+    return { title: "Problem Not Found" };
+  }
+
+  const prefix = problem.leetcodeId ? `#${problem.leetcodeId} ` : "";
+  return {
+    title: `${prefix}${problem.title}`,
+  };
 }
 
 export default async function ProblemPage({ params }: ProblemPageProps) {

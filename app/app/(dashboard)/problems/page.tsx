@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/session";
@@ -6,6 +7,11 @@ import {
   type ProblemExplorerItem,
   type ProblemStatus,
 } from "@/components/problems/ProblemsExplorer";
+
+export const metadata: Metadata = {
+  title: "Problems",
+  description: "Explore, practice, and master Data Structures and Algorithms.",
+};
 
 export default async function ProblemsPage() {
   const user = await getCurrentUser();

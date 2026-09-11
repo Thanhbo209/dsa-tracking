@@ -32,7 +32,18 @@ function difficultyClass(difficulty: string | null): string {
   }
 }
 
+import type { Metadata } from "next";
 import { DsaLogo } from "@/components/brand/DsaLogo";
+
+export async function generateMetadata({
+  params,
+}: PublicProfilePageProps): Promise<Metadata> {
+  const { username } = await params;
+  return {
+    title: `@${username}`,
+    description: `Public DSA playbook and solutions for @${username}`,
+  };
+}
 
 export default async function PublicProfilePage({
   params,
