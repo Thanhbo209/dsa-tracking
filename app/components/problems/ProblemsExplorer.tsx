@@ -74,6 +74,8 @@ export interface ProblemsExplorerProps {
   submissionActivities?: Record<string, number>;
   approachActivities?: Record<string, number>;
   solvedTopics?: SolvedTopicItem[];
+  lastSyncedAt?: string | null;
+  leetcodeUsername?: string | null;
 }
 
 type DifficultyFilter = "ALL" | Difficulty;
@@ -130,6 +132,8 @@ export function ProblemsExplorer({
   submissionActivities = {},
   approachActivities = {},
   solvedTopics,
+  lastSyncedAt,
+  leetcodeUsername,
 }: ProblemsExplorerProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] =
@@ -365,6 +369,8 @@ export function ProblemsExplorer({
           <ActivityHeatmap
             submissionActivities={submissionActivities}
             approachActivities={approachActivities}
+            lastSyncedAt={lastSyncedAt}
+            leetcodeUsername={leetcodeUsername}
           />
         </div>
       </section>

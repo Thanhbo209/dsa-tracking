@@ -20,58 +20,86 @@ export default async function ProblemsPage() {
     redirect("/login?callbackUrl=/problems");
   }
 
-  const [rawProblems, userSubmissions, userApproaches] = await Promise.all([
-    prisma.problem.findMany({
-      orderBy: {
-        leetcodeId: "asc",
-      },
-      include: {
-        topics: {
-          include: {
-            topic: true,
+  const [rawProblems, userSubmissions, userApproaches, dailyActivities, dbUser] =
+    await Promise.all([
+      prisma.problem.findMany({
+        orderBy: {
+          leetcodeId: "asc",
+        },
+        include: {
+          topics: {
+            include: {
+              topic: true,
+            },
+          },
+          submissions: {
+            where: {
+              userId: user.id,
+            },
+            select: {
+              status: true,
+            },
+          },
+          approaches: {
+            where: {
+              userId: user.id,
+            },
+            select: {
+              id: true,
+            },
           },
         },
-        submissions: {
-          where: {
-            userId: user.id,
-          },
-          select: {
-            status: true,
-          },
+      }),
+      prisma.submission.findMany({
+        where: {
+          userId: user.id,
+          status: "ACCEPTED",
         },
-        approaches: {
-          where: {
-            userId: user.id,
-          },
-          select: {
-            id: true,
-          },
+        select: {
+          submittedAt: true,
+          createdAt: true,
         },
-      },
-    }),
-    prisma.submission.findMany({
-      where: {
-        userId: user.id,
-        status: "ACCEPTED",
-      },
-      select: {
-        submittedAt: true,
-        createdAt: true,
-      },
-    }),
-    prisma.approach.findMany({
-      where: {
-        userId: user.id,
-      },
-      select: {
-        createdAt: true,
-      },
-    }),
-  ]);
+      }),
+      prisma.approach.findMany({
+        where: {
+          userId: user.id,
+        },
+        select: {
+          createdAt: true,
+        },
+      }),
+      prisma.dailyActivity.findMany({
+        where: {
+          userId: user.id,
+        },
+        select: {
+          date: true,
+          count: true,
+        },
+      }),
+      prisma.user.findUnique({
+        where: { id: user.id },
+        select: {
+          lastSyncedAt: true,
+          leetcodeUsername: true,
+        },
+      }),
+    ]);
 
-  const submissionActivities = aggregateDailyActivities(
+  const localSubmissionActivities = aggregateDailyActivities(
     userSubmissions.map((s) => s.submittedAt || s.createdAt),
   );
+
+  // Merge calendar daily activities with local submission activity (monotonic max)
+  const submissionActivities: Record<string, number> = {
+    ...localSubmissionActivities,
+  };
+  for (const act of dailyActivities) {
+    submissionActivities[act.date] = Math.max(
+      submissionActivities[act.date] || 0,
+      act.count,
+    );
+  }
 
   const approachActivities = aggregateDailyActivities(
     userApproaches.map((a) => a.createdAt),
@@ -136,7 +164,10 @@ export default async function ProblemsPage() {
         submissionActivities={submissionActivities}
         approachActivities={approachActivities}
         solvedTopics={solvedTopics}
+        lastSyncedAt={dbUser?.lastSyncedAt?.toISOString() ?? null}
+        leetcodeUsername={dbUser?.leetcodeUsername ?? null}
       />
     </main>
   );
 }
+

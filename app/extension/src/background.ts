@@ -3,15 +3,28 @@ import type {
   AuthState,
   ExtensionMessage,
 } from "./types";
+import { fetchLeetCodeSyncData } from "./leetcode";
+import { getSubmissionDetails } from "./submission-details";
 
-const SERVER_ORIGIN = "http://localhost:3000";
+const DEFAULT_SERVER_ORIGIN = "http://localhost:3000";
 const MAX_STORED_SUBMISSIONS = 20;
+
+// Resolve active server origin (supports any localhost port or deployed Vercel/custom domain)
+async function getServerOrigin(): Promise<string> {
+  try {
+    const data = await chrome.storage.local.get(["serverOrigin"]);
+    return data.serverOrigin || DEFAULT_SERVER_ORIGIN;
+  } catch {
+    return DEFAULT_SERVER_ORIGIN;
+  }
+}
 
 // Retrieve Better Auth session token directly from extension cookies
 async function getSessionToken(): Promise<string | null> {
   try {
+    const origin = await getServerOrigin();
     const cookie = await chrome.cookies.get({
-      url: SERVER_ORIGIN,
+      url: origin,
       name: "better-auth.session_token",
     });
     return cookie?.value ?? null;
@@ -29,7 +42,8 @@ async function checkAuth(): Promise<AuthState> {
   }
 
   try {
-    const res = await fetch(`${SERVER_ORIGIN}/api/auth/get-session`, {
+    const origin = await getServerOrigin();
+    const res = await fetch(`${origin}/api/auth/get-session`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -62,7 +76,8 @@ async function checkAuth(): Promise<AuthState> {
 // Handle login from popup
 async function handleLogin(email: string, password: string) {
   try {
-    const res = await fetch(`${SERVER_ORIGIN}/api/auth/sign-in/email`, {
+    const origin = await getServerOrigin();
+    const res = await fetch(`${origin}/api/auth/sign-in/email`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -84,9 +99,10 @@ async function handleLogin(email: string, password: string) {
     };
   } catch (error: any) {
     console.error("[DSA Tracker Background] Login error:", error);
+    const origin = await getServerOrigin();
     return {
       success: false,
-      error: error.message || "Network error. Is DSA Tracker running at http://localhost:3000?",
+      error: error.message || `Network error. Is DSA Tracker running at ${origin}?`,
     };
   }
 }
@@ -94,16 +110,17 @@ async function handleLogin(email: string, password: string) {
 // Handle logout
 async function handleLogout() {
   try {
+    const origin = await getServerOrigin();
     const token = await getSessionToken();
     if (token) {
-      await fetch(`${SERVER_ORIGIN}/api/auth/sign-out`, {
+      await fetch(`${origin}/api/auth/sign-out`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
       await chrome.cookies.remove({
-        url: SERVER_ORIGIN,
+        url: origin,
         name: "better-auth.session_token",
       });
     }
@@ -154,7 +171,8 @@ async function importSubmission(submission: CapturedSubmission) {
   }
 
   try {
-    const res = await fetch(`${SERVER_ORIGIN}/api/submissions/import`, {
+    const origin = await getServerOrigin();
+    const res = await fetch(`${origin}/api/submissions/import`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -187,8 +205,90 @@ async function importSubmission(submission: CapturedSubmission) {
   }
 }
 
+// Sync full LeetCode history and activity to DSA Tracker
+async function syncLeetCodeToDashboard() {
+  const token = await getSessionToken();
+  if (!token) {
+    return {
+      success: false,
+      error: "NOT_LOGGED_IN",
+      message: "Please log in to DSA Tracker before syncing.",
+    };
+  }
+
+  try {
+    const payload = await fetchLeetCodeSyncData();
+
+    const origin = await getServerOrigin();
+    const res = await fetch(`${origin}/api/leetcode/sync`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      return {
+        success: false,
+        error: "API_ERROR",
+        message: data.error || `Server responded with ${res.status}`,
+      };
+    }
+
+    await chrome.storage.local.set({
+      lastSyncedAt: new Date().toISOString(),
+      leetcodeUsername: payload.leetcodeUsername,
+    });
+
+    return {
+      success: true,
+      data,
+    };
+  } catch (error: any) {
+    console.error("[DSA Tracker Background] Sync error:", error);
+    return {
+      success: false,
+      error: "SYNC_ERROR",
+      message: error.message || "Failed to sync LeetCode data.",
+    };
+  }
+}
+
 // Message Router
 chrome.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendResponse) => {
+  if (message.type === "FETCH_SUBMISSION_DETAILS") {
+    getSubmissionDetails(message.externalId)
+      .then((details) => {
+        sendResponse({
+          success: true,
+          data: {
+            code: details.code,
+            runtimeMs: details.runtime,
+            memoryBytes: details.memory,
+            language: details.lang?.name || details.lang?.verboseName || "unknown",
+          },
+        });
+      })
+      .catch((err) => {
+        sendResponse({
+          success: false,
+          error: err.message || "Failed to fetch submission details from LeetCode",
+        });
+      });
+    return true;
+  }
+
+  if (message.type === "SYNC_LEETCODE") {
+    syncLeetCodeToDashboard().then((result) => {
+      sendResponse(result);
+    });
+    return true;
+  }
+
   if (message.type === "SUBMISSION_CAPTURED") {
     saveCapturedSubmission(message.payload).then(() => {
       sendResponse({ success: true });
@@ -240,6 +340,20 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendRe
       sendResponse({ success: true });
     });
     return true;
+  }
+
+  if (message.type === "REGISTER_WEB_APP_ORIGIN") {
+    if (
+      message.origin &&
+      (message.origin.startsWith("http://") || message.origin.startsWith("https://"))
+    ) {
+      chrome.storage.local.set({ serverOrigin: message.origin }).then(() => {
+        sendResponse({ success: true, origin: message.origin });
+      });
+      return true;
+    }
+    sendResponse({ success: false, error: "Invalid origin" });
+    return false;
   }
 
   return false;

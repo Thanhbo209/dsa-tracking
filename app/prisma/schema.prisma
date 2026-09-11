@@ -197,13 +197,31 @@ model User {
   displayUsername String?
   bio             String?
 
+  lastSyncedAt    DateTime?
+  leetcodeUsername String?
+
   sessions        Session[]
   accounts        Account[]
 
   submissions     Submission[]
   approaches      Approach[]
+  dailyActivities DailyActivity[]
 
   @@map("user")
+}
+
+model DailyActivity {
+  id        String           @id @default(cuid())
+  userId    String
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date      String           // YYYY-MM-DD
+  count     Int              @default(0)
+  source    SubmissionSource @default(LEETCODE)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  @@unique([userId, date, source])
+  @@index([userId])
 }
 
 model Session {

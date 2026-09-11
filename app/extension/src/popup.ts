@@ -42,6 +42,15 @@ const btnImportSync = document.getElementById("btn-import-sync") as HTMLButtonEl
 const historySection = document.getElementById("history-section") as HTMLElement;
 const historyList = document.getElementById("history-list") as HTMLElement;
 
+// Sync elements
+const elSyncPanel = document.getElementById("sync-panel") as HTMLElement;
+const elSyncLastMeta = document.getElementById("sync-last-meta") as HTMLElement;
+const btnSyncDashboard = document.getElementById("btn-sync-dashboard") as HTMLButtonElement;
+const btnSyncText = document.getElementById("btn-sync-text") as HTMLElement;
+const elSyncMessage = document.getElementById("sync-message") as HTMLElement;
+
+
+
 function showView(viewId: "loading" | "login" | "empty" | "submissions") {
   [viewLoading, viewLogin, viewEmpty, viewSubmissions].forEach((v) => {
     v.classList.remove("active");
@@ -203,6 +212,7 @@ async function init() {
   if (!authState || !authState.isAuthenticated) {
     updateConnectionStatus(false, "Not Logged In");
     elUserBar.style.display = "none";
+    elSyncPanel.style.display = "none";
     showView("login");
     return;
   }
@@ -210,9 +220,24 @@ async function init() {
   // Authenticated
   updateConnectionStatus(true, "Connected");
   elUserBar.style.display = "flex";
+  elSyncPanel.style.display = "block";
   elUserBarName.textContent = authState.user?.username
     ? `@${authState.user.username}`
     : authState.user?.name || authState.user?.email || "User";
+
+  // Load last sync metadata
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage?.local) {
+      const meta = await chrome.storage.local.get(["lastSyncedAt", "leetcodeUsername"]);
+      if (meta.lastSyncedAt) {
+        elSyncLastMeta.textContent = `${meta.leetcodeUsername ? "@" + meta.leetcodeUsername + " · " : ""}${formatRelativeTime(meta.lastSyncedAt)}`;
+      } else {
+        elSyncLastMeta.textContent = "Not synced yet";
+      }
+    }
+  } catch {
+    // ignore
+  }
 
   // Fetch captured submissions directly from chrome.storage.local
   let submissions: CapturedSubmission[] = [];
@@ -234,7 +259,42 @@ async function init() {
 }
 
 // Event Listeners
+btnSyncDashboard.onclick = async () => {
+  btnSyncDashboard.disabled = true;
+  btnSyncText.textContent = "Syncing with LeetCode...";
+  elSyncMessage.style.display = "none";
+
+  try {
+    const res = await sendMessage({ type: "SYNC_LEETCODE" });
+    if (res && res.success) {
+      const pCount = res.data?.syncedProblems ?? 0;
+      const dCount = res.data?.calendarDays ?? 0;
+      btnSyncText.textContent = "✓ Sync Completed";
+      elSyncMessage.className = "sync-message success";
+      elSyncMessage.textContent = `Synced: ${pCount} problems, ${dCount} active days!`;
+      elSyncMessage.style.display = "block";
+      elSyncLastMeta.textContent = "Just now";
+    } else {
+      btnSyncText.textContent = "Sync to Dashboard";
+      elSyncMessage.className = "sync-message error";
+      elSyncMessage.textContent = res?.message || res?.error || "Sync failed. Make sure you are signed into LeetCode.";
+      elSyncMessage.style.display = "block";
+    }
+  } catch (err: any) {
+    btnSyncText.textContent = "Sync to Dashboard";
+    elSyncMessage.className = "sync-message error";
+    elSyncMessage.textContent = err.message || "Failed to trigger sync.";
+    elSyncMessage.style.display = "block";
+  } finally {
+    setTimeout(() => {
+      btnSyncDashboard.disabled = false;
+      btnSyncText.textContent = "Sync to Dashboard";
+    }, 4000);
+  }
+};
+
 linkSignup.onclick = (e) => {
+
   e.preventDefault();
   window.open(`${SERVER_URL}/signup`, "_blank");
 };

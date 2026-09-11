@@ -17,6 +17,7 @@ await build({
     "extension/src/content.ts",
     "extension/src/background.ts",
     "extension/src/popup.ts",
+    "extension/src/bridge.ts",
   ],
   bundle: true,
   outdir: "extension/dist",

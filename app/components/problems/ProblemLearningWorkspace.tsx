@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { History, BookOpen, AlertCircle, X, ChevronRight } from "lucide-react";
 import { DsaLogo } from "@/components/brand/DsaLogo";
 import { cn } from "@/lib/utils";
@@ -12,6 +12,7 @@ import type { SerializedSubmissionAnalysis } from "./analysis/types";
 
 export interface WorkspaceSubmission {
   id: string;
+  externalId?: string | null;
   status: string;
   language: string;
   runtimeMs: number | null;
@@ -36,6 +37,13 @@ export function ProblemLearningWorkspace({
   approaches = [],
   defaultTab,
 }: ProblemLearningWorkspaceProps) {
+  const [workspaceSubmissions, setWorkspaceSubmissions] =
+    useState<WorkspaceSubmission[]>(submissions);
+
+  useEffect(() => {
+    setWorkspaceSubmissions(submissions);
+  }, [submissions]);
+
   const [activeTab, setActiveTab] = useState<WorkspaceTab>(
     defaultTab ?? (approaches.length > 0 ? "knowledge" : "submissions"),
   );
@@ -46,9 +54,25 @@ export function ProblemLearningWorkspace({
 
   // Derive the active selected submission (or default to the latest)
   const selectedSubmission =
-    submissions.find((s) => s.id === selectedSubmissionId) ||
-    submissions[0] ||
+    workspaceSubmissions.find((s) => s.id === selectedSubmissionId) ||
+    workspaceSubmissions[0] ||
     null;
+
+  function handleCodeUpdated(submissionId: string, newCode: string, details?: any) {
+    setWorkspaceSubmissions((prev) =>
+      prev.map((sub) =>
+        sub.id === submissionId
+          ? {
+              ...sub,
+              code: newCode,
+              language: details?.language || sub.language,
+              runtimeMs: details?.runtimeMs ?? sub.runtimeMs,
+              memoryBytes: details?.memoryBytes ?? sub.memoryBytes,
+            }
+          : sub,
+      ),
+    );
+  }
 
   return (
     <div className="space-y-6 text-white">
@@ -163,7 +187,7 @@ export function ProblemLearningWorkspace({
               Submissions
             </h2>
             <span className="rounded-full bg-[#373737] border border-[#4a4a4a] px-2.5 py-0.5 text-xs sm:text-sm font-semibold text-white">
-              {submissions.length}
+              {workspaceSubmissions.length}
             </span>
           </div>
 
@@ -172,7 +196,7 @@ export function ProblemLearningWorkspace({
           </p>
         </div>
 
-        {submissions.length === 0 ? (
+        {workspaceSubmissions.length === 0 ? (
           <div className="rounded-xl border border-dashed border-[#4a4a4a] p-8 text-center bg-[#373737] text-white">
             <p className="text-sm font-medium text-white">
               No submissions recorded yet
@@ -183,10 +207,11 @@ export function ProblemLearningWorkspace({
           </div>
         ) : (
           <div className="space-y-3">
-            {submissions.map((submission) => (
+            {workspaceSubmissions.map((submission) => (
               <div key={submission.id} className="space-y-1.5">
                 <SubmissionCard
                   id={submission.id}
+                  externalId={submission.externalId}
                   status={submission.status}
                   language={submission.language}
                   runtimeMs={submission.runtimeMs}
@@ -196,6 +221,9 @@ export function ProblemLearningWorkspace({
                   analyses={submission.analyses}
                   isSelected={submission.id === selectedSubmission?.id}
                   onSelect={() => setSelectedSubmissionId(submission.id)}
+                  onCodeUpdated={(newCode, details) =>
+                    handleCodeUpdated(submission.id, newCode, details)
+                  }
                 />
                 <div className="flex justify-end pr-1">
                   <button
@@ -249,7 +277,7 @@ export function ProblemLearningWorkspace({
           </button>
         </div>
 
-        {submissions.length === 0 ? (
+        {workspaceSubmissions.length === 0 ? (
           <div className="rounded-xl border border-dashed border-[#4a4a4a] p-8 text-center bg-[#373737] text-white">
             <AlertCircle className="size-7 text-white mx-auto mb-2 opacity-80" />
             <p className="text-sm sm:text-base text-white">
@@ -277,7 +305,7 @@ export function ProblemLearningWorkspace({
                 </span>
               </div>
 
-              {submissions.length > 1 && (
+              {workspaceSubmissions.length > 1 && (
                 <div className="flex items-center gap-2">
                   <span className="text-xs sm:text-sm text-zinc-300">Switch attempt:</span>
                   <select
@@ -285,7 +313,7 @@ export function ProblemLearningWorkspace({
                     onChange={(e) => setSelectedSubmissionId(e.target.value)}
                     className="rounded bg-[#262626] border border-[#4a4a4a] px-2.5 py-1 text-xs sm:text-sm text-white focus:outline-none focus:border-primary"
                   >
-                    {submissions.map((s) => (
+                    {workspaceSubmissions.map((s) => (
                       <option key={s.id} value={s.id}>
                         {s.status.replaceAll("_", " ")} ({s.language}) · #{s.id.slice(-6)}
                       </option>

@@ -45,6 +45,7 @@ export async function getSubmissionDetails(
     headers: {
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify({
       query: SUBMISSION_DETAILS_QUERY,
       variables: {
@@ -59,10 +60,17 @@ export async function getSubmissionDetails(
 
   const result = await response.json();
 
+  if (result.errors && result.errors.length > 0) {
+    const errorMsg = result.errors.map((e: any) => e.message).join(", ");
+    throw new Error(`LeetCode GraphQL error: ${errorMsg}`);
+  }
+
   const details = result.data?.submissionDetails;
 
   if (!details) {
-    throw new Error(`Submission details not found: ${submissionId}`);
+    throw new Error(
+      `Submission details not found for ID ${submissionId}. Ensure you are logged into leetcode.com with the account that created this submission.`,
+    );
   }
 
   return details;

@@ -7,6 +7,23 @@ import { calculateStreak } from "@/lib/activity/streak";
 export interface ActivityHeatmapProps {
   submissionActivities: Record<string, number>; // { [YYYY-MM-DD]: count }
   approachActivities?: Record<string, number>; // { [YYYY-MM-DD]: count }
+  lastSyncedAt?: string | null;
+  leetcodeUsername?: string | null;
+}
+
+function formatRelativeTime(dateStr?: string | null): string {
+  if (!dateStr) return "";
+  try {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diffSec = Math.floor((now.getTime() - d.getTime()) / 1000);
+    if (diffSec < 60) return "just now";
+    if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
+    if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
+    return `${Math.floor(diffSec / 86400)}d ago`;
+  } catch {
+    return "";
+  }
 }
 
 const MONTH_NAMES = [
@@ -27,6 +44,8 @@ const MONTH_NAMES = [
 export function ActivityHeatmap({
   submissionActivities,
   approachActivities = {},
+  lastSyncedAt,
+  leetcodeUsername,
 }: ActivityHeatmapProps) {
   const [activeTab, setActiveTab] = useState<"SOLVES" | "KNOWLEDGE">("SOLVES");
   const [tooltip, setTooltip] = useState<{
@@ -157,9 +176,20 @@ export function ActivityHeatmap({
               Activity &amp; Consistency
             </h2>
           </div>
-          <p className="text-xs text-zinc-400 mt-1.5 leading-normal">
-            Practice frequency, streaks &amp; contributions
-          </p>
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-400 mt-1.5 leading-normal">
+            <span>Practice frequency, streaks &amp; contributions</span>
+            {lastSyncedAt ? (
+              <>
+                <span className="text-zinc-600">•</span>
+                <span
+                  className="text-[11px] text-[#46C6C2] font-medium"
+                  title={new Date(lastSyncedAt).toLocaleString()}
+                >
+                  Synced {leetcodeUsername ? `@${leetcodeUsername} ` : ""}{formatRelativeTime(lastSyncedAt)}
+                </span>
+              </>
+            ) : null}
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">

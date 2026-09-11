@@ -4,6 +4,7 @@ import { ProblemDetailPanel } from "@/components/problems/ProblemDetailPanel";
 import { ProblemLearningWorkspace } from "@/components/problems/ProblemLearningWorkspace";
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/session";
+import { syncProblem } from "@/lib/leetcode/sync";
 
 interface ProblemPageProps {
   params: Promise<{
@@ -92,8 +93,27 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
     notFound();
   }
 
+  // On-demand fetch of problem description if missing (e.g. from bulk sync)
+  if (!problem.description || problem.description.trim().length === 0) {
+    try {
+      const synced = await syncProblem(problem.slug);
+      problem.description = synced.description;
+      if (synced.topics && synced.topics.length > 0) {
+        problem.topics = synced.topics;
+      }
+    } catch (error) {
+      console.warn(
+        `[ProblemPage] On-demand description fetch failed for ${problem.slug}:`,
+        error,
+      );
+      // Fallback: problem.description remains empty/null, so "Description unavailable" displays
+      // without caching a failed state to DB, allowing retry on next visit.
+    }
+  }
+
   const serializedSubmissions = problem.submissions.map((submission) => ({
     id: submission.id,
+    externalId: submission.externalId,
     status: submission.status,
     language: submission.language,
     runtimeMs: submission.runtimeMs,

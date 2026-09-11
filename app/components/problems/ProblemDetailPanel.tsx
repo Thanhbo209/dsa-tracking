@@ -105,7 +105,10 @@ export function ProblemDetailPanel({
             [&_li]:text-zinc-200 [&_li]:leading-relaxed
             [&_img]:my-4 [&_img]:rounded-lg [&_img]:border [&_img]:border-[#4a4a4a]"
           dangerouslySetInnerHTML={{
-            __html: description ?? "<p>No description available.</p>",
+            __html:
+              description && description.trim().length > 0
+                ? description
+                : "<p class='text-zinc-400 italic'>No description available.</p>",
           }}
         />
       </div>

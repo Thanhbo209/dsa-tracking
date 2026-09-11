@@ -44,3 +44,16 @@ export interface LeetCodeSubmission {
   memoryBytes?: number;
   submittedAt?: Date;
 }
+
+export class LeetCodeRateLimitError extends Error {
+  public statusCode: number;
+  public retryAfterMs?: number;
+
+  constructor(message = "LeetCode rate limit reached. Please wait a few moments before trying again.", retryAfterMs?: number) {
+    super(message);
+    this.name = "LeetCodeRateLimitError";
+    this.statusCode = 429;
+    this.retryAfterMs = retryAfterMs;
+  }
+}
+
