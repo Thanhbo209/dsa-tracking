@@ -214,9 +214,23 @@ async function init() {
     ? `@${authState.user.username}`
     : authState.user?.name || authState.user?.email || "User";
 
-  // Fetch captured submissions
-  const data = await sendMessage({ type: "GET_SUBMISSIONS" });
-  renderSubmissions(data?.submissions || []);
+  // Fetch captured submissions directly from chrome.storage.local
+  let submissions: CapturedSubmission[] = [];
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage?.local) {
+      const storageData = await chrome.storage.local.get(["capturedSubmissions"]);
+      submissions = storageData.capturedSubmissions || [];
+    }
+  } catch {
+    // fallback
+  }
+
+  if (submissions.length === 0) {
+    const data = await sendMessage({ type: "GET_SUBMISSIONS" });
+    submissions = data?.submissions || [];
+  }
+
+  renderSubmissions(submissions);
 }
 
 // Event Listeners

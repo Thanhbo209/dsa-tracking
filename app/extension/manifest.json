@@ -33,6 +33,12 @@
       "js": ["dist/content.js"],
       "run_at": "document_idle"
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/logo.png", "logo.png"],
+      "matches": ["https://leetcode.com/*"]
+    }
   ]
 }
 

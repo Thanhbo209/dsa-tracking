@@ -11,13 +11,51 @@ function getProblemSlug(): string | null {
   return match?.[1] ?? null;
 }
 
+function getProblemTitle(slug: string): string {
+  const docTitle = document.title;
+  if (docTitle && docTitle.includes("- LeetCode")) {
+    return docTitle.replace("- LeetCode", "").trim();
+  }
+  return slug
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
+}
+
+function persistSubmission(submission: any) {
+  // 1. Direct write to chrome.storage.local so popup sees it immediately
+  if (typeof chrome !== "undefined" && chrome.storage?.local) {
+    chrome.storage.local.get(["capturedSubmissions"], (data) => {
+      const existing = data.capturedSubmissions || [];
+      const filtered = existing.filter((s: any) => s.externalId !== submission.externalId);
+      const updated = [submission, ...filtered].slice(0, 20);
+      chrome.storage.local.set({
+        capturedSubmissions: updated,
+        latestSubmission: submission,
+      });
+    });
+  }
+
+  // 2. Notify background service worker
+  if (typeof chrome !== "undefined" && chrome.runtime?.sendMessage) {
+    chrome.runtime.sendMessage({
+      type: "SUBMISSION_CAPTURED",
+      payload: submission,
+    }, () => {
+      if (chrome.runtime.lastError) {
+        // silent
+      }
+    });
+  }
+}
+
 async function captureSubmission(submissionId: string) {
   const details = await getSubmissionDetails(submissionId);
 
   const submission = {
     externalId: submissionId,
     problemSlug: details.question.titleSlug,
-    problemTitle: details.question.title || details.question.titleSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+    problemTitle: getProblemTitle(details.question.titleSlug),
     status: mapSubmissionStatus(details.statusCode),
     language: details.lang.name,
     code: details.code,
@@ -28,19 +66,7 @@ async function captureSubmission(submissionId: string) {
 
   console.log("[DSA Tracker] Captured submission:", submission);
 
-  // Send to background service worker to persist in chrome.storage.local
-  if (typeof chrome !== "undefined" && chrome.runtime?.sendMessage) {
-    chrome.runtime.sendMessage({
-      type: "SUBMISSION_CAPTURED",
-      payload: submission,
-    }, () => {
-      // Ignore errors if background isn't ready
-      if (chrome.runtime.lastError) {
-        // silent
-      }
-    });
-  }
-
+  persistSubmission(submission);
   showSubmissionNotification(submission);
 }
 

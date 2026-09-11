@@ -15,7 +15,6 @@ const SUBMISSION_DETAILS_QUERY = `
       question {
         questionId
         titleSlug
-        title
       }
     }
   }
