@@ -25,7 +25,7 @@ describe("Public Profile Privacy & Knowledge Isolation (lib/profile/service)", (
     expect(profile).toBeNull();
   });
 
-  it("returns public user data and knowledge playbook, strictly isolating private data", async () => {
+  it("returns public user data and lean problem list, strictly isolating private data", async () => {
     userFindFirstMock.mockResolvedValue({
       id: "user-1",
       name: "Thanh Pham",
@@ -36,20 +36,17 @@ describe("Public Profile Privacy & Knowledge Isolation (lib/profile/service)", (
       createdAt: new Date("2026-03-01T00:00:00Z"),
     });
 
+    // The lean query only selects id, solutions (id + codes.id), and problem
+    // metadata — no approach name/coreIdea/etc. needed for the list page.
     approachFindManyMock.mockResolvedValue([
       {
         id: "app-1",
-        name: "Two Pointers",
-        coreIdea: "Opposite ends meet",
-        whyItWorks: "Sorted array guarantees monotonic sum",
-        whenToUse: "Target sum in sorted array",
-        timeComplexity: "O(n)",
-        spaceComplexity: "O(1)",
-        pros: "Fast",
-        cons: "Requires sorted",
-        notes: null,
-        mistakes: null,
-        createdAt: new Date("2026-03-02T00:00:00Z"),
+        solutions: [
+          {
+            id: "sol-1",
+            codes: [{ id: "code-1" }],
+          },
+        ],
         problem: {
           slug: "two-sum-ii",
           title: "Two Sum II",
@@ -57,23 +54,6 @@ describe("Public Profile Privacy & Knowledge Isolation (lib/profile/service)", (
           difficulty: "MEDIUM",
           topics: [{ topic: { name: "Array" } }, { topic: { name: "Two Pointers" } }],
         },
-        solutions: [
-          {
-            id: "sol-1",
-            name: "Left & Right pointer",
-            description: "Move left or right depending on sum",
-            algorithm: "left = 0, right = n - 1",
-            notes: null,
-            codes: [
-              {
-                id: "code-1",
-                language: "python3",
-                code: "def twoSum(numbers, target): pass",
-                notes: null,
-              },
-            ],
-          },
-        ],
       },
     ]);
 
@@ -90,11 +70,16 @@ describe("Public Profile Privacy & Knowledge Isolation (lib/profile/service)", (
     expect(profile.stats.codeCount).toBe(1);
     expect(profile.stats.problemCount).toBe(1);
 
-    // Verify public knowledge
-    expect(profile.approaches[0].name).toBe("Two Pointers");
-    expect(profile.approaches[0].problem.title).toBe("Two Sum II");
-    expect(profile.approaches[0].solutions[0].name).toBe("Left & Right pointer");
-    expect(profile.approaches[0].solutions[0].codes[0].language).toBe("python3");
+    // Verify lean problem list (no approach/solution/code nested data)
+    expect(profile.problems).toHaveLength(1);
+    expect(profile.problems[0].slug).toBe("two-sum-ii");
+    expect(profile.problems[0].title).toBe("Two Sum II");
+    expect(profile.problems[0].difficulty).toBe("MEDIUM");
+    expect(profile.problems[0].topics).toEqual(["Array", "Two Pointers"]);
+    expect(profile.problems[0].approachCount).toBe(1);
+
+    // Verify no approach/solution/code nested objects leak out of the list profile
+    expect((profile as any).approaches).toBeUndefined();
 
     // CRITICAL: Ensure no private fields exist anywhere in the serialized output
     const serialized = JSON.stringify(profile);
