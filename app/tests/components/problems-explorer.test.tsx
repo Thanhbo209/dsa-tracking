@@ -147,4 +147,40 @@ describe("ProblemsExplorer Component", () => {
     expect(html).toContain("Difficulty:");
     expect(html).toContain("Status:");
   });
+
+  it("limits problem list to 16 items on page 1 and renders pagination controls", () => {
+    const manyProblems: ProblemExplorerItem[] = Array.from(
+      { length: 25 },
+      (_, i) => ({
+        id: `prob-${i + 1}`,
+        slug: `problem-${i + 1}`,
+        leetcodeId: i + 1,
+        title: `Problem Number ${i + 1}`,
+        difficulty: "EASY",
+        topics: ["Array"],
+        status: "TODO",
+        approachCount: 0,
+        updatedAt: "2026-03-01T10:00:00Z",
+      }),
+    );
+
+    const html = renderToStaticMarkup(
+      <ProblemsExplorer problems={manyProblems} />,
+    );
+
+    // Problem 1 to 16 should be rendered on page 1
+    expect(html).toContain("Problem Number 1");
+    expect(html).toContain("Problem Number 16");
+
+    // Problem 17 should NOT be on page 1
+    expect(html).not.toContain("Problem Number 17");
+
+    // Pagination info
+    expect(html).toContain("1–16");
+    expect(html).toContain("of 25 problems");
+    expect(html).toContain("16 problems per page");
+    expect(html).toContain("aria-label=\"Problems pagination\"");
+    expect(html).toContain("Prev");
+    expect(html).toContain("Next");
+  });
 });

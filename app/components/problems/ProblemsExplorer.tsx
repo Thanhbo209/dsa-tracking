@@ -12,10 +12,42 @@ import {
   ArrowUpDown,
   RotateCcw,
   ChevronRight,
+  ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DsaLogo } from "@/components/brand/DsaLogo";
 import type { Difficulty } from "@/lib/generated/prisma/client";
+
+const PAGE_SIZE = 16;
+
+function getPageNumbers(currentPage: number, totalPages: number): (number | "...")[] {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  if (currentPage <= 4) {
+    return [1, 2, 3, 4, 5, "...", totalPages];
+  }
+  if (currentPage >= totalPages - 3) {
+    return [
+      1,
+      "...",
+      totalPages - 4,
+      totalPages - 3,
+      totalPages - 2,
+      totalPages - 1,
+      totalPages,
+    ];
+  }
+  return [
+    1,
+    "...",
+    currentPage - 1,
+    currentPage,
+    currentPage + 1,
+    "...",
+    totalPages,
+  ];
+}
 
 export type ProblemStatus = "SOLVED" | "ATTEMPTED" | "TODO";
 
@@ -78,6 +110,7 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
   const [selectedTopic, setSelectedTopic] = useState<string>("ALL");
   const [sortBy, setSortBy] = useState<SortOption>("NUM_ASC");
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Derive distinct list of available topics from current dataset
   const availableTopics = useMemo(() => {
@@ -224,7 +257,18 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
     setStatusFilter("ALL");
     setSelectedTopic("ALL");
     setSortBy("NUM_ASC");
+    setCurrentPage(1);
   }
+
+  // Pagination calculation: strictly 16 items per page
+  const totalPages = Math.max(1, Math.ceil(filteredProblems.length / PAGE_SIZE));
+  const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
+  const startIndex = (safeCurrentPage - 1) * PAGE_SIZE;
+  const endIndex = Math.min(startIndex + PAGE_SIZE, filteredProblems.length);
+
+  const paginatedProblems = useMemo(() => {
+    return filteredProblems.slice(startIndex, endIndex);
+  }, [filteredProblems, startIndex, endIndex]);
 
   // Handle case when database contains 0 problems
   if (problems.length === 0) {
@@ -324,14 +368,20 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
               type="text"
               aria-label="Search problems"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="Search by title or #id (e.g. Two Sum, 1, #1)..."
               className="w-full rounded-lg border border-[#4a4a4a] bg-[#1a1a1a] pl-10 pr-8 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-primary transition-colors"
             />
             {searchQuery && (
               <button
                 type="button"
-                onClick={() => setSearchQuery("")}
+                onClick={() => {
+                  setSearchQuery("");
+                  setCurrentPage(1);
+                }}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400 hover:text-white"
                 aria-label="Clear search text"
               >
@@ -348,7 +398,10 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
                 <select
                   aria-label="Filter by Topic"
                   value={selectedTopic}
-                  onChange={(e) => setSelectedTopic(e.target.value)}
+                  onChange={(e) => {
+                    setSelectedTopic(e.target.value);
+                    setCurrentPage(1);
+                  }}
                   className="rounded-lg border border-[#4a4a4a] bg-[#1a1a1a] px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors cursor-pointer"
                 >
                   <option value="ALL">All Topics ({availableTopics.length})</option>
@@ -367,7 +420,10 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
               <select
                 aria-label="Sort problems"
                 value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as SortOption)}
+                onChange={(e) => {
+                  setSortBy(e.target.value as SortOption);
+                  setCurrentPage(1);
+                }}
                 className="rounded-lg border border-[#4a4a4a] bg-[#1a1a1a] px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors cursor-pointer"
               >
                 <option value="NUM_ASC">Number: Low to High</option>
@@ -403,7 +459,10 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
               <button
                 key={diff}
                 type="button"
-                onClick={() => setDifficultyFilter(diff)}
+                onClick={() => {
+                  setDifficultyFilter(diff);
+                  setCurrentPage(1);
+                }}
                 className={`rounded-md px-2.5 py-1 font-medium transition-all ${
                   difficultyFilter === diff
                     ? diff === "EASY"
@@ -430,7 +489,10 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
               <button
                 key={st}
                 type="button"
-                onClick={() => setStatusFilter(st)}
+                onClick={() => {
+                  setStatusFilter(st);
+                  setCurrentPage(1);
+                }}
                 className={`flex items-center gap-1 rounded-md px-2.5 py-1 font-medium transition-all ${
                   statusFilter === st
                     ? st === "SOLVED"
@@ -462,13 +524,17 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
       </section>
 
       {/* ── Results Count & Clear Shortcut ─────────────────────────── */}
-      <div className="flex items-center justify-between text-xs sm:text-sm text-zinc-400 px-1">
+      <div
+        id="problems-list-header"
+        className="flex items-center justify-between text-xs sm:text-sm text-zinc-400 px-1 scroll-mt-20"
+      >
         <span>
           Showing{" "}
           <strong className="text-white font-semibold">
-            {filteredProblems.length}
+            {filteredProblems.length === 0 ? 0 : `${startIndex + 1}–${endIndex}`}
           </strong>{" "}
-          of {problems.length} problems
+          of {filteredProblems.length}{" "}
+          {hasActiveFilters ? `(filtered from ${problems.length})` : "problems"}
         </span>
         {hasActiveFilters && (
           <button
@@ -504,7 +570,7 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {filteredProblems.map((problem) => {
+          {paginatedProblems.map((problem) => {
             return (
               <Link
                 key={problem.id}
@@ -617,6 +683,81 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
             );
           })}
         </div>
+      )}
+
+      {/* ── Pagination Controls ────────────────────────────────────── */}
+      {totalPages > 1 && (
+        <nav
+          aria-label="Problems pagination"
+          className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#383838]"
+        >
+          <div className="text-xs text-zinc-400">
+            Page <span className="font-semibold text-white">{safeCurrentPage}</span> of{" "}
+            <span className="font-semibold text-white">{totalPages}</span> ({PAGE_SIZE} problems per page)
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => {
+                setCurrentPage((p) => Math.max(1, p - 1));
+                document.getElementById("problems-list-header")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              disabled={safeCurrentPage === 1}
+              className="flex items-center gap-1 rounded-lg border border-[#383838] bg-[#262626] px-3 py-1.5 text-xs font-medium text-zinc-300 hover:bg-[#333333] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="size-3.5" />
+              <span>Prev</span>
+            </button>
+
+            {/* Page numbers */}
+            <div className="flex items-center gap-1">
+              {getPageNumbers(safeCurrentPage, totalPages).map((p, idx) =>
+                p === "..." ? (
+                  <span
+                    key={`ellipsis-${idx}`}
+                    className="px-2 py-1 text-xs text-zinc-500 select-none"
+                  >
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => {
+                      setCurrentPage(p as number);
+                      document.getElementById("problems-list-header")?.scrollIntoView({ behavior: "smooth" });
+                    }}
+                    className={`min-w-8 h-8 rounded-lg text-xs font-semibold transition-colors ${
+                      safeCurrentPage === p
+                        ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                        : "border border-[#383838] bg-[#262626] text-zinc-300 hover:bg-[#333333] hover:text-white"
+                    }`}
+                    aria-label={`Page ${p}`}
+                    aria-current={safeCurrentPage === p ? "page" : undefined}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                setCurrentPage((p) => Math.min(totalPages, p + 1));
+                document.getElementById("problems-list-header")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              disabled={safeCurrentPage === totalPages}
+              className="flex items-center gap-1 rounded-lg border border-[#383838] bg-[#262626] px-3 py-1.5 text-xs font-medium text-zinc-300 hover:bg-[#333333] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              aria-label="Next page"
+            >
+              <span>Next</span>
+              <ChevronRight className="size-3.5" />
+            </button>
+          </div>
+        </nav>
       )}
     </div>
   );
