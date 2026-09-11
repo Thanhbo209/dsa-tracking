@@ -1,22 +1,24 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import {
-  BookOpen,
-  Code2,
-  CheckCircle2,
-  Calendar,
-  Layers,
-  ArrowLeft,
-  Clock,
-  ExternalLink,
-} from "lucide-react";
+import { ArrowLeft, BookOpen } from "lucide-react";
+import type { Metadata } from "next";
 import { getPublicUserProfile } from "@/lib/profile/service";
-import { CodeViewer } from "@/components/problems/CodeViewer";
+import { DsaLogo } from "@/components/brand/DsaLogo";
 
 interface PublicProfilePageProps {
   params: Promise<{
     username: string;
   }>;
+}
+
+export async function generateMetadata({
+  params,
+}: PublicProfilePageProps): Promise<Metadata> {
+  const { username } = await params;
+  return {
+    title: `@${username}`,
+    description: `Public DSA playbook and solutions for @${username}`,
+  };
 }
 
 function difficultyClass(difficulty: string | null): string {
@@ -32,19 +34,6 @@ function difficultyClass(difficulty: string | null): string {
   }
 }
 
-import type { Metadata } from "next";
-import { DsaLogo } from "@/components/brand/DsaLogo";
-
-export async function generateMetadata({
-  params,
-}: PublicProfilePageProps): Promise<Metadata> {
-  const { username } = await params;
-  return {
-    title: `@${username}`,
-    description: `Public DSA playbook and solutions for @${username}`,
-  };
-}
-
 export default async function PublicProfilePage({
   params,
 }: PublicProfilePageProps) {
@@ -55,7 +44,8 @@ export default async function PublicProfilePage({
     notFound();
   }
 
-  const { user, stats, approaches } = profile;
+  const { user, stats, problems } = profile;
+  const displayName = user.displayUsername ?? user.username;
 
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white">
@@ -111,22 +101,20 @@ export default async function PublicProfilePage({
                   {user.name}
                 </h1>
                 <p className="text-sm font-mono text-primary">
-                  @{user.username}
+                  @{displayName}
                 </p>
                 {user.bio && (
                   <p className="text-sm text-zinc-300 max-w-xl pt-1">
                     {user.bio}
                   </p>
                 )}
-                <div className="flex items-center gap-2 text-xs text-zinc-500 pt-1">
-                  <Calendar className="size-3.5" />
-                  <span>
-                    Joined {new Date(user.createdAt).toLocaleDateString("en-US", {
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </span>
-                </div>
+                <p className="text-xs text-zinc-500 pt-1">
+                  Joined{" "}
+                  {new Date(user.createdAt).toLocaleDateString("en-US", {
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </p>
               </div>
             </div>
 
@@ -171,7 +159,7 @@ export default async function PublicProfilePage({
           </div>
         </section>
 
-        {/* ── Public Knowledge Playbook ───────────────────────────── */}
+        {/* ── Public Knowledge Playbook — Problem List ─────────────── */}
         <section aria-label="Algorithmic Playbook" className="space-y-4">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2">
@@ -181,186 +169,81 @@ export default async function PublicProfilePage({
               </h2>
             </div>
             <span className="text-xs text-zinc-500">
-              {approaches.length} structured {approaches.length === 1 ? "entry" : "entries"}
+              {problems.length}{" "}
+              {problems.length === 1 ? "problem" : "problems"}
             </span>
           </div>
 
-          {approaches.length === 0 ? (
+          {problems.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#444444] bg-[#262626] p-12 text-center space-y-3">
               <DsaLogo size="lg" className="mx-auto h-12 w-auto opacity-40 mb-1" />
               <h3 className="text-base font-semibold text-white">
                 No public knowledge published yet
               </h3>
               <p className="text-sm text-zinc-400 max-w-sm mx-auto">
-                @{user.username} hasn&apos;t saved any approaches to their public
+                @{displayName} hasn&apos;t saved any approaches to their public
                 knowledge playbook yet.
               </p>
             </div>
           ) : (
-            <div className="space-y-6">
-              {approaches.map((approach) => (
-                <article
-                  key={approach.id}
-                  className="rounded-2xl border border-[#383838] bg-[#262626] p-6 space-y-5 shadow-xs"
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {problems.map((problem) => (
+                <Link
+                  key={problem.slug}
+                  href={`/u/${user.username}/${problem.slug}`}
+                  className="block group rounded-xl border border-[#383838] bg-[#262626] p-4 sm:p-5 space-y-3 hover:border-[#555555] hover:bg-[#2e2e2e] transition-colors shadow-xs"
                 >
-                  {/* Problem & Approach Header */}
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#383838] pb-4">
-                    <div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {approach.problem.leetcodeId && (
-                          <span className="font-mono text-xs font-medium text-zinc-400">
-                            #{approach.problem.leetcodeId}
-                          </span>
-                        )}
-                        <h3 className="text-base sm:text-lg font-bold text-white">
-                          {approach.problem.title}
-                        </h3>
-                        {approach.problem.difficulty && (
-                          <span
-                            className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${difficultyClass(
-                              approach.problem.difficulty,
-                            )}`}
-                          >
-                            {approach.problem.difficulty}
-                          </span>
-                        )}
-                      </div>
+                  {/* Title row */}
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      {problem.leetcodeId && (
+                        <span className="font-mono text-xs text-zinc-500 block mb-0.5">
+                          #{problem.leetcodeId}
+                        </span>
+                      )}
+                      <h3 className="text-sm font-semibold text-white leading-snug group-hover:text-primary transition-colors truncate">
+                        {problem.title}
+                      </h3>
+                    </div>
+                    {problem.difficulty && (
+                      <span
+                        className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${difficultyClass(problem.difficulty)}`}
+                      >
+                        {problem.difficulty}
+                      </span>
+                    )}
+                  </div>
 
-                      {approach.problem.topics.length > 0 && (
-                        <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                          {approach.problem.topics.map((topic) => (
-                            <span
-                              key={topic}
-                              className="rounded bg-[#1a1a1a] border border-[#444444] px-2 py-0.5 text-[10px] text-zinc-300"
-                            >
-                              {topic}
-                            </span>
-                          ))}
-                        </div>
+                  {/* Topic chips */}
+                  {problem.topics.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {problem.topics.slice(0, 4).map((topic) => (
+                        <span
+                          key={topic}
+                          className="rounded bg-[#1a1a1a] border border-[#444444] px-1.5 py-0.5 text-[10px] text-zinc-300"
+                        >
+                          {topic}
+                        </span>
+                      ))}
+                      {problem.topics.length > 4 && (
+                        <span className="rounded bg-[#1a1a1a] border border-[#444444] px-1.5 py-0.5 text-[10px] text-zinc-500">
+                          +{problem.topics.length - 4}
+                        </span>
                       )}
                     </div>
-
-                    <div className="flex items-center gap-2">
-                      <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 text-xs font-medium text-amber-300">
-                        <BookOpen className="size-3.5" />
-                        <span>{approach.name}</span>
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Approach Strategy Body */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                    {approach.coreIdea && (
-                      <div className="rounded-xl border border-[#333333] bg-[#1e1e1e] p-3.5 space-y-1">
-                        <span className="font-bold text-zinc-400 uppercase tracking-wider text-[10px]">
-                          Core Idea
-                        </span>
-                        <p className="text-zinc-200 leading-relaxed">
-                          {approach.coreIdea}
-                        </p>
-                      </div>
-                    )}
-
-                    {approach.whyItWorks && (
-                      <div className="rounded-xl border border-[#333333] bg-[#1e1e1e] p-3.5 space-y-1">
-                        <span className="font-bold text-zinc-400 uppercase tracking-wider text-[10px]">
-                          Why It Works
-                        </span>
-                        <p className="text-zinc-200 leading-relaxed">
-                          {approach.whyItWorks}
-                        </p>
-                      </div>
-                    )}
-
-                    {approach.whenToUse && (
-                      <div className="rounded-xl border border-[#333333] bg-[#1e1e1e] p-3.5 space-y-1">
-                        <span className="font-bold text-zinc-400 uppercase tracking-wider text-[10px]">
-                          When To Use
-                        </span>
-                        <p className="text-zinc-200 leading-relaxed">
-                          {approach.whenToUse}
-                        </p>
-                      </div>
-                    )}
-
-                    {(approach.timeComplexity || approach.spaceComplexity) && (
-                      <div className="rounded-xl border border-[#333333] bg-[#1e1e1e] p-3.5 space-y-2">
-                        <span className="font-bold text-zinc-400 uppercase tracking-wider text-[10px]">
-                          Complexity
-                        </span>
-                        <div className="flex items-center gap-3">
-                          {approach.timeComplexity && (
-                            <span className="font-mono text-zinc-300">
-                              Time: <strong className="text-emerald-400">{approach.timeComplexity}</strong>
-                            </span>
-                          )}
-                          {approach.spaceComplexity && (
-                            <span className="font-mono text-zinc-300">
-                              Space: <strong className="text-blue-400">{approach.spaceComplexity}</strong>
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Solutions & Canonical Code */}
-                  {approach.solutions.length > 0 && (
-                    <div className="space-y-4 pt-2">
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400 flex items-center gap-1.5">
-                        <Code2 className="size-3.5 text-zinc-400" />
-                        <span>Implementations & Code</span>
-                      </h4>
-
-                      <div className="space-y-3">
-                        {approach.solutions.map((solution) => (
-                          <div
-                            key={solution.id}
-                            className="rounded-xl border border-[#333333] bg-[#1d1d1d] p-4 space-y-3"
-                          >
-                            <div className="flex items-center justify-between">
-                              <h5 className="text-sm font-semibold text-white">
-                                {solution.name}
-                              </h5>
-                              {solution.algorithm && (
-                                <span className="text-[11px] text-zinc-400">
-                                  {solution.algorithm}
-                                </span>
-                              )}
-                            </div>
-
-                            {solution.description && (
-                              <p className="text-xs text-zinc-300">
-                                {solution.description}
-                              </p>
-                            )}
-
-                            {solution.codes.map((codeItem) => (
-                              <div
-                                key={codeItem.id}
-                                className="rounded-lg border border-[#383838] bg-[#141414] p-3 space-y-2"
-                              >
-                                <div className="flex items-center justify-between text-xs text-zinc-400">
-                                  <span className="font-mono font-medium text-primary">
-                                    {codeItem.language}
-                                  </span>
-                                  {codeItem.notes && (
-                                    <span className="text-[11px] text-zinc-500">
-                                      {codeItem.notes}
-                                    </span>
-                                  )}
-                                </div>
-                                <pre className="overflow-x-auto text-xs font-mono text-zinc-200 bg-[#111111] p-3 rounded border border-[#2b2b2b]">
-                                  <code>{codeItem.code}</code>
-                                </pre>
-                              </div>
-                            ))}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
                   )}
-                </article>
+
+                  {/* Footer: approach count hint */}
+                  <div className="flex items-center justify-between pt-1 border-t border-[#333333]">
+                    <span className="text-[11px] text-zinc-500">
+                      {problem.approachCount}{" "}
+                      {problem.approachCount === 1 ? "approach" : "approaches"}
+                    </span>
+                    <span className="text-[11px] text-zinc-600 group-hover:text-zinc-400 transition-colors">
+                      View →
+                    </span>
+                  </div>
+                </Link>
               ))}
             </div>
           )}

@@ -6,10 +6,10 @@ import {
   SkeletonCircle,
 } from "@/components/ui/skeletons";
 
-/** Mirrors the PublicProfilePage layout:
- *  - Sticky top nav bar
- *  - Profile header card: avatar + name/bio + 4-stat mini grid
- *  - "Public DSA Playbook" section with 3 approach cards
+/** Mirrors the updated /u/[username] list layout:
+ *  - Sticky nav bar
+ *  - Profile header card (avatar + name + 4-stat mini grid)
+ *  - Problem cards grid (3 columns, 6 cards)
  */
 export default function PublicProfileLoading() {
   return (
@@ -34,7 +34,7 @@ export default function PublicProfileLoading() {
               <div className="space-y-2">
                 <Skeleton className="h-7 w-40 rounded" />
                 <Skeleton className="h-4 w-24 rounded" />
-                <Skeleton className="h-3.5 w-64 rounded" />
+                <Skeleton className="h-3.5 w-56 rounded" />
                 <Skeleton className="h-3 w-28 rounded" />
               </div>
             </div>
@@ -54,7 +54,7 @@ export default function PublicProfileLoading() {
           </div>
         </section>
 
-        {/* ── Public DSA Playbook section ── */}
+        {/* ── Problem list section ── */}
         <section className="space-y-4">
           <div className="flex items-center justify-between px-1">
             <div className="flex items-center gap-2">
@@ -64,48 +64,32 @@ export default function PublicProfileLoading() {
             <Skeleton className="h-4 w-20 rounded" />
           </div>
 
-          <div className="space-y-6">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <article
-                key={i}
-                className="rounded-2xl border border-[#383838] bg-[#262626] p-6 space-y-5"
-              >
-                {/* Problem header */}
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#383838] pb-4">
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Skeleton className="h-3.5 w-8 rounded" />
-                      <Skeleton className="h-5 w-48 rounded" />
-                      <SkeletonBadge width="w-14" />
-                    </div>
-                    <div className="flex gap-1.5 flex-wrap">
-                      {Array.from({ length: 3 }).map((_, j) => (
-                        <SkeletonBadge key={j} width="w-16" />
-                      ))}
-                    </div>
+          {/* 3-column problem card grid — 6 cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <SkeletonCard key={i} className="space-y-3">
+                {/* Title row */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="space-y-1 min-w-0">
+                    <Skeleton className="h-3 w-10 rounded" />
+                    <Skeleton className="h-4 w-3/4 rounded" />
                   </div>
-                  <SkeletonBadge width="w-24" />
+                  <SkeletonBadge width="w-14" />
                 </div>
 
-                {/* Approach body grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Array.from({ length: 4 }).map((_, j) => (
-                    <div
-                      key={j}
-                      className="rounded-xl border border-[#333333] bg-[#1e1e1e] p-3.5 space-y-2"
-                    >
-                      <Skeleton className="h-3 w-20 rounded" />
-                      <SkeletonText lines={2} />
-                    </div>
+                {/* Topic chips */}
+                <div className="flex gap-1.5 flex-wrap">
+                  {Array.from({ length: 3 }).map((_, j) => (
+                    <SkeletonBadge key={j} width="w-14" />
                   ))}
                 </div>
 
-                {/* Code block placeholder */}
-                <div className="rounded-xl border border-[#333333] bg-[#1d1d1d] p-4 space-y-2">
-                  <Skeleton className="h-3.5 w-24 rounded" />
-                  <Skeleton className="h-28 w-full rounded-lg" />
+                {/* Footer */}
+                <div className="flex items-center justify-between pt-1 border-t border-[#333333]">
+                  <Skeleton className="h-3 w-20 rounded" />
+                  <Skeleton className="h-3 w-10 rounded" />
                 </div>
-              </article>
+              </SkeletonCard>
             ))}
           </div>
         </section>
