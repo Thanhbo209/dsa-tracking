@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp, Sparkles, AlertCircle, Code, CheckCircle2 } from "lucide-react";
+import { ChevronDown, ChevronUp, AlertCircle, Code, CheckCircle2 } from "lucide-react";
+import { DsaLogo } from "@/components/brand/DsaLogo";
 import { SubmissionAnalysisContainer } from "./analysis/SubmissionAnalysisContainer";
 import type { SerializedSubmissionAnalysis } from "./analysis/types";
 import { cn } from "@/lib/utils";
@@ -129,7 +130,7 @@ export function SubmissionCard({
                 >
                   {latestAnalysis.status === "DRAFT_READY" ? (
                     <>
-                      <Sparkles className="size-3.5 text-primary" />
+                      <DsaLogo size="xs" className="h-3.5 w-auto inline-block" />
                       <span>AI Review Ready</span>
                     </>
                   ) : latestAnalysis.status === "FAILED" ? (

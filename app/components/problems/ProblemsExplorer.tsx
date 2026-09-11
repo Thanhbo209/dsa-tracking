@@ -11,10 +11,10 @@ import {
   Filter,
   ArrowUpDown,
   RotateCcw,
-  Sparkles,
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DsaLogo } from "@/components/brand/DsaLogo";
 import type { Difficulty } from "@/lib/generated/prisma/client";
 
 export type ProblemStatus = "SOLVED" | "ATTEMPTED" | "TODO";
@@ -230,7 +230,7 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
   if (problems.length === 0) {
     return (
       <div className="rounded-xl border border-dashed border-[#4a4a4a] bg-[#262626] p-12 text-center space-y-3 text-white">
-        <Sparkles className="mx-auto size-8 text-zinc-500" />
+        <DsaLogo size="lg" className="mx-auto h-12 w-auto opacity-40 mb-1" />
         <h3 className="text-lg font-semibold text-white">
           No tracked problems yet
         </h3>
@@ -484,7 +484,7 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
       {/* ── Problems Grid (Cards) ─────────────────────────────────── */}
       {filteredProblems.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[#4a4a4a] bg-[#262626] p-12 text-center space-y-3">
-          <Sparkles className="mx-auto size-8 text-zinc-500" />
+          <DsaLogo size="lg" className="mx-auto h-12 w-auto opacity-40 mb-1" />
           <h3 className="text-base font-semibold text-white">
             No matching problems found
           </h3>

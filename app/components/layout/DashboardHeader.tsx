@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth/auth-client";
-import { LogOut, User as UserIcon, Code2, BookOpen } from "lucide-react";
+import { LogOut, User as UserIcon, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DsaLogo } from "@/components/brand/DsaLogo";
 
 interface DashboardHeaderProps {
   user: {
@@ -35,12 +36,10 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
         <div className="flex items-center gap-6">
           <Link
             href="/problems"
-            className="flex items-center gap-2 font-bold text-base text-white hover:text-primary transition-colors"
+            className="flex items-center gap-2.5 font-bold text-base text-white hover:opacity-90 transition-opacity"
           >
-            <div className="size-7 rounded-lg bg-primary/20 border border-primary/40 flex items-center justify-center text-primary">
-              <Code2 className="size-4" />
-            </div>
-            <span>DSA Tracking</span>
+            <DsaLogo size="md" priority className="h-7 w-auto" />
+            <span className="tracking-tight">DSA Tracking</span>
           </Link>
 
           <nav className="hidden sm:flex items-center gap-4 text-xs font-medium">

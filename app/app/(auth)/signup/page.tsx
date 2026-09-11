@@ -4,8 +4,9 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signUp } from "@/lib/auth/auth-client";
-import { Sparkles, ArrowRight, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowRight, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DsaLogo } from "@/components/brand/DsaLogo";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -61,9 +62,11 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-4">
       <div className="w-full max-w-md rounded-2xl border border-[#383838] bg-[#262626] p-8 shadow-xl space-y-6 text-white">
-        <div className="space-y-2 text-center">
-          <div className="inline-flex size-10 items-center justify-center rounded-xl bg-primary/10 border border-primary/20 text-primary mb-2">
-            <Sparkles className="size-5" />
+        <div className="space-y-3 text-center">
+          <div className="mb-2 flex justify-center">
+            <Link href="/problems" className="inline-block hover:opacity-90 transition-opacity">
+              <DsaLogo size="xl" priority className="h-12 w-auto" />
+            </Link>
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-white">
             Create an Account

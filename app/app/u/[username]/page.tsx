@@ -8,7 +8,6 @@ import {
   Layers,
   ArrowLeft,
   Clock,
-  Sparkles,
   ExternalLink,
 } from "lucide-react";
 import { getPublicUserProfile } from "@/lib/profile/service";
@@ -33,6 +32,8 @@ function difficultyClass(difficulty: string | null): string {
   }
 }
 
+import { DsaLogo } from "@/components/brand/DsaLogo";
+
 export default async function PublicProfilePage({
   params,
 }: PublicProfilePageProps) {
@@ -48,14 +49,26 @@ export default async function PublicProfilePage({
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white">
       {/* ── Top Navigation Bar ────────────────────────────────────── */}
-      <header className="border-b border-[#383838] bg-[#222222]/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-8 py-3.5 flex items-center justify-between">
-        <Link
-          href="/problems"
-          className="inline-flex items-center gap-2 text-xs sm:text-sm font-medium text-zinc-400 hover:text-white transition-colors"
-        >
-          <ArrowLeft className="size-4" />
-          <span>DSA Explorer</span>
-        </Link>
+      <header className="border-b border-[#383838] bg-[#222222]/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-8 py-3 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/problems"
+            className="flex items-center gap-2 hover:opacity-90 transition-opacity"
+          >
+            <DsaLogo size="sm" priority className="h-6 w-auto" />
+            <span className="font-bold text-sm text-white hidden sm:inline-block">
+              DSA Tracking
+            </span>
+          </Link>
+          <span className="h-4 w-px bg-zinc-700 hidden sm:inline-block" />
+          <Link
+            href="/problems"
+            className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
+          >
+            <ArrowLeft className="size-3.5" />
+            <span>DSA Explorer</span>
+          </Link>
+        </div>
         <span className="text-xs font-mono text-zinc-500">
           Public Knowledge Profile
         </span>
@@ -163,7 +176,7 @@ export default async function PublicProfilePage({
 
           {approaches.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#444444] bg-[#262626] p-12 text-center space-y-3">
-              <Sparkles className="mx-auto size-8 text-zinc-500" />
+              <DsaLogo size="lg" className="mx-auto h-12 w-auto opacity-40 mb-1" />
               <h3 className="text-base font-semibold text-white">
                 No public knowledge published yet
               </h3>

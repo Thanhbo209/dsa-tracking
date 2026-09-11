@@ -6,9 +6,9 @@ import type { AiDraft, AiReview } from "@/lib/validation/analysis";
 import type { AnalysisStatus } from "./types";
 import { DraftEditForm } from "./DraftEditForm";
 import { Button } from "@/components/ui/button";
+import { DsaLogo } from "@/components/brand/DsaLogo";
 import {
   BookOpen,
-  Sparkles,
   AlertCircle,
   CheckCircle2,
   XCircle,
@@ -246,7 +246,7 @@ export function KnowledgeDraftSection({
         </div>
       ) : (
         <div className="flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/20 px-3.5 py-2.5 text-xs text-white">
-          <Sparkles className="size-4 shrink-0 text-amber-400" />
+          <DsaLogo size="xs" className="h-4 w-auto shrink-0" />
           <span className="font-medium">
             AI-generated draft — not saved to your knowledge base
           </span>
@@ -296,7 +296,7 @@ export function KnowledgeDraftSection({
                   : "text-zinc-400 hover:text-white"
               }`}
             >
-              <Sparkles className="size-4 text-primary" />
+              <DsaLogo size="xs" className="h-4 w-auto shrink-0" />
               <span>Option 2: AI Suggested Solution</span>
             </button>
           </div>
@@ -375,7 +375,7 @@ export function KnowledgeDraftSection({
           {confirmMode === "accept" && (
             <div className="rounded-lg border border-primary/40 bg-[#2a2a2a] p-4 space-y-3 text-white">
               <div className="flex items-start gap-2">
-                <Sparkles className="size-4 shrink-0 text-primary mt-0.5" />
+                <DsaLogo size="xs" className="h-4 w-auto shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-semibold text-white">
                     Confirm Knowledge Promotion
@@ -692,7 +692,7 @@ export function KnowledgeDraftSection({
                             : "text-zinc-400 hover:text-white"
                         }`}
                       >
-                        <Sparkles className="size-3.5 text-primary" />
+                        <DsaLogo size="xs" className="h-3.5 w-auto" />
                         <span>AI Suggested Code</span>
                       </button>
                     </div>

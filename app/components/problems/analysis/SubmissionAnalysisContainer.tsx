@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, RotateCcw, History, Bot } from "lucide-react";
+import { RotateCcw, History, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { SerializedSubmissionAnalysis } from "./types";
 import type { AiDraft } from "@/lib/validation/analysis";

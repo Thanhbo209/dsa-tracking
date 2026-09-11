@@ -1,5 +1,5 @@
-import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DsaLogo } from "@/components/brand/DsaLogo";
 
 interface AnalysisEmptyStateProps {
   onAnalyze: () => void;
@@ -12,8 +12,8 @@ export function AnalysisEmptyState({
 }: AnalysisEmptyStateProps) {
   return (
     <div className="rounded-lg border border-dashed border-[#4a4a4a] p-6 text-center bg-[#373737] text-white shadow-2xs">
-      <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-primary/20 text-primary mb-3">
-        <Sparkles className="size-5" />
+      <div className="mx-auto mb-3 flex justify-center">
+        <DsaLogo size="lg" className="h-10 w-auto" />
       </div>
 
       <h4 className="text-sm font-semibold text-white">
@@ -34,7 +34,7 @@ export function AnalysisEmptyState({
           size="sm"
           className="gap-2 text-white"
         >
-          <Sparkles className="size-3.5" />
+          <DsaLogo size="xs" className="h-3.5 w-auto inline-block" />
           <span>Analyze Submission</span>
         </Button>
       </div>

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { History, Sparkles, BookOpen, AlertCircle, X, ChevronRight } from "lucide-react";
+import { History, BookOpen, AlertCircle, X, ChevronRight } from "lucide-react";
+import { DsaLogo } from "@/components/brand/DsaLogo";
 import { cn } from "@/lib/utils";
 import { SubmissionCard } from "./SubmissionCard";
 import { SubmissionAnalysisContainer } from "./analysis/SubmissionAnalysisContainer";
@@ -83,7 +84,7 @@ export function ProblemLearningWorkspace({
           |
         </span>
 
-        {/* Tab 2: AI Diagnostic Review (cyan Sparkles with attempt pill & dismiss) */}
+        {/* Tab 2: AI Diagnostic Review (DsaLogo with attempt pill & dismiss) */}
         <button
           type="button"
           role="tab"
@@ -98,7 +99,7 @@ export function ProblemLearningWorkspace({
               : "text-zinc-400 hover:text-zinc-200 font-medium hover:bg-white/[0.04]",
           )}
         >
-          <Sparkles className="size-4.5 sm:size-5 text-[#38bdf8] shrink-0" />
+          <DsaLogo size="sm" className="h-5 w-auto shrink-0" />
           <span>AI Diagnostic Review</span>
           {selectedSubmission && (
             <span className="text-xs sm:text-sm text-zinc-300 font-mono">
@@ -205,7 +206,7 @@ export function ProblemLearningWorkspace({
                     }}
                     className="inline-flex items-center gap-1.5 text-sm text-[#38bdf8] hover:text-white transition-colors py-1.5 px-3 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-[#444444]"
                   >
-                    <Sparkles className="size-3.5 text-[#38bdf8]" />
+                    <DsaLogo size="xs" className="h-3.5 w-auto shrink-0" />
                     <span>Open AI Diagnostic Review for this attempt &rarr;</span>
                   </button>
                 </div>
@@ -225,7 +226,7 @@ export function ProblemLearningWorkspace({
         <div className="flex items-center justify-between gap-3 border-b border-[#383838] pb-3">
           <div>
             <div className="flex items-center gap-2.5">
-              <Sparkles className="size-5 text-[#38bdf8] shrink-0" />
+              <DsaLogo size="sm" className="h-6 w-auto shrink-0" />
               <h2
                 id="analysis-section-heading"
                 className="text-xl sm:text-2xl font-bold tracking-tight text-white"
