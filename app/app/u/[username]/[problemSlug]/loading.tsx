@@ -1,11 +1,8 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonCard, SkeletonText, SkeletonBadge } from "@/components/ui/skeletons";
 
-/** Mirrors the /u/[username]/[problemSlug] layout:
- *  - Sticky nav bar
- *  - Problem header card (number, title, difficulty badge, topic chips)
- *  - Approaches panel (tab strip + approach meta grid + solution/code blocks)
- */
+/** Loading skeleton for /u/[username]/[problemSlug].
+ *  Mirrors the two-column layout: left 5/12 (ProblemDetailPanel) + right 7/12 (PublicApproachList). */
 export default function ProblemDetailLoading() {
   return (
     <div className="min-h-screen bg-[#1a1a1a]">
@@ -19,56 +16,83 @@ export default function ProblemDetailLoading() {
         <Skeleton className="h-4 w-36 rounded" />
       </header>
 
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-        {/* Problem header card */}
-        <SkeletonCard className="space-y-4">
-          <div className="space-y-2">
-            <Skeleton className="h-3 w-10 rounded" />
-            <div className="flex items-center gap-3">
-              <Skeleton className="h-7 w-2/3 rounded" />
-              <SkeletonBadge width="w-16" />
-            </div>
-          </div>
-          <div className="flex gap-1.5 flex-wrap">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <SkeletonBadge key={i} width={i % 2 === 0 ? "w-16" : "w-20"} />
-            ))}
-          </div>
-        </SkeletonCard>
-
-        {/* Approaches panel */}
-        <SkeletonCard className="space-y-5">
-          {/* Tab strip */}
-          <div className="flex gap-2 pb-3 border-b border-[#383838]">
-            <Skeleton className="h-7 w-28 rounded-md" />
-            <Skeleton className="h-7 w-24 rounded-md" />
-          </div>
-
-          {/* Approach name badge */}
-          <Skeleton className="h-7 w-36 rounded-md" />
-
-          {/* Meta info grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="rounded-xl border border-[#333333] bg-[#1e1e1e] p-3.5 space-y-2"
-              >
-                <Skeleton className="h-3 w-20 rounded" />
-                <SkeletonText lines={2} />
+      <main className="w-full px-4 py-6 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 w-full">
+          {/* LEFT — Problem detail panel skeleton */}
+          <div className="lg:col-span-5">
+            <div className="space-y-6 rounded-xl border border-[#383838] bg-[#262626] p-5 sm:p-6 shadow-xs">
+              {/* ID + title + difficulty */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-4 w-24 rounded" />
+                </div>
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <Skeleton className="h-8 w-56 rounded" />
+                  <SkeletonBadge width="w-16" />
+                </div>
+                {/* Topic chips */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {Array.from({ length: 4 }).map((_, i) => (
+                    <SkeletonBadge key={i} width={i % 2 === 0 ? "w-20" : "w-16"} />
+                  ))}
+                </div>
               </div>
-            ))}
+
+              {/* Description section */}
+              <div className="border-t border-[#383838] pt-4 space-y-3">
+                <Skeleton className="h-4 w-40 rounded" />
+                <SkeletonText lines={8} />
+                <Skeleton className="h-16 w-full rounded-lg" />
+                <SkeletonText lines={4} />
+              </div>
+            </div>
           </div>
 
-          {/* Code block placeholder */}
-          <div className="rounded-xl border border-[#333333] bg-[#1d1d1d] p-4 space-y-3">
-            <div className="flex items-center justify-between">
-              <Skeleton className="h-4 w-32 rounded" />
-              <Skeleton className="h-3.5 w-20 rounded" />
+          {/* RIGHT — Approaches panel skeleton */}
+          <div className="lg:col-span-7 rounded-xl border border-[#383838] bg-[#262626] p-5 sm:p-6 shadow-xs space-y-6">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-[#383838] pb-4">
+              <Skeleton className="h-5 w-36 rounded" />
             </div>
-            <Skeleton className="h-32 w-full rounded-lg" />
+
+            {/* Approach card skeleton */}
+            <SkeletonCard className="space-y-5">
+              {/* Approach header */}
+              <div className="flex items-center justify-between border-b border-[#4a4a4a] pb-4">
+                <div className="space-y-1.5">
+                  <Skeleton className="h-3 w-16 rounded" />
+                  <Skeleton className="h-7 w-48 rounded" />
+                </div>
+                <div className="flex gap-2">
+                  <Skeleton className="h-7 w-24 rounded-md" />
+                  <Skeleton className="h-7 w-24 rounded-md" />
+                </div>
+              </div>
+
+              {/* Core idea */}
+              <div className="rounded-xl border border-[#4a4a4a] bg-[#2a2a2a] p-5 space-y-2">
+                <Skeleton className="h-4 w-24 rounded" />
+                <SkeletonText lines={3} />
+              </div>
+
+              {/* Why It Works / When To Use grid */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                {[0, 1].map((i) => (
+                  <div key={i} className="rounded-xl border border-[#4a4a4a] bg-[#2a2a2a] p-5 space-y-2">
+                    <Skeleton className="h-4 w-28 rounded" />
+                    <SkeletonText lines={3} />
+                  </div>
+                ))}
+              </div>
+
+              {/* Code block */}
+              <div className="border-t border-[#4a4a4a] pt-5 space-y-3">
+                <Skeleton className="h-5 w-36 rounded" />
+                <Skeleton className="h-40 w-full rounded-lg" />
+              </div>
+            </SkeletonCard>
           </div>
-        </SkeletonCard>
+        </div>
       </main>
     </div>
   );

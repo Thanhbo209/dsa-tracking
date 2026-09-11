@@ -44,6 +44,8 @@ export interface PublicProblemDetail {
     title: string;
     leetcodeId: number | null;
     difficulty: string | null;
+    url: string | null;
+    description: string | null;
     topics: string[];
   };
   approaches: Array<{
@@ -54,6 +56,10 @@ export interface PublicProblemDetail {
     whenToUse: string | null;
     timeComplexity: string | null;
     spaceComplexity: string | null;
+    pros: string | null;
+    cons: string | null;
+    notes: string | null;
+    mistakes: string | null;
     solutions: Array<{
       id: string;
       name: string;
@@ -240,12 +246,18 @@ export async function getPublicProblemDetail(
       whenToUse: true,
       timeComplexity: true,
       spaceComplexity: true,
+      pros: true,
+      cons: true,
+      notes: true,
+      mistakes: true,
       problem: {
         select: {
           slug: true,
           title: true,
           leetcodeId: true,
           difficulty: true,
+          url: true,
+          description: true,
           topics: {
             select: { topic: { select: { name: true } } },
           },
@@ -292,6 +304,8 @@ export async function getPublicProblemDetail(
       title: problemMeta.title,
       leetcodeId: problemMeta.leetcodeId,
       difficulty: problemMeta.difficulty,
+      url: problemMeta.url,
+      description: problemMeta.description,
       topics: problemMeta.topics.map((t) => t.topic.name),
     },
     approaches: approaches.map((a) => ({
@@ -302,6 +316,10 @@ export async function getPublicProblemDetail(
       whenToUse: a.whenToUse,
       timeComplexity: a.timeComplexity,
       spaceComplexity: a.spaceComplexity,
+      pros: a.pros,
+      cons: a.cons,
+      notes: a.notes,
+      mistakes: a.mistakes,
       solutions: a.solutions.map((s) => ({
         id: s.id,
         name: s.name,

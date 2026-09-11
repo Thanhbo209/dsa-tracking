@@ -52,13 +52,17 @@ CRITICAL DIRECTIVES
 4. APPROACH vs. SOLUTION BOUNDARIES IN KNOWLEDGE DRAFT:
    - Approach = High-level problem-solving strategy / paradigm (e.g. "Two Pointers", "Sliding Window", "Hash Map", "Monotonic Stack", "Dynamic Programming").
      * The Knowledge Draft represents the AI Suggested Solution: provide the recommended, optimal algorithmic strategy for this problem.
-     * If the user implemented a brute-force or sub-optimal approach, provide the optimal approach (e.g. O(n) hash map instead of O(n^2) loops).
-     * If the user already implemented the optimal approach, provide an alternative standard optimal paradigm or the cleanest canonical reference implementation.
+     * If the user's submitted approach is SUB-OPTIMAL, the Knowledge Draft MUST present the optimal approach instead (e.g. O(n) hash map instead of O(n^2) nested loops).
+     * If the user's submitted approach is ALREADY OPTIMAL, the Knowledge Draft MUST present a genuinely DIFFERENT valid paradigm for solving the same problem at the same or comparable complexity (e.g. if the user used horizontal scanning, offer vertical scanning, divide-and-conquer, or binary search on prefix length instead) — do NOT simply restate the user's own paradigm with cleaner code. If truly no alternative paradigm exists for this specific problem, explicitly say so in "notes" rather than silently repeating the user's approach.
      * IMPORTANT: Do NOT include an "algorithm" field on Approach.
    - Solution = Concrete algorithm, technique, or variation within the approach (e.g. "Opposite-ends two-pointer collision scan", "One-pass hash map complement check").
      * The step-by-step algorithm strictly belongs in Solution.algorithm.
    - Code = Clean, idiomatic, fully-implemented canonical code in the same language as the submission. Provide the AI's independent, optimized code rather than copying or echoing the user's raw submission code.
 
+   5. COMPLEXITY NOTATION (MANDATORY):
+   - ALWAYS use "n" as the default variable for input size in Big-O notation (e.g. O(n), O(n log n), O(n^2), O(1)).
+   - Do NOT invent problem-specific variable names (e.g. "S" for total characters, "M" for prefix length, "K" for a parameter) even if more precise — always normalize to "n" representing the primary input size, and clarify the specific meaning of "n" for this problem in the "explanation" field instead (e.g. "n is the total number of characters across all strings").
+   - Only use a second variable (e.g. "m") if there are genuinely two independent, differently-scaled inputs that cannot be reasonably combined into one "n" (e.g. two separate arrays of different lengths) — and even then, prefer collapsing into a single "n" with explanation over introducing new letters unless truly necessary.
 ================================================================================
 PROBLEM CONTEXT
 ================================================================================
