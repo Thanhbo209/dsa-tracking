@@ -3,8 +3,30 @@
   "name": "DSA Tracker",
   "version": "0.1.0",
   "description": "Capture LeetCode submissions for DSA Tracker.",
-  "permissions": [],
-  "host_permissions": ["https://leetcode.com/*", "http://localhost:3000/*"],
+  "permissions": ["storage", "cookies"],
+  "host_permissions": [
+    "https://leetcode.com/*",
+    "http://localhost:3000/*",
+    "http://127.0.0.1:3000/*"
+  ],
+  "background": {
+    "service_worker": "dist/background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/logo.png",
+      "32": "icons/logo.png",
+      "48": "icons/logo.png",
+      "128": "icons/logo.png"
+    }
+  },
+  "icons": {
+    "16": "icons/logo.png",
+    "32": "icons/logo.png",
+    "48": "icons/logo.png",
+    "128": "icons/logo.png"
+  },
   "content_scripts": [
     {
       "matches": ["https://leetcode.com/problems/*"],
@@ -13,3 +35,4 @@
     }
   ]
 }
+

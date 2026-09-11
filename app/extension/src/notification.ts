@@ -234,11 +234,25 @@ export function showSubmissionNotification(submission: CapturedSubmission) {
       });
 
       addButton.insertAdjacentElement("afterend", openButton);
-    } catch (error) {
+    } catch (error: any) {
       console.error("[DSA Tracker] Import failed:", error);
 
-      addButton.disabled = false;
-      addButton.textContent = "Try again";
+      const isAuthError =
+        error?.message?.includes("log in") ||
+        error?.message?.includes("Authentication") ||
+        error?.message?.includes("401");
+
+      if (isAuthError) {
+        addButton.textContent = "Log in to DSA Tracker";
+        addButton.disabled = false;
+        addButton.style.background = "#ea580c"; // amber/orange to draw attention
+        addButton.onclick = () => {
+          window.open("http://localhost:3000/login", "_blank");
+        };
+      } else {
+        addButton.disabled = false;
+        addButton.textContent = error?.message ? `Failed: ${error.message.slice(0, 20)}` : "Try again";
+      }
     }
   });
 }

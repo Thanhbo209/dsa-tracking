@@ -23,8 +23,8 @@ export function middleware(request: NextRequest) {
     pathname.startsWith("/api/codes") ||
     pathname.startsWith("/api/submissions")
   ) {
-    // Note: /api/submissions/import checks CORS/preflight & handles its own 401
-    if (request.method === "OPTIONS") {
+    // Note: /api/submissions/import checks CORS/preflight & handles its own 401 with proper CORS headers
+    if (pathname === "/api/submissions/import" || request.method === "OPTIONS") {
       return NextResponse.next();
     }
 

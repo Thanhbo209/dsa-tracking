@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DSA Tracker</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 380px;
+      min-height: 420px;
+      max-height: 580px;
+      overflow-y: auto;
+      background-color: #18181b;
+      color: #f4f4f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* Custom scrollbar */
+    body::-webkit-scrollbar {
+      width: 6px;
+    }
+    body::-webkit-scrollbar-track {
+      background: #18181b;
+    }
+    body::-webkit-scrollbar-thumb {
+      background: #3f3f46;
+      border-radius: 3px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid #27272a;
+      background-color: #202024;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-img {
+      height: 24px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 11px;
+      color: #a1a1aa;
+      background-color: #27272a;
+      padding: 3px 8px;
+      border-radius: 9999px;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background-color: #71717a;
+    }
+
+    .status-dot.online {
+      background-color: #10b981;
+      box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
+    }
+
+    .status-dot.offline {
+      background-color: #f59e0b;
+    }
+
+    .user-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      background-color: #1c1c20;
+      border-bottom: 1px solid #27272a;
+      font-size: 11px;
+      color: #a1a1aa;
+    }
+
+    .user-bar-name {
+      color: #e4e4e7;
+      font-weight: 500;
+      max-width: 180px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .btn-text {
+      background: none;
+      border: none;
+      color: #71717a;
+      font-size: 11px;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 4px;
+      transition: color 0.15s;
+    }
+
+    .btn-text:hover {
+      color: #f4f4f5;
+    }
+
+    .btn-text.danger:hover {
+      color: #ef4444;
+    }
+
+    .view {
+      display: none;
+      padding: 16px;
+    }
+
+    .view.active {
+      display: block;
+    }
+
+    /* Loading state */
+    #view-loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: #71717a;
+    }
+
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid #27272a;
+      border-top-color: #10b981;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 12px auto;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Login Form */
+    .login-box {
+      background-color: #202024;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .login-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #f4f4f5;
+      margin-bottom: 4px;
+    }
+
+    .login-desc {
+      font-size: 12px;
+      color: #a1a1aa;
+      margin-bottom: 16px;
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 500;
+      color: #d4d4d8;
+      margin-bottom: 5px;
+    }
+
+    .form-input {
+      width: 100%;
+      background-color: #141416;
+      border: 1px solid #3f3f46;
+      border-radius: 8px;
+      padding: 8px 12px;
+      color: #f4f4f5;
+      font-size: 13px;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .form-input:focus {
+      border-color: #10b981;
+    }
+
+    .btn-primary {
+      width: 100%;
+      background-color: #10b981;
+      color: #042f2e;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 14px;
+      transition: opacity 0.15s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      background-color: #27272a;
+      color: #f4f4f5;
+      border: 1px solid #3f3f46;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-weight: 500;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 8px;
+      transition: background-color 0.15s;
+    }
+
+    .btn-secondary:hover {
+      background-color: #3f3f46;
+    }
+
+    .alert-error {
+      background-color: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #fca5a5;
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 12px;
+      margin-bottom: 12px;
+      display: none;
+    }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 14px;
+      font-size: 11px;
+      color: #71717a;
+    }
+
+    .login-footer a {
+      color: #10b981;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .login-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Empty state */
+    .empty-card {
+      text-align: center;
+      padding: 40px 16px;
+      background-color: #202024;
+      border: 1px dashed #3f3f46;
+      border-radius: 12px;
+    }
+
+    .empty-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background-color: #27272a;
+      margin-bottom: 12px;
+    }
+
+    .empty-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #f4f4f5;
+      margin-bottom: 6px;
+    }
+
+    .empty-desc {
+      font-size: 12px;
+      color: #a1a1aa;
+      max-width: 260px;
+      margin: 0 auto 20px auto;
+      line-height: 1.5;
+    }
+
+    /* Submissions view */
+    .submission-card {
+      background-color: #202024;
+      border: 1px solid #27272a;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: border-color 0.15s;
+    }
+
+    .submission-card:hover {
+      border-color: #3f3f46;
+    }
+
+    .submission-card.featured {
+      border-color: #10b981;
+      background-color: #1b2622;
+    }
+
+    .sub-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .tag-status {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .tag-status.accepted {
+      background-color: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .tag-status.wrong {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .tag-status.warning {
+      background-color: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .sub-time {
+      font-size: 11px;
+      color: #71717a;
+    }
+
+    .sub-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #f4f4f5;
+      margin-bottom: 8px;
+      line-height: 1.3;
+    }
+
+    .sub-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .sub-chip {
+      font-size: 11px;
+      background-color: #27272a;
+      color: #d4d4d8;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    .code-toggle {
+      background: none;
+      border: none;
+      color: #a1a1aa;
+      font-size: 11px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 0;
+      margin-bottom: 10px;
+    }
+
+    .code-toggle:hover {
+      color: #f4f4f5;
+    }
+
+    .code-block {
+      display: none;
+      background-color: #121214;
+      border: 1px solid #27272a;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-family: Consolas, Monaco, "Courier New", monospace;
+      font-size: 11px;
+      color: #d4d4d8;
+      max-height: 140px;
+      overflow: auto;
+      white-space: pre;
+      margin-bottom: 12px;
+    }
+
+    .code-block.open {
+      display: block;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: #71717a;
+      margin: 16px 0 8px 0;
+    }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background-color: #202024;
+      border: 1px solid #27272a;
+      border-radius: 8px;
+      margin-bottom: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background-color 0.15s;
+    }
+
+    .history-item:hover {
+      background-color: #27272a;
+    }
+
+    .history-left {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-right: 8px;
+    }
+
+    .history-title {
+      font-weight: 500;
+      color: #e4e4e7;
+    }
+
+    .history-meta {
+      font-size: 11px;
+      color: #71717a;
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <img src="icons/logo.png" alt="DSA Tracker" class="logo-img" />
+    </div>
+    <div class="status-badge" id="header-status">
+      <span class="status-dot" id="status-dot"></span>
+      <span id="status-text">Checking...</span>
+    </div>
+  </div>
+
+  <!-- User Bar (shown when logged in) -->
+  <div class="user-bar" id="user-bar" style="display: none;">
+    <div>
+      Signed in as <span class="user-bar-name" id="user-bar-name">user</span>
+    </div>
+    <div>
+      <button class="btn-text danger" id="btn-logout" type="button">Sign out</button>
+    </div>
+  </div>
+
+  <!-- View: Loading -->
+  <div class="view active" id="view-loading">
+    <div class="spinner"></div>
+    <div>Connecting to DSA Tracker...</div>
+  </div>
+
+  <!-- View: Login Required -->
+  <div class="view" id="view-login">
+    <div class="login-box">
+      <div class="login-title">Sign In</div>
+      <div class="login-desc">Connect your account to sync captured LeetCode submissions directly to your DSA workspace.</div>
+
+      <div class="alert-error" id="login-error"></div>
+
+      <form id="login-form">
+        <div class="form-group">
+          <label class="form-label" for="login-email">Email</label>
+          <input class="form-input" type="email" id="login-email" required placeholder="you@example.com" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="login-password">Password</label>
+          <input class="form-input" type="password" id="login-password" required placeholder="••••••••" />
+        </div>
+
+        <button class="btn-primary" type="submit" id="btn-login-submit">
+          <span>Sign In to DSA Tracker</span>
+        </button>
+      </form>
+
+      <div class="login-footer">
+        Don't have an account? <a href="#" id="link-signup">Create one here</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- View: No Submissions Captured Yet -->
+  <div class="view" id="view-empty">
+    <div class="empty-card">
+      <div class="empty-icon">
+        <img src="icons/logo.png" style="height: 24px; opacity: 0.7;" alt="DSA" />
+      </div>
+      <div class="empty-title">No Submissions Captured</div>
+      <div class="empty-desc">
+        Solve any problem on LeetCode and submit your solution. DSA Tracker will automatically detect and capture your code and runtime stats here.
+      </div>
+      <button class="btn-primary" id="btn-open-leetcode" type="button">
+        Go to LeetCode Problems
+      </button>
+      <button class="btn-secondary" id="btn-open-dsa-empty" type="button">
+        Open DSA Tracker
+      </button>
+    </div>
+  </div>
+
+  <!-- View: Captured Submissions Display -->
+  <div class="view" id="view-submissions">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+      <span class="section-label" style="margin: 0;">Latest Captured</span>
+      <button class="btn-text danger" id="btn-clear-history" type="button">Clear history</button>
+    </div>
+
+    <!-- Featured Latest Submission -->
+    <div class="submission-card featured" id="featured-card">
+      <div class="sub-badge-row">
+        <span class="tag-status accepted" id="featured-status">ACCEPTED</span>
+        <span class="sub-time" id="featured-time">Just now</span>
+      </div>
+      <div class="sub-title" id="featured-title">Two Sum</div>
+      <div class="sub-chips" id="featured-chips">
+        <span class="sub-chip" id="featured-lang">python3</span>
+        <span class="sub-chip" id="featured-runtime">42 ms</span>
+        <span class="sub-chip" id="featured-memory">16.4 MB</span>
+      </div>
+
+      <button class="code-toggle" id="btn-toggle-code" type="button">
+        <span>Show Code</span> <span id="code-arrow">▾</span>
+      </button>
+      <pre class="code-block" id="featured-code"></pre>
+
+      <button class="btn-primary" id="btn-open-problem" type="button">
+        Open in DSA Tracker
+      </button>
+      <button class="btn-secondary" id="btn-import-sync" type="button">
+        ✓ Synced to DSA Tracker
+      </button>
+    </div>
+
+    <!-- Older History List -->
+    <div id="history-section" style="display: none;">
+      <div class="section-label">Earlier Submissions</div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+
+  <script src="dist/popup.js"></script>
+</body>
+</html>

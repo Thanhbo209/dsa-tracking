@@ -15,6 +15,7 @@ const SUBMISSION_DETAILS_QUERY = `
       question {
         questionId
         titleSlug
+        title
       }
     }
   }
@@ -33,6 +34,7 @@ export interface SubmissionDetails {
   question: {
     questionId: string;
     titleSlug: string;
+    title?: string;
   };
 }
 

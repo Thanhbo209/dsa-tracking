@@ -17,6 +17,7 @@ async function captureSubmission(submissionId: string) {
   const submission = {
     externalId: submissionId,
     problemSlug: details.question.titleSlug,
+    problemTitle: details.question.title || details.question.titleSlug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
     status: mapSubmissionStatus(details.statusCode),
     language: details.lang.name,
     code: details.code,
@@ -26,6 +27,19 @@ async function captureSubmission(submissionId: string) {
   };
 
   console.log("[DSA Tracker] Captured submission:", submission);
+
+  // Send to background service worker to persist in chrome.storage.local
+  if (typeof chrome !== "undefined" && chrome.runtime?.sendMessage) {
+    chrome.runtime.sendMessage({
+      type: "SUBMISSION_CAPTURED",
+      payload: submission,
+    }, () => {
+      // Ignore errors if background isn't ready
+      if (chrome.runtime.lastError) {
+        // silent
+      }
+    });
+  }
 
   showSubmissionNotification(submission);
 }
