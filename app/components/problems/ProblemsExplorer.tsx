@@ -332,6 +332,76 @@ export function ProblemsExplorer({
     return filteredProblems.slice(startIndex, endIndex);
   }, [filteredProblems, startIndex, endIndex]);
 
+  const renderPaginationButtons = (isCompact = false) => {
+    return (
+      <div className="flex items-center gap-1 sm:gap-1.5">
+        <button
+          type="button"
+          onClick={() => {
+            setCurrentPage((p) => Math.max(1, p - 1));
+            document.getElementById("problems-list-header")?.scrollIntoView({ behavior: "smooth" });
+          }}
+          disabled={safeCurrentPage === 1}
+          className={`flex items-center gap-1 rounded-lg border border-[#383838] bg-[#262626] ${
+            isCompact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-xs"
+          } font-medium text-zinc-300 hover:bg-[#333333] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors`}
+          aria-label="Previous page"
+        >
+          <ChevronLeft className="size-3.5" />
+          <span className={isCompact ? "hidden sm:inline" : ""}>Prev</span>
+        </button>
+
+        {/* Page numbers */}
+        <div className="flex items-center gap-1">
+          {getPageNumbers(safeCurrentPage, totalPages).map((p, idx) =>
+            p === "..." ? (
+              <span
+                key={`ellipsis-${idx}`}
+                className="px-1.5 py-0.5 text-xs text-zinc-500 select-none"
+              >
+                …
+              </span>
+            ) : (
+              <button
+                key={p}
+                type="button"
+                onClick={() => {
+                  setCurrentPage(p as number);
+                  document.getElementById("problems-list-header")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                className={`min-w-7 h-7 sm:min-w-8 sm:h-8 rounded-lg text-xs font-semibold transition-colors ${
+                  safeCurrentPage === p
+                    ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                    : "border border-[#383838] bg-[#262626] text-zinc-300 hover:bg-[#333333] hover:text-white"
+                }`}
+                aria-label={`Page ${p}`}
+                aria-current={safeCurrentPage === p ? "page" : undefined}
+              >
+                {p}
+              </button>
+            )
+          )}
+        </div>
+
+        <button
+          type="button"
+          onClick={() => {
+            setCurrentPage((p) => Math.min(totalPages, p + 1));
+            document.getElementById("problems-list-header")?.scrollIntoView({ behavior: "smooth" });
+          }}
+          disabled={safeCurrentPage === totalPages}
+          className={`flex items-center gap-1 rounded-lg border border-[#383838] bg-[#262626] ${
+            isCompact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-xs"
+          } font-medium text-zinc-300 hover:bg-[#333333] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors`}
+          aria-label="Next page"
+        >
+          <span className={isCompact ? "hidden sm:inline" : ""}>Next</span>
+          <ChevronRight className="size-3.5" />
+        </button>
+      </div>
+    );
+  };
+
   // Handle case when database contains 0 problems
   if (problems.length === 0) {
     return (
@@ -355,7 +425,7 @@ export function ProblemsExplorer({
         aria-label="Library Statistics"
         className="grid grid-cols-1 lg:grid-cols-12 gap-6"
       >
-        <div className="lg:col-span-5">
+        <div className="lg:col-span-5 xl:col-span-4">
           <ProblemStatsDonut
             total={stats.total}
             solved={stats.solved}
@@ -365,7 +435,7 @@ export function ProblemsExplorer({
             knowledgeCount={stats.knowledge}
           />
         </div>
-        <div className="lg:col-span-7">
+        <div className="lg:col-span-7 xl:col-span-8">
           <ActivityHeatmap
             submissionActivities={submissionActivities}
             approachActivities={approachActivities}
@@ -529,27 +599,43 @@ export function ProblemsExplorer({
         </div>
       </section>
 
-      {/* ── Results Count & Clear Shortcut ─────────────────────────── */}
+      {/* ── Results Count, Filter Reset & Top-Right Page Navigation ── */}
       <div
         id="problems-list-header"
-        className="flex items-center justify-between text-xs sm:text-sm text-zinc-400 px-1 scroll-mt-20"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs sm:text-sm text-zinc-400 px-1 scroll-mt-20"
       >
-        <span>
-          Showing{" "}
-          <strong className="text-white font-semibold">
-            {filteredProblems.length === 0 ? 0 : `${startIndex + 1}–${endIndex}`}
-          </strong>{" "}
-          of {filteredProblems.length}{" "}
-          {hasActiveFilters ? `(filtered from ${problems.length})` : "problems"}
-        </span>
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={clearAllFilters}
-            className="text-xs text-primary hover:underline"
+        <div className="flex items-center gap-3">
+          <span>
+            Showing{" "}
+            <strong className="text-white font-semibold">
+              {filteredProblems.length === 0 ? 0 : `${startIndex + 1}–${endIndex}`}
+            </strong>{" "}
+            of {filteredProblems.length}{" "}
+            {hasActiveFilters ? `(filtered from ${problems.length})` : "problems"}
+          </span>
+          {hasActiveFilters && (
+            <button
+              type="button"
+              onClick={clearAllFilters}
+              className="text-xs text-primary hover:underline font-medium"
+            >
+              Clear filters
+            </button>
+          )}
+        </div>
+
+        {/* Top-Right Page Navigation */}
+        {totalPages > 1 && (
+          <nav
+            aria-label="Problems top pagination"
+            className="flex items-center gap-2 self-end sm:self-auto"
           >
-            Clear filters
-          </button>
+            <span className="hidden md:inline text-xs text-zinc-400 mr-1">
+              Page <span className="font-semibold text-white">{safeCurrentPage}</span> of{" "}
+              <span className="font-semibold text-white">{totalPages}</span>
+            </span>
+            {renderPaginationButtons(true)}
+          </nav>
         )}
       </div>
 
@@ -575,13 +661,13 @@ export function ProblemsExplorer({
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4.5 sm:gap-5">
           {paginatedProblems.map((problem) => {
             return (
               <Link
                 key={problem.id}
                 href={`/problems/${problem.slug}`}
-                className={`group relative flex flex-col justify-between h-full rounded-xl border border-[#383838] bg-[#262626] p-5 sm:p-6 shadow-xs transition-all hover:border-[#525252] hover:bg-[#2b2b2b] hover:shadow-md ${difficultyCardStripe(
+                className={`group relative flex flex-col justify-between h-full rounded-xl border border-[#383838] bg-[#262626] p-4.5 sm:p-5 shadow-xs transition-all hover:border-[#525252] hover:bg-[#2b2b2b] hover:shadow-md ${difficultyCardStripe(
                   problem.difficulty,
                 )}`}
               >
@@ -687,67 +773,7 @@ export function ProblemsExplorer({
             <span className="font-semibold text-white">{totalPages}</span> ({PAGE_SIZE} problems per page)
           </div>
 
-          <div className="flex items-center gap-1.5">
-            <button
-              type="button"
-              onClick={() => {
-                setCurrentPage((p) => Math.max(1, p - 1));
-                document.getElementById("problems-list-header")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              disabled={safeCurrentPage === 1}
-              className="flex items-center gap-1 rounded-lg border border-[#383838] bg-[#262626] px-3 py-1.5 text-xs font-medium text-zinc-300 hover:bg-[#333333] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              aria-label="Previous page"
-            >
-              <ChevronLeft className="size-3.5" />
-              <span>Prev</span>
-            </button>
-
-            {/* Page numbers */}
-            <div className="flex items-center gap-1">
-              {getPageNumbers(safeCurrentPage, totalPages).map((p, idx) =>
-                p === "..." ? (
-                  <span
-                    key={`ellipsis-${idx}`}
-                    className="px-2 py-1 text-xs text-zinc-500 select-none"
-                  >
-                    …
-                  </span>
-                ) : (
-                  <button
-                    key={p}
-                    type="button"
-                    onClick={() => {
-                      setCurrentPage(p as number);
-                      document.getElementById("problems-list-header")?.scrollIntoView({ behavior: "smooth" });
-                    }}
-                    className={`min-w-8 h-8 rounded-lg text-xs font-semibold transition-colors ${
-                      safeCurrentPage === p
-                        ? "bg-primary text-primary-foreground font-bold shadow-xs"
-                        : "border border-[#383838] bg-[#262626] text-zinc-300 hover:bg-[#333333] hover:text-white"
-                    }`}
-                    aria-label={`Page ${p}`}
-                    aria-current={safeCurrentPage === p ? "page" : undefined}
-                  >
-                    {p}
-                  </button>
-                )
-              )}
-            </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                setCurrentPage((p) => Math.min(totalPages, p + 1));
-                document.getElementById("problems-list-header")?.scrollIntoView({ behavior: "smooth" });
-              }}
-              disabled={safeCurrentPage === totalPages}
-              className="flex items-center gap-1 rounded-lg border border-[#383838] bg-[#262626] px-3 py-1.5 text-xs font-medium text-zinc-300 hover:bg-[#333333] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-              aria-label="Next page"
-            >
-              <span>Next</span>
-              <ChevronRight className="size-3.5" />
-            </button>
-          </div>
+          {renderPaginationButtons(false)}
         </nav>
       )}
     </div>

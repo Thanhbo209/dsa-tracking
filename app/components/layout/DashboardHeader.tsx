@@ -31,7 +31,7 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
 
   return (
     <header className="border-b border-[#383838] bg-[#222222]/90 backdrop-blur-md sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
+      <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 h-14 flex items-center justify-between">
         {/* Left: Brand & Navigation */}
         <div className="flex items-center gap-6">
           <Link

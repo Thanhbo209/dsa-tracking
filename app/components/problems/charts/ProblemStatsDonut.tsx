@@ -59,7 +59,7 @@ export function ProblemStatsDonut({
     total > 0 ? Math.round((solved / total) * 100) : 0;
 
   return (
-    <div className="rounded-xl border border-[#383838] bg-[#262626] p-6 shadow-xs flex flex-col justify-between h-full space-y-6">
+    <div className="rounded-xl border border-[#383838] bg-[#262626] p-6 shadow-xs flex flex-col justify-between h-full gap-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#383838]">
         <div>

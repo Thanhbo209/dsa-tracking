@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Flame, Calendar, BookOpen, CheckCircle } from "lucide-react";
 import { calculateStreak } from "@/lib/activity/streak";
 
@@ -48,6 +49,7 @@ export function ActivityHeatmap({
   leetcodeUsername,
 }: ActivityHeatmapProps) {
   const [activeTab, setActiveTab] = useState<"SOLVES" | "KNOWLEDGE">("SOLVES");
+  const [mounted, setMounted] = useState(false);
   const [tooltip, setTooltip] = useState<{
     text: string;
     x: number;
@@ -58,6 +60,7 @@ export function ActivityHeatmap({
 
   // Auto-scroll to current week (right edge) on mount for small screens
   useEffect(() => {
+    setMounted(true);
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollLeft =
         scrollContainerRef.current.scrollWidth;
@@ -166,7 +169,7 @@ export function ActivityHeatmap({
   const cellGap = 3;
 
   return (
-    <div className="rounded-xl border border-[#383838] bg-[#262626] p-6 shadow-xs flex flex-col justify-between h-full space-y-6">
+    <div className="rounded-xl border border-[#383838] bg-[#262626] p-6 shadow-xs flex flex-col justify-between h-full gap-6">
       {/* Header with Title, Streak Badges, and Mode Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#383838]">
         <div>
@@ -312,8 +315,8 @@ export function ActivityHeatmap({
                         const actionLabel =
                           activeTab === "SOLVES"
                             ? day.count === 1
-                              ? "problem solved"
-                              : "problems solved"
+                              ? "submission"
+                              : "submissions"
                             : day.count === 1
                               ? "vault note added"
                               : "vault notes added";
@@ -371,15 +374,18 @@ export function ActivityHeatmap({
         </div>
       </div>
 
-      {/* Floating Tooltip */}
-      {tooltip && (
-        <div
-          className="fixed z-50 px-2.5 py-1 text-xs font-medium text-white bg-[#18181b] border border-[#3f3f46] rounded-md shadow-xl pointer-events-none transform -translate-x-1/2 -translate-y-full transition-opacity duration-150"
-          style={{ left: tooltip.x, top: tooltip.y }}
-        >
-          {tooltip.text}
-        </div>
-      )}
+      {/* Floating Tooltip rendered via portal directly into document.body */}
+      {mounted && tooltip && typeof document !== "undefined"
+        ? createPortal(
+            <div
+              className="fixed z-50 px-2.5 py-1 text-xs font-medium text-white bg-[#18181b] border border-[#3f3f46] rounded-md shadow-xl pointer-events-none transform -translate-x-1/2 -translate-y-full transition-opacity duration-150"
+              style={{ left: tooltip.x, top: tooltip.y }}
+            >
+              {tooltip.text}
+            </div>,
+            document.body,
+          )
+        : null}
     </div>
   );
 }

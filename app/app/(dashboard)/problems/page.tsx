@@ -149,7 +149,7 @@ export default async function ProblemsPage() {
     );
 
   return (
-    <main className="w-full px-4 py-8 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+    <main className="w-full px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
       <div className="mb-6 space-y-1">
         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
           Problems
