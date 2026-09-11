@@ -7,8 +7,7 @@ import {
   CheckCircle2,
   Clock,
   Circle,
-  BookOpen,
-  Filter,
+  Bookmark,
   ArrowUpDown,
   RotateCcw,
   ChevronRight,
@@ -17,6 +16,13 @@ import {
 import { Button } from "@/components/ui/button";
 import { DsaLogo } from "@/components/brand/DsaLogo";
 import type { Difficulty } from "@/lib/generated/prisma/client";
+import { ProblemStatsDonut } from "./charts/ProblemStatsDonut";
+import { ActivityHeatmap } from "./charts/ActivityHeatmap";
+import { ProgressRing } from "./ProgressRing";
+import {
+  TopicsSolvedBar,
+  type SolvedTopicItem,
+} from "./TopicsSolvedBar";
 
 const PAGE_SIZE = 16;
 
@@ -63,8 +69,11 @@ export interface ProblemExplorerItem {
   updatedAt: string;
 }
 
-interface ProblemsExplorerProps {
+export interface ProblemsExplorerProps {
   problems: ProblemExplorerItem[];
+  submissionActivities?: Record<string, number>;
+  approachActivities?: Record<string, number>;
+  solvedTopics?: SolvedTopicItem[];
 }
 
 type DifficultyFilter = "ALL" | Difficulty;
@@ -90,6 +99,19 @@ function difficultyClass(difficulty: Difficulty | null): string {
   }
 }
 
+function difficultyCardStripe(difficulty: Difficulty | null): string {
+  switch (difficulty) {
+    case "EASY":
+      return "border-l-[3px] border-l-[#46C6C2]";
+    case "MEDIUM":
+      return "border-l-[3px] border-l-[#eab308]";
+    case "HARD":
+      return "border-l-[3px] border-l-[#ef4444]";
+    default:
+      return "border-l-[3px] border-l-zinc-700";
+  }
+}
+
 function difficultyOrder(diff: Difficulty | null): number {
   switch (diff) {
     case "EASY":
@@ -103,45 +125,78 @@ function difficultyOrder(diff: Difficulty | null): number {
   }
 }
 
-export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
+export function ProblemsExplorer({
+  problems,
+  submissionActivities = {},
+  approachActivities = {},
+  solvedTopics,
+}: ProblemsExplorerProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] =
     useState<DifficultyFilter>("ALL");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("ALL");
-  const [selectedTopic, setSelectedTopic] = useState<string>("ALL");
+  const [selectedTopics, setSelectedTopics] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>("NUM_ASC");
   const [currentPage, setCurrentPage] = useState(1);
 
-  // Derive distinct list of available topics from current dataset
-  const availableTopics = useMemo(() => {
+  // Derive distinct list of solved topics with counts if not provided via props
+  const activeSolvedTopics = useMemo(() => {
+    if (solvedTopics && solvedTopics.length > 0) return solvedTopics;
     const topicMap = new Map<string, number>();
     for (const p of problems) {
-      for (const topic of p.topics) {
-        topicMap.set(topic, (topicMap.get(topic) ?? 0) + 1);
+      if (p.status === "SOLVED") {
+        for (const topic of p.topics) {
+          topicMap.set(topic, (topicMap.get(topic) ?? 0) + 1);
+        }
       }
     }
     return Array.from(topicMap.entries())
-      .map(([name, count]) => ({ name, count }))
+      .map(([topicName, solvedCount]) => ({ topicName, solvedCount }))
       .sort((a, b) =>
-        b.count !== a.count ? b.count - a.count : a.name.localeCompare(b.name),
+        b.solvedCount !== a.solvedCount
+          ? b.solvedCount - a.solvedCount
+          : a.topicName.localeCompare(b.topicName),
       );
-  }, [problems]);
+  }, [solvedTopics, problems]);
+
+  const handleToggleTopic = (topic: string) => {
+    setSelectedTopics((prev) =>
+      prev.includes(topic)
+        ? prev.filter((t) => t !== topic)
+        : [...prev, topic],
+    );
+    setCurrentPage(1);
+  };
+
+  const handleClearTopics = () => {
+    setSelectedTopics([]);
+    setCurrentPage(1);
+  };
 
   // Overall Statistics for top progress dashboard — independent of active filters
   const stats = useMemo(() => {
     const total = problems.length;
     const solved = problems.filter((p) => p.status === "SOLVED").length;
-    const easy = problems.filter((p) => p.difficulty === "EASY").length;
-    const medium = problems.filter((p) => p.difficulty === "MEDIUM").length;
-    const hard = problems.filter((p) => p.difficulty === "HARD").length;
+    const easyTotal = problems.filter((p) => p.difficulty === "EASY").length;
+    const easySolved = problems.filter(
+      (p) => p.difficulty === "EASY" && p.status === "SOLVED",
+    ).length;
+    const mediumTotal = problems.filter((p) => p.difficulty === "MEDIUM").length;
+    const mediumSolved = problems.filter(
+      (p) => p.difficulty === "MEDIUM" && p.status === "SOLVED",
+    ).length;
+    const hardTotal = problems.filter((p) => p.difficulty === "HARD").length;
+    const hardSolved = problems.filter(
+      (p) => p.difficulty === "HARD" && p.status === "SOLVED",
+    ).length;
     const knowledge = problems.filter((p) => p.approachCount > 0).length;
 
     return {
       total,
       solved,
-      easy,
-      medium,
-      hard,
+      easy: { solved: easySolved, total: easyTotal },
+      medium: { solved: mediumSolved, total: mediumTotal },
+      hard: { solved: hardSolved, total: hardTotal },
       knowledge,
     };
   }, [problems]);
@@ -183,9 +238,12 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
           }
         }
 
-        // Topic filter
-        if (selectedTopic !== "ALL") {
-          if (!problem.topics.includes(selectedTopic)) {
+        // Topic filter (multi-select OR logic: match if problem has ANY selected topic)
+        if (selectedTopics.length > 0) {
+          const hasMatch = problem.topics.some((t) =>
+            selectedTopics.includes(t),
+          );
+          if (!hasMatch) {
             return false;
           }
         }
@@ -241,7 +299,7 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
     searchQuery,
     difficultyFilter,
     statusFilter,
-    selectedTopic,
+    selectedTopics,
     sortBy,
   ]);
 
@@ -249,13 +307,13 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
     searchQuery.trim() !== "" ||
     difficultyFilter !== "ALL" ||
     statusFilter !== "ALL" ||
-    selectedTopic !== "ALL";
+    selectedTopics.length > 0;
 
   function clearAllFilters() {
     setSearchQuery("");
     setDifficultyFilter("ALL");
     setStatusFilter("ALL");
-    setSelectedTopic("ALL");
+    setSelectedTopics([]);
     setSortBy("NUM_ASC");
     setCurrentPage(1);
   }
@@ -287,79 +345,44 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
   }
 
   return (
-    <div className="space-y-6 text-white">
-      {/* ── Problem Statistics Summary Bar (Independent of Filters) ─ */}
+    <div className="space-y-6 sm:space-y-8 text-white">
+      {/* ── Problem Statistics & Activity Dashboard (Independent of Filters) ─ */}
       <section
         aria-label="Library Statistics"
-        className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3"
+        className="grid grid-cols-1 lg:grid-cols-12 gap-6"
       >
-        {/* Total Tracked */}
-        <div className="rounded-xl border border-[#383838] bg-[#262626] p-4 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-            Total Tracked
-          </span>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-white">
-            {stats.total}
-          </p>
+        <div className="lg:col-span-5">
+          <ProblemStatsDonut
+            total={stats.total}
+            solved={stats.solved}
+            easy={stats.easy}
+            medium={stats.medium}
+            hard={stats.hard}
+            knowledgeCount={stats.knowledge}
+          />
         </div>
-
-        {/* Solved */}
-        <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-400">
-            Solved
-          </span>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-white">
-            {stats.solved}
-          </p>
-        </div>
-
-        {/* Easy */}
-        <div className="rounded-xl border border-[#46C6C2]/20 bg-[#46C6C2]/5 p-4 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-[#46C6C2]">
-            Easy
-          </span>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-white">
-            {stats.easy}
-          </p>
-        </div>
-
-        {/* Medium */}
-        <div className="rounded-xl border border-yellow-500/20 bg-yellow-500/5 p-4 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-yellow-400">
-            Medium
-          </span>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-white">
-            {stats.medium}
-          </p>
-        </div>
-
-        {/* Hard */}
-        <div className="rounded-xl border border-red-500/20 bg-red-500/5 p-4 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-red-400">
-            Hard
-          </span>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-white">
-            {stats.hard}
-          </p>
-        </div>
-
-        {/* Knowledge */}
-        <div className="rounded-xl border border-amber-500/20 bg-amber-500/5 p-4 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-amber-400">
-            Knowledge
-          </span>
-          <p className="mt-1 text-2xl font-bold tracking-tight text-white">
-            {stats.knowledge}
-          </p>
+        <div className="lg:col-span-7">
+          <ActivityHeatmap
+            submissionActivities={submissionActivities}
+            approachActivities={approachActivities}
+          />
         </div>
       </section>
+
+      {/* ── Topics Solved Overview Bar ────────────────────────────── */}
+      <TopicsSolvedBar
+        solvedTopics={activeSolvedTopics}
+        selectedTopics={selectedTopics}
+        onToggleTopic={handleToggleTopic}
+        onClearTopics={handleClearTopics}
+      />
 
       {/* ── Search & Filter Toolbar ────────────────────────────────── */}
       <section
         aria-label="Search and Filters"
         className="rounded-xl border border-[#383838] bg-[#262626] p-4 sm:p-5 space-y-4 shadow-xs"
       >
-        {/* Row 1: Search input + Topic dropdown + Sort select */}
+        {/* Row 1: Search input + Sort select */}
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           {/* Search Box */}
           <div className="relative flex-1 max-w-md">
@@ -391,29 +414,6 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            {/* Topic Filter Dropdown */}
-            {availableTopics.length > 0 && (
-              <div className="flex items-center gap-1.5">
-                <Filter className="size-3.5 text-zinc-400 shrink-0" />
-                <select
-                  aria-label="Filter by Topic"
-                  value={selectedTopic}
-                  onChange={(e) => {
-                    setSelectedTopic(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="rounded-lg border border-[#4a4a4a] bg-[#1a1a1a] px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors cursor-pointer"
-                >
-                  <option value="ALL">All Topics ({availableTopics.length})</option>
-                  {availableTopics.map((t) => (
-                    <option key={t.name} value={t.name}>
-                      {t.name} ({t.count})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
             {/* Sort Selector */}
             <div className="flex items-center gap-1.5">
               <ArrowUpDown className="size-3.5 text-zinc-400 shrink-0" />
@@ -569,97 +569,86 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
           </Button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 lg:gap-6">
           {paginatedProblems.map((problem) => {
             return (
               <Link
                 key={problem.id}
                 href={`/problems/${problem.slug}`}
-                className="group relative flex flex-col justify-between rounded-xl border border-[#383838] bg-[#262626] p-5 shadow-xs transition-all hover:border-[#525252] hover:bg-[#2b2b2b] hover:shadow-md"
+                className={`group relative flex flex-col justify-between h-full rounded-xl border border-[#383838] bg-[#262626] p-5 sm:p-6 shadow-xs transition-all hover:border-[#525252] hover:bg-[#2b2b2b] hover:shadow-md ${difficultyCardStripe(
+                  problem.difficulty,
+                )}`}
               >
-                <div>
-                  {/* Card Header: Status & Difficulty Badges */}
-                  <div className="flex items-center justify-between gap-2 mb-3">
-                    <div className="flex items-center gap-1.5">
-                      {problem.status === "SOLVED" ? (
-                        <span
-                          className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 py-0.5 text-xs font-semibold text-emerald-400"
-                          title="Solved on LeetCode"
-                        >
-                          <CheckCircle2 className="size-3.5 text-emerald-400" />
-                          <span>Solved</span>
+                <div className="flex flex-col flex-1 justify-between space-y-4">
+                  <div>
+                    {/* Card Header: Progress Ring & Difficulty Badge */}
+                    <div className="flex items-center justify-between gap-2 mb-3">
+                      <div className="flex items-center gap-2">
+                        <ProgressRing status={problem.status} size={18} />
+                        <span className="text-xs font-medium text-zinc-400">
+                          {problem.status === "SOLVED"
+                            ? "Solved"
+                            : problem.status === "ATTEMPTED"
+                              ? "Attempted"
+                              : "Todo"}
                         </span>
-                      ) : problem.status === "ATTEMPTED" ? (
+                      </div>
+
+                      {problem.difficulty ? (
                         <span
-                          className="inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/15 px-2.5 py-0.5 text-xs font-semibold text-amber-400"
-                          title="Attempted"
+                          className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${difficultyClass(
+                            problem.difficulty,
+                          )}`}
                         >
-                          <Clock className="size-3.5 text-amber-400" />
-                          <span>Attempted</span>
+                          {problem.difficulty}
                         </span>
-                      ) : (
-                        <span
-                          className="inline-flex items-center gap-1.5 rounded-full border border-zinc-700/60 bg-zinc-800 px-2.5 py-0.5 text-xs font-medium text-zinc-400"
-                          title="Todo"
-                        >
-                          <Circle className="size-2.5 text-zinc-500" />
-                          <span>Todo</span>
-                        </span>
-                      )}
+                      ) : null}
                     </div>
 
-                    {problem.difficulty ? (
-                      <span
-                        className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${difficultyClass(
-                          problem.difficulty,
-                        )}`}
-                      >
-                        {problem.difficulty}
-                      </span>
+                    {/* LeetCode Number & Title */}
+                    <div className="space-y-1.5">
+                      {problem.leetcodeId !== null && (
+                        <span className="font-mono text-xs font-medium text-zinc-400">
+                          #{problem.leetcodeId}
+                        </span>
+                      )}
+                      <h2 className="text-base font-bold text-white group-hover:text-primary transition-colors line-clamp-2">
+                        {problem.title}
+                      </h2>
+                    </div>
+                  </div>
+
+                  {/* Topics Chips Container - with fixed min-h so 0 chips reserves identical height */}
+                  <div className="min-h-[32px] flex items-center">
+                    {problem.topics.length > 0 ? (
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        {problem.topics.slice(0, 2).map((topicName) => (
+                          <span
+                            key={topicName}
+                            className="rounded bg-[#1a1a1a] border border-[#444444] px-2 py-0.5 text-[11px] text-zinc-300"
+                          >
+                            {topicName}
+                          </span>
+                        ))}
+                        {problem.topics.length > 2 && (
+                          <span className="text-[11px] text-zinc-500 font-medium">
+                            +{problem.topics.length - 2} more
+                          </span>
+                        )}
+                      </div>
                     ) : null}
                   </div>
-
-                  {/* LeetCode Number & Title */}
-                  <div className="space-y-1.5">
-                    {problem.leetcodeId !== null && (
-                      <span className="font-mono text-xs font-medium text-zinc-400">
-                        #{problem.leetcodeId}
-                      </span>
-                    )}
-                    <h2 className="text-base font-bold text-white group-hover:text-primary transition-colors line-clamp-2">
-                      {problem.title}
-                    </h2>
-                  </div>
-
-                  {/* Topics Chips */}
-                  {problem.topics.length > 0 && (
-                    <div className="mt-3 flex flex-wrap items-center gap-1.5">
-                      {problem.topics.slice(0, 3).map((topicName) => (
-                        <span
-                          key={topicName}
-                          className="rounded bg-[#1a1a1a] border border-[#444444] px-2 py-0.5 text-[11px] text-zinc-300"
-                        >
-                          {topicName}
-                        </span>
-                      ))}
-                      {problem.topics.length > 3 && (
-                        <span className="text-[11px] text-zinc-500 font-medium">
-                          +{problem.topics.length - 3}
-                        </span>
-                      )}
-                    </div>
-                  )}
                 </div>
 
                 {/* Card Footer: Knowledge Vault & Open Action */}
-                <div className="mt-5 flex items-center justify-between border-t border-[#383838] pt-3 text-xs">
+                <div className="mt-5 flex items-center justify-between border-t border-[#383838] pt-4 text-xs">
                   <div>
                     {problem.approachCount > 0 ? (
                       <span
-                        className="inline-flex items-center gap-1.5 rounded-md border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 text-xs font-medium text-amber-300"
+                        className="inline-flex items-center gap-1.5 rounded-md border border-[#f59e0b]/30 bg-[#f59e0b]/10 px-2 py-0.5 text-xs font-medium text-[#f59e0b]"
                         title={`${problem.approachCount} approach${problem.approachCount > 1 ? "es" : ""} saved in Knowledge Vault`}
                       >
-                        <BookOpen className="size-3.5" />
+                        <Bookmark className="size-3.5 fill-[#f59e0b] text-[#f59e0b]" />
                         <span>
                           {problem.approachCount}{" "}
                           {problem.approachCount === 1
@@ -667,14 +656,10 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
                             : "approaches"}
                         </span>
                       </span>
-                    ) : (
-                      <span className="text-[11px] text-zinc-500">
-                        No vault notes yet
-                      </span>
-                    )}
+                    ) : null}
                   </div>
 
-                  <div className="flex items-center gap-1 font-medium text-zinc-400 group-hover:text-white transition-colors">
+                  <div className="flex items-center gap-1 font-medium text-zinc-400 group-hover:text-white transition-colors ml-auto">
                     <span>Practice</span>
                     <ChevronRight className="size-4 transition-transform group-hover:translate-x-0.5 text-zinc-400 group-hover:text-white" />
                   </div>

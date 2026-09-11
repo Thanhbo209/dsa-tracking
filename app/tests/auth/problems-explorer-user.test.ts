@@ -51,7 +51,8 @@ describe("Problem Explorer User Scoping Isolation", () => {
 
     expect(htmlB).toContain("Two Sum");
     expect(htmlB).toContain('title="Todo"');
-    expect(htmlB).toContain("No vault notes yet");
+    expect(htmlB).not.toContain("approaches saved in Knowledge Vault");
+    expect(htmlB).not.toContain("No vault notes yet");
     expect(htmlB).not.toContain('title="Solved"');
   });
 });

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/session";
+import { aggregateDailyActivities } from "@/lib/activity/streak";
 import {
   ProblemsExplorer,
   type ProblemExplorerItem,
@@ -19,34 +20,62 @@ export default async function ProblemsPage() {
     redirect("/login?callbackUrl=/problems");
   }
 
-  const rawProblems = await prisma.problem.findMany({
-    orderBy: {
-      leetcodeId: "asc",
-    },
-    include: {
-      topics: {
-        include: {
-          topic: true,
+  const [rawProblems, userSubmissions, userApproaches] = await Promise.all([
+    prisma.problem.findMany({
+      orderBy: {
+        leetcodeId: "asc",
+      },
+      include: {
+        topics: {
+          include: {
+            topic: true,
+          },
+        },
+        submissions: {
+          where: {
+            userId: user.id,
+          },
+          select: {
+            status: true,
+          },
+        },
+        approaches: {
+          where: {
+            userId: user.id,
+          },
+          select: {
+            id: true,
+          },
         },
       },
-      submissions: {
-        where: {
-          userId: user.id,
-        },
-        select: {
-          status: true,
-        },
+    }),
+    prisma.submission.findMany({
+      where: {
+        userId: user.id,
+        status: "ACCEPTED",
       },
-      approaches: {
-        where: {
-          userId: user.id,
-        },
-        select: {
-          id: true,
-        },
+      select: {
+        submittedAt: true,
+        createdAt: true,
       },
-    },
-  });
+    }),
+    prisma.approach.findMany({
+      where: {
+        userId: user.id,
+      },
+      select: {
+        createdAt: true,
+      },
+    }),
+  ]);
+
+  const submissionActivities = aggregateDailyActivities(
+    userSubmissions.map((s) => s.submittedAt || s.createdAt),
+  );
+
+  const approachActivities = aggregateDailyActivities(
+    userApproaches.map((a) => a.createdAt),
+  );
 
   const problems: ProblemExplorerItem[] = rawProblems.map((p) => {
     const isSolved = p.submissions.some((s) => s.status === "ACCEPTED");
@@ -70,6 +99,27 @@ export default async function ProblemsPage() {
     };
   });
 
+  // Distinct topics solved by the user with problem count, sorted by count desc
+  const topicSolvedCounts = new Map<string, number>();
+  for (const p of problems) {
+    if (p.status === "SOLVED") {
+      for (const topicName of p.topics) {
+        topicSolvedCounts.set(
+          topicName,
+          (topicSolvedCounts.get(topicName) ?? 0) + 1,
+        );
+      }
+    }
+  }
+
+  const solvedTopics = Array.from(topicSolvedCounts.entries())
+    .map(([topicName, solvedCount]) => ({ topicName, solvedCount }))
+    .sort((a, b) =>
+      b.solvedCount !== a.solvedCount
+        ? b.solvedCount - a.solvedCount
+        : a.topicName.localeCompare(b.topicName),
+    );
+
   return (
     <main className="w-full px-4 py-8 sm:px-6 lg:px-8 max-w-7xl mx-auto">
       <div className="mb-6 space-y-1">
@@ -81,7 +131,12 @@ export default async function ProblemsPage() {
         </p>
       </div>
 
-      <ProblemsExplorer problems={problems} />
+      <ProblemsExplorer
+        problems={problems}
+        submissionActivities={submissionActivities}
+        approachActivities={approachActivities}
+        solvedTopics={solvedTopics}
+      />
     </main>
   );
 }

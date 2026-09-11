@@ -183,4 +183,37 @@ describe("ProblemsExplorer Component", () => {
     expect(html).toContain("Prev");
     expect(html).toContain("Next");
   });
+
+  it("renders Topics Solved bar with counts for solved topics and omits when 0 solved", () => {
+    // With mockProblems (Two Sum is SOLVED with Array, Hash Table)
+    const htmlWithSolved = renderToStaticMarkup(
+      <ProblemsExplorer problems={mockProblems} />,
+    );
+
+    expect(htmlWithSolved).toContain("Topics Solved:");
+    expect(htmlWithSolved).toContain("All Topics");
+    expect(htmlWithSolved).toContain("Array");
+    expect(htmlWithSolved).toContain("Hash Table");
+
+    // With only TODO problems (0 solved)
+    const todoOnlyProblems: ProblemExplorerItem[] = [
+      {
+        id: "prob-1",
+        slug: "two-sum",
+        leetcodeId: 1,
+        title: "Two Sum",
+        difficulty: "EASY",
+        topics: ["Array"],
+        status: "TODO",
+        approachCount: 0,
+        updatedAt: "2026-03-01T10:00:00Z",
+      },
+    ];
+
+    const htmlNoSolved = renderToStaticMarkup(
+      <ProblemsExplorer problems={todoOnlyProblems} />,
+    );
+
+    expect(htmlNoSolved).not.toContain("Topics Solved:");
+  });
 });
