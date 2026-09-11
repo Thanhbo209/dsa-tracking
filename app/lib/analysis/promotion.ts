@@ -136,7 +136,13 @@ export async function promoteDraftToKnowledge(
       data: {
         userId,
         problemId: analysis.submission.problemId,
-        name: draftToUse.approach.name,
+        // Strip any display-only status suffixes that KnowledgeDraftSection may have
+        // appended to approach.name (e.g. " (My Accepted Implementation)").
+        // Only the bare algorithmic name (e.g. "Horizontal Scanning") belongs in the DB.
+        name: draftToUse.approach.name
+          .replace(/\s*\(My Accepted Implementation\)\s*$/, "")
+          .replace(/\s*\(My Attempt\)\s*$/, "")
+          .trim(),
         coreIdea: draftToUse.approach.coreIdea,
         whyItWorks: draftToUse.approach.whyItWorks,
         whenToUse: draftToUse.approach.whenToUse,
