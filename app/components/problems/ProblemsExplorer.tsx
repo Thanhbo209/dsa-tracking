@@ -48,7 +48,7 @@ type SortOption =
 function difficultyClass(difficulty: Difficulty | null): string {
   switch (difficulty) {
     case "EASY":
-      return "bg-green-500/10 text-green-400 border-green-500/30";
+      return "bg-[#46C6C2]/10 text-[#46C6C2] border-[#46C6C2]/30";
     case "MEDIUM":
       return "bg-yellow-500/10 text-yellow-400 border-yellow-500/30";
     case "HARD":
@@ -270,8 +270,8 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
         </div>
 
         {/* Easy */}
-        <div className="rounded-xl border border-green-500/20 bg-green-500/5 p-4 shadow-xs">
-          <span className="text-[11px] font-bold uppercase tracking-wider text-green-400">
+        <div className="rounded-xl border border-[#46C6C2]/20 bg-[#46C6C2]/5 p-4 shadow-xs">
+          <span className="text-[11px] font-bold uppercase tracking-wider text-[#46C6C2]">
             Easy
           </span>
           <p className="mt-1 text-2xl font-bold tracking-tight text-white">
@@ -407,7 +407,7 @@ export function ProblemsExplorer({ problems }: ProblemsExplorerProps) {
                 className={`rounded-md px-2.5 py-1 font-medium transition-all ${
                   difficultyFilter === diff
                     ? diff === "EASY"
-                      ? "bg-green-500/20 text-green-300 border border-green-500/40"
+                      ? "bg-[#46C6C2]/20 text-[#46C6C2] border border-[#46C6C2]/40"
                       : diff === "MEDIUM"
                         ? "bg-yellow-500/20 text-yellow-300 border border-yellow-500/40"
                         : diff === "HARD"

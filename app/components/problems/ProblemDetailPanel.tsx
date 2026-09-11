@@ -12,7 +12,7 @@ interface ProblemDetailPanelProps {
 function difficultyBadgeClass(difficulty: string | null): string {
   switch (difficulty?.toUpperCase()) {
     case "EASY":
-      return "bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20";
+      return "bg-[#46C6C2]/10 text-[#46C6C2] border-[#46C6C2]/30";
     case "MEDIUM":
       return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20";
     case "HARD":
