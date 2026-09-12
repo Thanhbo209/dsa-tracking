@@ -13,6 +13,7 @@ import {
 
 interface ApproachOverviewProps {
   approach: KnowledgeApproach;
+  showHeader?: boolean;
 }
 
 /**
@@ -36,51 +37,53 @@ function formatText(text: string): React.ReactNode {
   });
 }
 
-export function ApproachOverview({ approach }: ApproachOverviewProps) {
+export function ApproachOverview({ approach, showHeader = true }: ApproachOverviewProps) {
   const hasTradeoffs = Boolean(approach.pros || approach.cons);
   const hasMechanics = Boolean(approach.whyItWorks || approach.whenToUse);
 
   return (
     <div className="space-y-5 rounded-xl border border-[#4a4a4a] bg-[#373737] p-5 sm:p-6 shadow-2xs text-white">
       {/* ── Approach Header & Complexity Chips ────────────────── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#4a4a4a] pb-4">
-        <div>
-          <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-            Selected Approach
-          </span>
-          <h3 className="text-xl sm:text-2xl font-bold text-white mt-0.5">
-            {approach.name}
-          </h3>
-        </div>
+      {showHeader && (
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#4a4a4a] pb-4">
+          <div>
+            <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+              Selected Approach
+            </span>
+            <h3 className="text-xl sm:text-2xl font-bold text-white mt-0.5">
+              {approach.name}
+            </h3>
+          </div>
 
-        <div className="flex flex-wrap items-center gap-2 text-xs">
-          {(approach.timeComplexity || approach.spaceComplexity) && (
-            <>
-              {approach.timeComplexity && (
-                <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-2.5 py-1 text-white">
-                  <Clock className="size-4 text-sky-400" />
-                  <span className="text-zinc-300">Time:</span>
-                  <span className="font-mono font-semibold text-white">
-                    {approach.timeComplexity}
-                  </span>
-                </div>
-              )}
-              {approach.spaceComplexity && (
-                <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-2.5 py-1 text-white">
-                  <HardDrive className="size-4 text-purple-400" />
-                  <span className="text-zinc-300">Space:</span>
-                  <span className="font-mono font-semibold text-white">
-                    {approach.spaceComplexity}
-                  </span>
-                </div>
-              )}
-            </>
-          )}
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            {(approach.timeComplexity || approach.spaceComplexity) && (
+              <>
+                {approach.timeComplexity && (
+                  <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-2.5 py-1 text-white">
+                    <Clock className="size-4 text-sky-400" />
+                    <span className="text-zinc-300">Time:</span>
+                    <span className="font-mono font-semibold text-white">
+                      {approach.timeComplexity}
+                    </span>
+                  </div>
+                )}
+                {approach.spaceComplexity && (
+                  <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-2.5 py-1 text-white">
+                    <HardDrive className="size-4 text-purple-400" />
+                    <span className="text-zinc-300">Space:</span>
+                    <span className="font-mono font-semibold text-white">
+                      {approach.spaceComplexity}
+                    </span>
+                  </div>
+                )}
+              </>
+            )}
 
-          {/* Edit Approach Dialog Trigger */}
-          <ApproachDialog mode="edit" approach={approach} />
+            {/* Edit Approach Dialog Trigger */}
+            <ApproachDialog mode="edit" approach={approach} />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* ── Core Idea (Visually Prominent) ────────────────────── */}
       {approach.coreIdea && (

@@ -92,7 +92,7 @@ describe("KnowledgeWorkspace Components (Phase 5A)", () => {
       expect(html).toContain("+ Add Approach");
     });
 
-    it("renders approach selector and active approach when approaches exist", () => {
+    it("renders approach tabs and active approach when multiple approaches exist", () => {
       const html = renderToStaticMarkup(
         <KnowledgeWorkspace
           problemId="prob-1"
@@ -100,15 +100,30 @@ describe("KnowledgeWorkspace Components (Phase 5A)", () => {
         />,
       );
 
-      // Selector shows both approach names and complexities
+      // Tab switcher shows both approach names
       expect(html).toContain("Hash Map Strategy");
       expect(html).toContain("Two Pointers Strategy");
-      expect(html).toContain("O(n) · O(n)");
-      expect(html).toContain("O(n log n) · O(1)");
+      expect(html).toContain('role="tablist"');
+      // Shows active approach complexity on the right
+      expect(html).toContain("O(n)");
 
       // Active approach 1 content is rendered
       expect(html).toContain("Trade auxiliary space for constant time lookups of complements.");
       expect(html).toContain("One-Pass Complement Lookup");
+    });
+
+    it("renders plain header without approach tabs when only one approach exists", () => {
+      const html = renderToStaticMarkup(
+        <KnowledgeWorkspace
+          problemId="prob-1"
+          approaches={[mockApproach1]}
+        />,
+      );
+
+      expect(html).toContain("Hash Map Strategy");
+      expect(html).not.toContain('aria-label="Problem approaches"');
+      expect(html).toContain("O(n)");
+      expect(html).toContain("Trade auxiliary space for constant time lookups of complements.");
     });
   });
 

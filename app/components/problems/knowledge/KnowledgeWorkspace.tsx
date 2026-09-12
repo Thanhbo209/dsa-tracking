@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import type { KnowledgeApproach } from "./types";
-import { ApproachSelector } from "./ApproachSelector";
+import { ApproachTabs } from "./ApproachTabs";
 import { ApproachOverview } from "./ApproachOverview";
 import { SolutionTechniqueView } from "./SolutionTechniqueView";
 import { ApproachDialog } from "@/components/problems/dialogs/ApproachDialog";
@@ -18,10 +18,18 @@ export function KnowledgeWorkspace({
   approaches = [],
 }: KnowledgeWorkspaceProps) {
   const [selectedApproachIndex, setSelectedApproachIndex] = useState(0);
+  const contentAreaRef = useRef<HTMLDivElement>(null);
 
   // If approaches change or index out of range, fall back to first
   const activeApproach =
     approaches[selectedApproachIndex] || approaches[0] || null;
+
+  function handleSelectApproach(index: number) {
+    setSelectedApproachIndex(index);
+    if (contentAreaRef.current) {
+      contentAreaRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }
 
   // Empty state: no approaches yet
   if (approaches.length === 0) {
@@ -47,18 +55,18 @@ export function KnowledgeWorkspace({
 
   return (
     <div className="space-y-6">
-      {/* ── Approach Navigation Bar ───────────────────────────── */}
-      <ApproachSelector
+      {/* ── Approach Underline Tabs Navigation ──────────────────── */}
+      <ApproachTabs
         problemId={problemId}
         approaches={approaches}
         selectedIndex={selectedApproachIndex}
-        onSelect={(idx) => setSelectedApproachIndex(idx)}
+        onSelect={handleSelectApproach}
       />
 
-      {/* ── Active Approach Overview ─────────────────────────── */}
+      {/* ── Active Approach Content ────────────────────────────── */}
       {activeApproach && (
-        <div className="space-y-6">
-          <ApproachOverview approach={activeApproach} />
+        <div ref={contentAreaRef} className="space-y-6">
+          <ApproachOverview approach={activeApproach} showHeader={false} />
 
           {/* ── Solution / Techniques & Code ──────────────────── */}
           <SolutionTechniqueView approach={activeApproach} />
