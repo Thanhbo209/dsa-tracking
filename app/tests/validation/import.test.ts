@@ -4,6 +4,10 @@ import { importSubmission } from "@/lib/submissions/import";
 
 describe("importSubmission", () => {
   beforeEach(async () => {
+    await prisma.submissionAnalysis.deleteMany();
+    await prisma.code.deleteMany();
+    await prisma.solution.deleteMany();
+    await prisma.approach.deleteMany();
     await prisma.submission.deleteMany();
     await prisma.problemTopic.deleteMany();
     await prisma.topic.deleteMany();

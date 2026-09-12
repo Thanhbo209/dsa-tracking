@@ -18,22 +18,15 @@ import type { PublicProblemDetail } from "@/lib/profile/service";
 type Approach = PublicProblemDetail["approaches"][number];
 type Solution = Approach["solutions"][number];
 
-// ── Status suffix helpers (same as ApproachTabs) ─────────────────────────────
-
-const STATUS_SUFFIXES = [" (My Accepted Implementation)", " (My Attempt)"];
+// ── Status suffix helpers ──────────────────────────────────────────────────
 
 function stripStatusSuffix(name: string): string {
-  for (const s of STATUS_SUFFIXES) {
-    if (name.endsWith(s)) return name.slice(0, -s.length).trim();
-  }
-  return name;
+  return name.replace(/(\s*\((?:My Accepted Implementation|My Attempt)\))+$/g, "").trim();
 }
 
 function getStatusBadge(name: string): string | null {
-  for (const s of STATUS_SUFFIXES) {
-    if (name.endsWith(s)) return s.slice(2, -1); // strip " (" and ")"
-  }
-  return null;
+  const match = name.match(/\((My Accepted Implementation|My Attempt)\)\s*$/);
+  return match ? match[1] : null;
 }
 
 /** Extract a plain language slug from storage strings like
