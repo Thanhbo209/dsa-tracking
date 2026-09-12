@@ -188,6 +188,16 @@ describe("complexityAnalysisSchema", () => {
 
 describe("aiAnalysisOutputSchema", () => {
   const validReview = {
+    actualApproach: {
+      name: "Hash Map",
+      coreIdea: "Use a hash map to store complements.",
+      explanation: "Scans array once with dictionary complement lookups.",
+    },
+    actualSolution: {
+      name: "One-pass Hash Map",
+      description: "Check for complement in map during the single pass.",
+      algorithm: "1. Initialize empty hash map.\n2. For each number, check if target - num in map.\n3. If so, return indices.",
+    },
     summary: "Clear one-pass hash map implementation.",
     isCorrect: true,
     timeComplexity: {
@@ -212,6 +222,11 @@ describe("aiAnalysisOutputSchema", () => {
     missedEdgeCases: ["Array with duplicate complement values handled properly"],
     improvementSuggestions: ["Add type annotations"],
     learningTakeaways: ["Hash map provides O(1) complement lookup"],
+  };
+
+  const validRecommendation = {
+    available: false,
+    reason: "Already optimal.",
   };
 
   const validDraft = {
@@ -239,9 +254,10 @@ describe("aiAnalysisOutputSchema", () => {
     },
   };
 
-  it("accepts complete valid output with review and draft", () => {
+  it("accepts complete valid output with review and recommendation", () => {
     const result = aiAnalysisOutputSchema.safeParse({
       review: validReview,
+      recommendation: validRecommendation,
       draft: validDraft,
     });
 

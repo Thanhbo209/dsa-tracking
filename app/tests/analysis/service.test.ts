@@ -54,6 +54,16 @@ describe("analyzeSubmission", () => {
 
   const validOutputJson = JSON.stringify({
     review: {
+      actualApproach: {
+        name: "Hash Map",
+        coreIdea: "Store complements in a dictionary.",
+        explanation: "Single linear scan looking up complements in O(1).",
+      },
+      actualSolution: {
+        name: "One-pass Hash Map",
+        description: "Check for complement in map during single pass.",
+        algorithm: "1. Init map\n2. For each num: check target-num in map\n3. Return pair",
+      },
       summary: "Efficient single-pass hash map solution.",
       isCorrect: true,
       timeComplexity: {
@@ -79,6 +89,10 @@ describe("analyzeSubmission", () => {
       missedEdgeCases: ["Duplicate numbers handled correctly"],
       improvementSuggestions: ["Add type annotations"],
       learningTakeaways: ["Hash map enables instant complement lookup"],
+    },
+    recommendation: {
+      available: false,
+      reason: "User solution is already optimal O(n) time.",
     },
     draft: {
       approach: {

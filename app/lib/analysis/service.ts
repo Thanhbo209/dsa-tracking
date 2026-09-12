@@ -155,8 +155,8 @@ export async function analyzeSubmission(
       data: {
         status: "DRAFT_READY",
         modelName,
-        review: outputValidation.data.review,
-        draft: outputValidation.data.draft,
+        review: outputValidation.data.review as any,
+        draft: (outputValidation.data.recommendation ?? outputValidation.data.draft ?? null) as any,
         errorMessage: null,
       },
     });

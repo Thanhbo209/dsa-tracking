@@ -102,6 +102,16 @@ vi.mock("@base-ui/react/dialog", () => {
 
 describe("Phase 5C: Two-Column Learning Workspace Components", () => {
   const mockReview: AiReview = {
+    actualApproach: {
+      name: "Hash Map",
+      coreIdea: "Store seen numbers to verify target complement in constant time.",
+      explanation: "Iterates through array once with O(1) map operations.",
+    },
+    actualSolution: {
+      name: "Single-Pass Map",
+      description: "Traverse nums while building map.",
+      algorithm: "1. Loop through nums\n2. Check map\n3. Return result",
+    },
     summary: "Optimal one-pass hash map solution with linear runtime.",
     isCorrect: true,
     timeComplexity: {
@@ -346,8 +356,8 @@ describe("Phase 5C: Two-Column Learning Workspace Components", () => {
       expect(html).toContain("Evaluating attempt: ");
       expect(html).toContain("ACCEPTED");
       expect(html).toContain(mockReview.summary);
-      expect(html).toContain("Option 2: AI Suggested Solution");
-      expect(html).toContain("Suggested Approach");
+      expect(html).toContain("My Approach");
+      expect(html).toContain("Save My Approach to Vault");
 
       // Section 3: Permanent Knowledge ("What approach should I remember?")
       expect(html).toContain("Permanent Knowledge");

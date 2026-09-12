@@ -55,7 +55,21 @@ export const complexityAnalysisSchema = z.object({
   reasoning: z.array(z.string().trim().min(1)).min(1),
 });
 
+export const actualApproachSchema = z.object({
+  name: z.string().trim().min(1),
+  coreIdea: z.string().trim().min(1),
+  explanation: z.string().trim().min(1),
+});
+
+export const actualSolutionSchema = z.object({
+  name: z.string().trim().min(1),
+  description: z.string().trim().min(1),
+  algorithm: z.string().trim().min(1),
+});
+
 export const aiReviewSchema = z.object({
+  actualApproach: actualApproachSchema,
+  actualSolution: actualSolutionSchema,
   summary: z.string().trim().min(1),
   isCorrect: z.boolean(),
   timeComplexity: complexityAnalysisSchema,
@@ -100,9 +114,19 @@ export const aiDraftSchema = z.object({
   code: aiDraftCodeSchema,
 });
 
+export const aiRecommendationSchema = z.object({
+  available: z.boolean(),
+  reason: z.string().optional(),
+  approach: aiDraftApproachSchema.optional(),
+  solution: aiDraftSolutionSchema.optional(),
+  code: aiDraftCodeSchema.optional(),
+});
+
 export const aiAnalysisOutputSchema = z.object({
   review: aiReviewSchema,
-  draft: aiDraftSchema,
+  recommendation: aiRecommendationSchema,
+  // Optional draft field for backward compatibility with older callers/tests
+  draft: aiDraftSchema.optional(),
 });
 
 // ── Inferred TypeScript Types ───────────────────────────────────────────
@@ -118,9 +142,12 @@ export type AiExistingKnowledgeSummary = z.infer<
 export type AiAnalysisInput = z.infer<typeof aiAnalysisInputSchema>;
 
 export type ComplexityAnalysis = z.infer<typeof complexityAnalysisSchema>;
+export type ActualApproach = z.infer<typeof actualApproachSchema>;
+export type ActualSolution = z.infer<typeof actualSolutionSchema>;
 export type AiReview = z.infer<typeof aiReviewSchema>;
 export type AiDraftApproach = z.infer<typeof aiDraftApproachSchema>;
 export type AiDraftSolution = z.infer<typeof aiDraftSolutionSchema>;
 export type AiDraftCode = z.infer<typeof aiDraftCodeSchema>;
 export type AiDraft = z.infer<typeof aiDraftSchema>;
+export type AiRecommendation = z.infer<typeof aiRecommendationSchema>;
 export type AiAnalysisOutput = z.infer<typeof aiAnalysisOutputSchema>;

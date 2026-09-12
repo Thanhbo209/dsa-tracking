@@ -2,14 +2,13 @@
 
 import { useState, useMemo } from "react";
 import * as React from "react";
-import type { AiDraft, AiReview } from "@/lib/validation/analysis";
+import type { AiDraft, AiReview, AiRecommendation } from "@/lib/validation/analysis";
 import type { AnalysisStatus } from "./types";
 import { DraftEditForm } from "./DraftEditForm";
 import { Button } from "@/components/ui/button";
 import { DsaLogo } from "@/components/brand/DsaLogo";
 import {
   BookOpen,
-  AlertCircle,
   CheckCircle2,
   XCircle,
   Edit3,
@@ -22,6 +21,8 @@ import {
   Clock,
   HardDrive,
   ListOrdered,
+  Sparkles,
+  Info,
 } from "lucide-react";
 import { CodeViewer } from "../CodeViewer";
 
@@ -47,8 +48,8 @@ function formatText(text: string): React.ReactNode {
 }
 
 interface KnowledgeDraftSectionProps {
-  draft: AiDraft;
-  review?: AiReview;
+  draft: (AiRecommendation & Partial<AiDraft>) | AiDraft | null;
+  review?: AiReview | null;
   status: AnalysisStatus;
   onAccept: (editedDraft?: AiDraft) => Promise<void>;
   onReject: () => Promise<void>;
@@ -71,34 +72,35 @@ export function KnowledgeDraftSection({
   submissionStatus,
   runtimeMs,
 }: KnowledgeDraftSectionProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [confirmMode, setConfirmMode] = useState<"accept" | "reject" | null>(
-    null,
-  );
+  const [editingTarget, setEditingTarget] = useState<"user" | "ai" | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<"user" | "ai" | null>(null);
+  const [confirmAction, setConfirmAction] = useState<"accept" | "reject" | null>(null);
 
   const hasUserCode = Boolean(submissionCode && submissionCode.trim().length > 0);
   const isSubmissionAccepted = submissionStatus === "ACCEPTED";
+  const hasActualApproach = Boolean(review?.actualApproach?.name);
 
-  // Synthesize a complete draft from the user's submission & AI review analytics
-  const userSubmissionDraft = useMemo<AiDraft | null>(() => {
+  // ── 1. Synthesize User's Actual Approach Draft ──────────────────────────────
+  const userApproachDraft = useMemo<AiDraft | null>(() => {
     if (!hasUserCode || !submissionCode) return null;
 
-    const timeComp =
-      review?.timeComplexity?.value?.trim() ||
-      draft.approach.timeComplexity ||
-      "O(n)";
-    const spaceComp =
-      review?.spaceComplexity?.value?.trim() ||
-      draft.approach.spaceComplexity ||
-      "O(1)";
+    // Derived directly from the user's actual approach identified by AI
+    const approachName = review?.actualApproach?.name || "Historical Submission Attempt";
+    const coreIdeaText = review?.actualApproach?.coreIdea || review?.summary || "Implementation analyzed from submission code.";
+    const whyItWorksText = review?.actualApproach?.explanation || review?.timeComplexity?.explanation || "";
+    const whenToUseText =
+      review?.conceptGaps && review.conceptGaps.length > 0
+        ? `Best applied when solving problems requiring: ${review.conceptGaps.join(", ")}.`
+        : "";
 
-    // Strengths -> Pros
+    const timeComp = review?.timeComplexity?.value?.trim() || "O(n)";
+    const spaceComp = review?.spaceComplexity?.value?.trim() || "O(1)";
+
     const prosText =
       review?.strengths && review.strengths.length > 0
         ? review.strengths.map((s) => `• ${s}`).join("\n")
-        : draft.approach.pros || "Implemented and validated on LeetCode.";
+        : "Implemented and evaluated on LeetCode.";
 
-    // Bottlenecks / Suggestions / Mistakes -> Cons
     const consList = [
       ...(review?.mistakes || []),
       ...(review?.improvementSuggestions || []),
@@ -106,47 +108,32 @@ export function KnowledgeDraftSection({
     const consText =
       consList.length > 0
         ? consList.map((c) => `• ${c}`).join("\n")
-        : draft.approach.cons || "No major bottlenecks identified.";
+        : "No major bottlenecks identified.";
 
-    // Mistakes to avoid
     const mistakesText =
       review?.mistakes && review.mistakes.length > 0
         ? review.mistakes.map((m) => `• ${m}`).join("\n")
         : review?.missedEdgeCases && review.missedEdgeCases.length > 0
           ? review.missedEdgeCases.map((e) => `• Edge Case: ${e}`).join("\n")
-          : draft.approach.mistakes;
+          : "";
 
-    // Core Idea from Review Summary or fallback
-    const coreIdeaText = review?.summary?.trim() || draft.approach.coreIdea;
-
-    // Why it works from review timeComplexity explanation
-    const whyItWorksText =
-      review?.timeComplexity?.explanation?.trim() || draft.approach.whyItWorks;
-
-    // When to use from concept gaps or draft
-    const whenToUseText =
-      review?.conceptGaps && review.conceptGaps.length > 0
-        ? `Best applied when solving problems requiring: ${review.conceptGaps.join(", ")}.`
-        : draft.approach.whenToUse;
-
-    // Algorithm from timeComplexity reasoning steps or solution algorithm
-    const algorithmText =
-      review?.timeComplexity?.reasoning &&
-      review.timeComplexity.reasoning.length > 0
-        ? review.timeComplexity.reasoning
-            .map((step, idx) => `${idx + 1}. ${step}`)
-            .join("\n")
-        : draft.solution.algorithm;
-
-    // Notes from learning takeaways
     const takeawaysText =
       review?.learningTakeaways && review.learningTakeaways.length > 0
         ? review.learningTakeaways.map((t) => `• ${t}`).join("\n")
-        : draft.approach.notes;
+        : "";
 
-    const approachName = isSubmissionAccepted
-      ? `${draft.approach.name} (My Accepted Implementation)`
-      : `${draft.approach.name} (My Attempt)`;
+    const solutionName =
+      review?.actualSolution?.name ||
+      (isSubmissionAccepted ? "My Accepted Solution" : "My Submission Attempt");
+
+    const solutionDescription =
+      review?.actualSolution?.description || review?.summary || "";
+
+    const algorithmText =
+      review?.actualSolution?.algorithm ||
+      (review?.timeComplexity?.reasoning && review.timeComplexity.reasoning.length > 0
+        ? review.timeComplexity.reasoning.map((step, idx) => `${idx + 1}. ${step}`).join("\n")
+        : "");
 
     return {
       approach: {
@@ -162,174 +149,176 @@ export function KnowledgeDraftSection({
         notes: takeawaysText,
       },
       solution: {
-        name: isSubmissionAccepted
-          ? "My Accepted Solution"
-          : "My Submission Attempt",
-        description: review?.summary?.trim() || draft.solution.description,
+        name: solutionName,
+        description: solutionDescription,
         algorithm: algorithmText,
-        notes: runtimeMs
-          ? `Executed on LeetCode with runtime ${runtimeMs}ms.`
-          : draft.solution.notes,
+        notes: runtimeMs ? `Executed on LeetCode with runtime ${runtimeMs}ms.` : "",
       },
       code: {
-        language: submissionLanguage || draft.code.language,
+        language: submissionLanguage || "code",
         code: submissionCode,
         notes: isSubmissionAccepted
-          ? `Actual accepted submission code (${submissionLanguage || draft.code.language}${runtimeMs ? `, ${runtimeMs}ms` : ""}).`
-          : `Actual submission code (${submissionLanguage || draft.code.language}).`,
+          ? `Actual accepted submission code (${submissionLanguage || "code"}${runtimeMs ? `, ${runtimeMs}ms` : ""}).`
+          : `Actual submission code (${submissionLanguage || "code"}).`,
       },
     };
   }, [
     hasUserCode,
     submissionCode,
     review,
-    draft,
     isSubmissionAccepted,
     runtimeMs,
     submissionLanguage,
   ]);
 
-  const [selectedVaultOption, setSelectedVaultOption] = useState<"user" | "ai">(
-    hasUserCode && isSubmissionAccepted ? "user" : "ai",
-  );
+  // ── 2. Derive AI Recommendation Draft (if available) ────────────────────────
+  const { isRecommendationAvailable, recommendationReason, aiRecommendationDraft } =
+    useMemo(() => {
+      if (!draft || typeof draft !== "object") {
+        return {
+          isRecommendationAvailable: false,
+          recommendationReason: undefined,
+          aiRecommendationDraft: null,
+        };
+      }
 
-  const activeDraft =
-    selectedVaultOption === "user" && userSubmissionDraft
-      ? userSubmissionDraft
-      : draft;
+      // Check for new schema: { available: boolean, reason?: string, approach?, solution?, code? }
+      if ("available" in draft) {
+        const isAvail = draft.available === true && Boolean(draft.approach?.name);
+        return {
+          isRecommendationAvailable: isAvail,
+          recommendationReason: draft.reason,
+          aiRecommendationDraft: isAvail
+            ? ({
+                approach: draft.approach!,
+                solution: draft.solution!,
+                code: draft.code!,
+              } as AiDraft)
+            : null,
+        };
+      }
 
-  const { approach, solution, code } = activeDraft;
+      // Legacy fallback: draft is { approach, solution, code }
+      const legacyDraft = draft as AiDraft;
+      if (legacyDraft.approach?.name) {
+        return {
+          isRecommendationAvailable: true,
+          recommendationReason: "Recommended canonical approach from historical analysis.",
+          aiRecommendationDraft: legacyDraft,
+        };
+      }
 
-  const hasTradeoffs = Boolean(approach.pros || approach.cons);
-  const hasMechanics = Boolean(approach.whyItWorks || approach.whenToUse);
+      return {
+        isRecommendationAvailable: false,
+        recommendationReason: undefined,
+        aiRecommendationDraft: null,
+      };
+    }, [draft]);
 
-  async function handleConfirmAccept() {
-    await onAccept(activeDraft);
-    setConfirmMode(null);
+  async function handleConfirmAccept(target: "user" | "ai") {
+    const targetDraft = target === "user" ? userApproachDraft : aiRecommendationDraft;
+    if (!targetDraft) return;
+    await onAccept(targetDraft);
+    setConfirmTarget(null);
+    setConfirmAction(null);
   }
 
-  if (isEditing) {
-    return (
-      <div className="pt-6 border-t">
-        <DraftEditForm
-          initialDraft={activeDraft}
-          onSave={async (editedDraft) => {
-            await onAccept(editedDraft);
-            setIsEditing(false);
-          }}
-          onCancel={() => setIsEditing(false)}
-          isSaving={isPromoting}
-          submissionCode={submissionCode}
-          submissionLanguage={submissionLanguage}
-        />
-      </div>
-    );
+  // ── Render Edit Form if editing ───────────────────────────────────────────
+  if (editingTarget !== null) {
+    const draftToEdit = editingTarget === "user" ? userApproachDraft : aiRecommendationDraft;
+    if (draftToEdit) {
+      return (
+        <div className="pt-6 border-t border-[#444444]">
+          <DraftEditForm
+            initialDraft={draftToEdit}
+            onSave={async (editedDraft) => {
+              await onAccept(editedDraft);
+              setEditingTarget(null);
+            }}
+            onCancel={() => setEditingTarget(null)}
+            isSaving={isPromoting}
+            submissionCode={submissionCode}
+            submissionLanguage={submissionLanguage}
+          />
+        </div>
+      );
+    }
   }
 
   return (
-    <div className="space-y-6 text-white">
+    <div className="space-y-8 text-white">
       {/* ── Status Banner ─────────────────────────────────── */}
       {status === "ACCEPTED" ? (
         <div className="flex items-center gap-2 rounded-lg border border-green-500/40 bg-green-500/20 px-3.5 py-2.5 text-xs text-white">
           <CheckCircle2 className="size-4 shrink-0 text-green-400" />
           <span className="font-semibold">
-            Knowledge Vault Active — You can save your attempt analytics or the AI suggested solution anytime into your knowledge base.
+            Knowledge Vault Active — You can save your approach or the AI recommendation anytime into your knowledge base.
           </span>
         </div>
       ) : status === "REJECTED" ? (
         <div className="flex items-center gap-2 rounded-lg border border-zinc-500/40 bg-[#2a2a2a] px-3.5 py-2.5 text-xs text-white">
           <XCircle className="size-4 shrink-0 text-zinc-400" />
           <span>
-            Draft Rejected — This draft was rejected and not saved to your
-            knowledge base.
+            Draft Rejected — This draft was rejected and not saved to your knowledge base.
           </span>
         </div>
       ) : (
         <div className="flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/20 px-3.5 py-2.5 text-xs text-white">
           <DsaLogo size="xs" className="h-4 w-auto shrink-0" />
           <span className="font-medium">
-            AI-generated draft — not saved to your knowledge base
+            AI-generated analysis — not saved to your knowledge base
           </span>
         </div>
       )}
 
-      {/* ── Option Selector Tabs (When user code is available) ── */}
-      {userSubmissionDraft && (
-        <div className="rounded-xl border border-[#4a4a4a] bg-[#2a2a2a] p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-2xs">
-          <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-zinc-400">
-              Choose Vault Knowledge Model
-            </span>
-            <p className="text-xs sm:text-sm text-zinc-300 mt-0.5">
-              Select whether to save your own submission with AI diagnostics or the AI&apos;s suggested optimal solution.
-            </p>
-          </div>
-
-          <div
-            role="tablist"
-            aria-label="Vault Knowledge Selection"
-            className="flex flex-wrap items-center gap-2 rounded-lg bg-[#1a1a1a] p-1.5 border border-[#4a4a4a] self-start sm:self-auto"
-          >
-            <button
-              type="button"
-              role="tab"
-              aria-selected={selectedVaultOption === "user"}
-              onClick={() => setSelectedVaultOption("user")}
-              className={`flex items-center gap-2 rounded-md px-3.5 py-2 text-xs sm:text-sm font-semibold transition-all ${
-                selectedVaultOption === "user"
-                  ? "bg-emerald-500/25 text-emerald-300 border border-emerald-500/50 shadow-xs"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              <CheckCircle2 className="size-4 text-emerald-400" />
-              <span>Option 1: My Attempt & AI Analytics</span>
-            </button>
-
-            <button
-              type="button"
-              role="tab"
-              aria-selected={selectedVaultOption === "ai"}
-              onClick={() => setSelectedVaultOption("ai")}
-              className={`flex items-center gap-2 rounded-md px-3.5 py-2 text-xs sm:text-sm font-semibold transition-all ${
-                selectedVaultOption === "ai"
-                  ? "bg-primary/25 text-white border border-primary/50 shadow-xs"
-                  : "text-zinc-400 hover:text-white"
-              }`}
-            >
-              <DsaLogo size="xs" className="h-4 w-auto shrink-0" />
-              <span>Option 2: AI Suggested Solution</span>
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ── Knowledge Model Display ───────────────────────── */}
-      <div className="space-y-4 text-white">
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SECTION 1: MY APPROACH (Derived strictly from user's submitted code)
+         ═══════════════════════════════════════════════════════════════════════ */}
+      {userApproachDraft && (
         <div className="rounded-xl border border-[#4a4a4a] bg-[#373737] p-5 sm:p-6 space-y-6 shadow-2xs">
-          {/* Header & Status */}
+          {/* Header Bar */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#4a4a4a] pb-4">
             <div>
-              <h4 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2.5">
-                <BookOpen className="size-5 text-primary" />
-                {selectedVaultOption === "user"
-                  ? "My Attempt & AI Analytics"
-                  : "AI Suggested Solutions"}
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
+                  My Approach
+                </span>
+                {/* Standalone status badge — isolated peer element, never concatenated! */}
+                <span
+                  className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${
+                    isSubmissionAccepted
+                      ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
+                      : "border-amber-500/30 bg-amber-500/10 text-amber-400"
+                  }`}
+                >
+                  {isSubmissionAccepted ? "Accepted Attempt" : "Attempt"}
+                </span>
+              </div>
+
+              {/* Approach name rendered ONCE directly from actualApproach.name */}
+              <h4 className="text-xl sm:text-2xl font-bold text-white mt-1">
+                {userApproachDraft.approach.name}
               </h4>
-              <p className="text-sm sm:text-base text-zinc-300 mt-1">
-                {selectedVaultOption === "user"
-                  ? "Knowledge model built directly from your submitted code and AI diagnostic findings."
-                  : "Structured solution and algorithm suggestions based on your submission."}
-              </p>
+
+              {/* Legacy notice if actualApproach was missing */}
+              {!hasActualApproach && (
+                <div className="flex items-center gap-1.5 mt-1.5 text-xs text-amber-400">
+                  <Info className="size-3.5 shrink-0" />
+                  <span>
+                    Legacy record: Click &quot;Re-analyze&quot; above to classify your specific algorithmic paradigm.
+                  </span>
+                </div>
+              )}
             </div>
 
-            {/* Action Bar (available anytime unless REJECTED) */}
-            {status !== "REJECTED" && !confirmMode && (
+            {/* Action Bar */}
+            {status !== "REJECTED" && (
               <div className="flex flex-wrap items-center gap-2">
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => setIsEditing(true)}
+                  onClick={() => setEditingTarget("user")}
                   disabled={isPromoting}
                   className="gap-1.5 border-[#555555] bg-[#2a2a2a] text-white hover:bg-[#333333]"
                 >
@@ -337,57 +326,38 @@ export function KnowledgeDraftSection({
                   <span>Edit Draft</span>
                 </Button>
 
-                {status === "DRAFT_READY" && (
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setConfirmMode("reject")}
-                    disabled={isPromoting}
-                    className="gap-1.5 border-red-500/40 bg-[#2a2a2a] text-white hover:bg-red-500/20"
-                  >
-                    <X className="size-3.5 text-red-400" />
-                    <span>Reject Draft</span>
-                  </Button>
-                )}
-
                 <Button
                   type="button"
                   size="sm"
-                  onClick={() => setConfirmMode("accept")}
+                  onClick={() => {
+                    setConfirmTarget("user");
+                    setConfirmAction("accept");
+                  }}
                   disabled={isPromoting}
                   className="gap-1.5 text-white font-semibold"
                 >
                   <Check className="size-3.5" />
-                  <span>
-                    {userSubmissionDraft
-                      ? selectedVaultOption === "user"
-                        ? "Save My Attempt to Vault"
-                        : "Save AI Solution to Vault"
-                      : "Save to Vault"}
-                  </span>
+                  <span>Save My Approach to Vault</span>
                 </Button>
               </div>
             )}
           </div>
 
-          {/* Confirmation Banner for Accept / Reject */}
-          {confirmMode === "accept" && (
+          {/* Confirmation Banner for Saving My Approach */}
+          {confirmTarget === "user" && confirmAction === "accept" && (
             <div className="rounded-lg border border-primary/40 bg-[#2a2a2a] p-4 space-y-3 text-white">
               <div className="flex items-start gap-2">
-                <DsaLogo size="xs" className="h-4 w-auto shrink-0 mt-0.5" />
+                <CheckCircle2 className="size-4 text-emerald-400 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-semibold text-white">
-                    Confirm Knowledge Promotion
+                    Confirm Saving My Approach
                   </p>
                   <p className="text-xs text-zinc-300 mt-0.5">
-                    This will save{" "}
+                    This will save your implementation of{" "}
                     <strong className="text-white">
-                      {selectedVaultOption === "user"
-                        ? "Your Attempt & AI Analytics (with your submission code)"
-                        : "AI Suggested Solution (with AI optimized code)"}
+                      &quot;{userApproachDraft.approach.name}&quot;
                     </strong>{" "}
-                    into your permanent Knowledge playbook.
+                    with your actual submitted code into your permanent Knowledge Vault.
                   </p>
                 </div>
               </div>
@@ -397,7 +367,10 @@ export function KnowledgeDraftSection({
                   type="button"
                   variant="outline"
                   size="xs"
-                  onClick={() => setConfirmMode(null)}
+                  onClick={() => {
+                    setConfirmTarget(null);
+                    setConfirmAction(null);
+                  }}
                   disabled={isPromoting}
                   className="border-[#555555] bg-[#333333] text-white hover:bg-[#444444]"
                 >
@@ -406,7 +379,7 @@ export function KnowledgeDraftSection({
                 <Button
                   type="button"
                   size="xs"
-                  onClick={handleConfirmAccept}
+                  onClick={() => handleConfirmAccept("user")}
                   disabled={isPromoting}
                   className="gap-1 text-white font-semibold"
                 >
@@ -417,17 +390,212 @@ export function KnowledgeDraftSection({
             </div>
           )}
 
-          {confirmMode === "reject" && (
-            <div className="rounded-lg border border-red-500/40 bg-[#2a2a2a] p-4 space-y-3 text-white">
+          {/* Complexity Chips */}
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            {userApproachDraft.approach.timeComplexity && (
+              <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-2.5 py-1 text-white">
+                <Clock className="size-4 text-sky-400" />
+                <span className="text-zinc-300">Time:</span>
+                <span className="font-mono font-semibold text-white">
+                  {userApproachDraft.approach.timeComplexity}
+                </span>
+              </div>
+            )}
+            {userApproachDraft.approach.spaceComplexity && (
+              <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-2.5 py-1 text-white">
+                <HardDrive className="size-4 text-purple-400" />
+                <span className="text-zinc-300">Space:</span>
+                <span className="font-mono font-semibold text-white">
+                  {userApproachDraft.approach.spaceComplexity}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Core Idea Card */}
+          {userApproachDraft.approach.coreIdea && (
+            <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
+              <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-amber-400">
+                <Lightbulb className="size-5 text-amber-400 shrink-0" />
+                <span>Core Idea</span>
+              </div>
+              <p className="mt-2 text-sm sm:text-base text-zinc-300 leading-relaxed font-normal">
+                {formatText(userApproachDraft.approach.coreIdea)}
+              </p>
+            </div>
+          )}
+
+          {/* Why It Works & When To Use */}
+          {(userApproachDraft.approach.whyItWorks || userApproachDraft.approach.whenToUse) && (
+            <div className="grid gap-4 sm:grid-cols-2 text-sm">
+              {userApproachDraft.approach.whyItWorks && (
+                <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
+                  <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2.5">
+                    <Compass className="size-5 text-sky-400 shrink-0" />
+                    <span>How It Realizes Strategy</span>
+                  </div>
+                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                    {formatText(userApproachDraft.approach.whyItWorks)}
+                  </p>
+                </div>
+              )}
+              {userApproachDraft.approach.whenToUse && (
+                <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
+                  <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2.5">
+                    <Compass className="size-5 text-purple-400 shrink-0" />
+                    <span>When To Use</span>
+                  </div>
+                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                    {formatText(userApproachDraft.approach.whenToUse)}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step-by-Step Algorithm */}
+          {userApproachDraft.solution.algorithm && (
+            <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
+              <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-zinc-100 mb-2.5">
+                <ListOrdered className="size-5 text-amber-400 shrink-0" />
+                <span>
+                  Method: {userApproachDraft.solution.name}
+                </span>
+              </div>
+              <div className="rounded-lg bg-[#1a1a1a] border border-[#4a4a4a] p-4 text-zinc-300">
+                <p className="whitespace-pre-wrap font-mono text-xs sm:text-[14px] text-zinc-200 leading-relaxed">
+                  {formatText(userApproachDraft.solution.algorithm)}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Trade-offs (Pros & Cons) */}
+          {(userApproachDraft.approach.pros || userApproachDraft.approach.cons) && (
+            <div className="grid gap-4 sm:grid-cols-2 text-sm">
+              {userApproachDraft.approach.pros && (
+                <div className="rounded-xl border border-emerald-500/30 bg-[#222222] p-5 text-white shadow-2xs">
+                  <div className="flex items-center gap-2.5 text-base font-bold text-emerald-400 mb-2.5">
+                    <CheckCircle2 className="size-5 text-emerald-400 shrink-0" />
+                    <span>Strengths</span>
+                  </div>
+                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                    {formatText(userApproachDraft.approach.pros)}
+                  </p>
+                </div>
+              )}
+              {userApproachDraft.approach.cons && (
+                <div className="rounded-xl border border-rose-500/30 bg-[#222222] p-5 text-white shadow-2xs">
+                  <div className="flex items-center gap-2.5 text-base font-bold text-rose-400 mb-2.5">
+                    <AlertTriangle className="size-5 text-rose-400 shrink-0" />
+                    <span>Bottlenecks & Limitations</span>
+                  </div>
+                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                    {formatText(userApproachDraft.approach.cons)}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* User's Actual Implementation Code */}
+          <div className="border-t border-[#383838] pt-5 space-y-3.5">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-400">
+                  Actual Submitted Code
+                </span>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  Your actual code evaluated on LeetCode
+                </p>
+              </div>
+            </div>
+
+            <CodeViewer
+              code={userApproachDraft.code.code}
+              language={userApproachDraft.code.language}
+              badge="My Submission"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SECTION 2: AI RECOMMENDATION (Rendered when available or optimal note)
+         ═══════════════════════════════════════════════════════════════════════ */}
+      {isRecommendationAvailable && aiRecommendationDraft ? (
+        <div className="rounded-xl border border-primary/40 bg-[#2a2a2a] p-5 sm:p-6 space-y-6 shadow-2xs">
+          {/* Header Bar */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#444444] pb-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <Sparkles className="size-4 text-primary shrink-0" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                  AI Recommendation
+                </span>
+                <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+                  Alternative / Optimization
+                </span>
+              </div>
+
+              <h4 className="text-xl sm:text-2xl font-bold text-white mt-1">
+                {aiRecommendationDraft.approach.name}
+              </h4>
+
+              {recommendationReason && (
+                <p className="text-xs sm:text-sm text-zinc-300 mt-1">
+                  {recommendationReason}
+                </p>
+              )}
+            </div>
+
+            {/* Action Bar */}
+            {status !== "REJECTED" && (
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditingTarget("ai")}
+                  disabled={isPromoting}
+                  className="gap-1.5 border-[#555555] bg-[#222222] text-white hover:bg-[#333333]"
+                >
+                  <Edit3 className="size-3.5 text-white" />
+                  <span>Edit Draft</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={() => {
+                    setConfirmTarget("ai");
+                    setConfirmAction("accept");
+                  }}
+                  disabled={isPromoting}
+                  className="gap-1.5 bg-primary text-white font-semibold hover:bg-primary/90"
+                >
+                  <Check className="size-3.5" />
+                  <span>Save Recommendation to Vault</span>
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Confirmation Banner for Saving AI Recommendation */}
+          {confirmTarget === "ai" && confirmAction === "accept" && (
+            <div className="rounded-lg border border-primary/40 bg-[#1e1e1e] p-4 space-y-3 text-white">
               <div className="flex items-start gap-2">
-                <AlertCircle className="size-4 shrink-0 text-red-400 mt-0.5" />
+                <Sparkles className="size-4 text-primary shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-semibold text-white">
-                    Confirm Rejection
+                    Confirm Saving AI Recommendation
                   </p>
                   <p className="text-xs text-zinc-300 mt-0.5">
-                    Mark this draft as rejected? It will remain in your analysis
-                    history but will not create permanent knowledge.
+                    This will save the AI-recommended approach{" "}
+                    <strong className="text-white">
+                      &quot;{aiRecommendationDraft.approach.name}&quot;
+                    </strong>{" "}
+                    with its optimized canonical code into your Knowledge Vault as a separate entry.
                   </p>
                 </div>
               </div>
@@ -437,7 +605,10 @@ export function KnowledgeDraftSection({
                   type="button"
                   variant="outline"
                   size="xs"
-                  onClick={() => setConfirmMode(null)}
+                  onClick={() => {
+                    setConfirmTarget(null);
+                    setConfirmAction(null);
+                  }}
                   disabled={isPromoting}
                   className="border-[#555555] bg-[#333333] text-white hover:bg-[#444444]"
                 >
@@ -445,283 +616,132 @@ export function KnowledgeDraftSection({
                 </Button>
                 <Button
                   type="button"
-                  variant="destructive"
                   size="xs"
-                  onClick={async () => {
-                    await onReject();
-                    setConfirmMode(null);
-                  }}
+                  onClick={() => handleConfirmAccept("ai")}
                   disabled={isPromoting}
-                  className="gap-1 text-white"
+                  className="gap-1 bg-primary text-white font-semibold hover:bg-primary/90"
                 >
-                  <X className="size-3" />
-                  <span>{isPromoting ? "Rejecting..." : "Confirm Reject"}</span>
+                  <Check className="size-3" />
+                  <span>{isPromoting ? "Saving..." : "Confirm & Save"}</span>
                 </Button>
               </div>
             </div>
           )}
 
-          {/* ── Candidate Approach ──────────────────────────── */}
-          <div className="rounded-xl border border-[#4a4a4a] border-l-4 border-l-primary bg-[#2a2a2a] p-5 sm:p-6 space-y-5 text-white shadow-2xs">
-            {/* Header & Complexity Chips */}
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#383838] pb-4">
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-                  Suggested Approach
+          {/* Complexity Chips */}
+          <div className="flex flex-wrap items-center gap-2 text-xs">
+            {aiRecommendationDraft.approach.timeComplexity && (
+              <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#1e1e1e] px-2.5 py-1 text-white">
+                <Clock className="size-4 text-sky-400" />
+                <span className="text-zinc-300">Time:</span>
+                <span className="font-mono font-semibold text-white">
+                  {aiRecommendationDraft.approach.timeComplexity}
                 </span>
-                <h5 className="text-xl sm:text-2xl font-bold text-zinc-100 mt-0.5">
-                  {approach.name}
-                </h5>
               </div>
-              {(approach.timeComplexity || approach.spaceComplexity) && (
-                <div className="flex flex-wrap items-center gap-2 text-xs">
-                  {approach.timeComplexity && (
-                    <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#1e1e1e] px-2.5 py-1 text-white">
-                      <Clock className="size-4 text-sky-400" />
-                      <span className="text-zinc-300">Time:</span>
-                      <span className="font-mono font-semibold text-white">
-                        {approach.timeComplexity}
-                      </span>
-                    </div>
-                  )}
-                  {approach.spaceComplexity && (
-                    <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#1e1e1e] px-2.5 py-1 text-white">
-                      <HardDrive className="size-4 text-purple-400" />
-                      <span className="text-zinc-300">Space:</span>
-                      <span className="font-mono font-semibold text-white">
-                        {approach.spaceComplexity}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              )}
+            )}
+            {aiRecommendationDraft.approach.spaceComplexity && (
+              <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#1e1e1e] px-2.5 py-1 text-white">
+                <HardDrive className="size-4 text-purple-400" />
+                <span className="text-zinc-300">Space:</span>
+                <span className="font-mono font-semibold text-white">
+                  {aiRecommendationDraft.approach.spaceComplexity}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* Core Idea Card */}
+          {aiRecommendationDraft.approach.coreIdea && (
+            <div className="rounded-xl border border-[#4a4a4a] bg-[#1e1e1e] p-5 text-white shadow-2xs">
+              <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-amber-400">
+                <Lightbulb className="size-5 text-amber-400 shrink-0" />
+                <span>Core Idea</span>
+              </div>
+              <p className="mt-2 text-sm sm:text-base text-zinc-300 leading-relaxed font-normal">
+                {formatText(aiRecommendationDraft.approach.coreIdea)}
+              </p>
             </div>
+          )}
 
-            {/* Core Idea Card */}
-            {approach.coreIdea && (
-              <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
-                <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-amber-400">
-                  <Lightbulb className="size-5.5 text-amber-400 shrink-0" />
-                  <span>Core Idea</span>
-                </div>
-                <p className="mt-2 text-sm sm:text-base text-zinc-300 leading-relaxed font-normal">
-                  {formatText(approach.coreIdea)}
-                </p>
-              </div>
-            )}
-
-            {/* Why It Works & When To Use Cards */}
-            {hasMechanics && (
-              <div className="grid gap-4 sm:grid-cols-2 text-sm">
-                {approach.whyItWorks && (
-                  <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
-                    <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2.5">
-                      <Compass className="size-5 text-sky-400 shrink-0" />
-                      <span>Why It Works</span>
-                    </div>
-                    <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                      {formatText(approach.whyItWorks)}
-                    </p>
-                  </div>
-                )}
-                {approach.whenToUse && (
-                  <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
-                    <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2.5">
-                      <Compass className="size-5 text-purple-400 shrink-0" />
-                      <span>When To Use</span>
-                    </div>
-                    <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                      {formatText(approach.whenToUse)}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Pros & Cons Cards */}
-            {hasTradeoffs && (
-              <div className="grid gap-4 sm:grid-cols-2 text-sm">
-                {approach.pros && (
-                  <div className="rounded-xl border border-emerald-500/30 bg-[#222222] p-5 text-white shadow-2xs">
-                    <div className="flex items-center gap-2.5 text-base font-bold text-emerald-400 mb-2.5">
-                      <CheckCircle2 className="size-5 text-emerald-400 shrink-0" />
-                      <span>Pros & Advantages</span>
-                    </div>
-                    <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                      {formatText(approach.pros)}
-                    </p>
-                  </div>
-                )}
-                {approach.cons && (
-                  <div className="rounded-xl border border-rose-500/30 bg-[#222222] p-5 text-white shadow-2xs">
-                    <div className="flex items-center gap-2.5 text-base font-bold text-rose-400 mb-2.5">
-                      <AlertTriangle className="size-5 text-rose-400 shrink-0" />
-                      <span>Cons & Limitations</span>
-                    </div>
-                    <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                      {formatText(approach.cons)}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Common Pitfalls Card */}
-            {approach.mistakes && (
-              <div className="rounded-xl border border-amber-500/30 bg-[#222222] p-5 text-white shadow-2xs">
-                <div className="flex items-center gap-2.5 text-base font-bold text-amber-400 mb-2.5">
-                  <AlertTriangle className="size-5 text-amber-400 shrink-0" />
-                  <span>Common Mistakes to Avoid</span>
-                </div>
-                <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                  {formatText(approach.mistakes)}
-                </p>
-              </div>
-            )}
-
-            {/* Additional Notes Card */}
-            {approach.notes && (
-              <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
-                <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2">
-                  <FileText className="size-5 text-blue-400 shrink-0" />
-                  <span>Additional Notes</span>
-                </div>
-                <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                  {formatText(approach.notes)}
-                </p>
-              </div>
-            )}
-
-            {/* ── Candidate Solution ─────────────────────────── */}
-            <div className="mt-6 border-t border-[#383838] pt-5 space-y-4">
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-                  Suggested Method
-                </span>
-                <h6 className="text-lg sm:text-xl font-bold text-zinc-100 mt-0.5">
-                  {solution.name}
-                </h6>
-              </div>
-
-              {solution.description && (
-                <p className="text-sm sm:text-base text-zinc-300 leading-relaxed font-normal">
-                  {formatText(solution.description)}
-                </p>
-              )}
-
-              {solution.algorithm && (
-                <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
-                  <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-zinc-100 mb-2.5">
-                    <ListOrdered className="size-5 text-amber-400 shrink-0" />
-                    <span>Step-by-Step Guide</span>
-                  </div>
-                  <div className="rounded-lg bg-[#1a1a1a] border border-[#4a4a4a] p-4 text-zinc-300">
-                    <p className="whitespace-pre-wrap font-mono text-xs sm:text-[14px] text-zinc-200 leading-relaxed">
-                      {formatText(solution.algorithm)}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {solution.notes && (
-                <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-zinc-300 shadow-2xs">
-                  <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2">
-                    <FileText className="size-5 text-blue-400 shrink-0" />
-                    <span>Method Notes</span>
+          {/* Why It Works & When To Use */}
+          {(aiRecommendationDraft.approach.whyItWorks || aiRecommendationDraft.approach.whenToUse) && (
+            <div className="grid gap-4 sm:grid-cols-2 text-sm">
+              {aiRecommendationDraft.approach.whyItWorks && (
+                <div className="rounded-xl border border-[#4a4a4a] bg-[#1e1e1e] p-5 text-white shadow-2xs">
+                  <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2.5">
+                    <Compass className="size-5 text-sky-400 shrink-0" />
+                    <span>Why It Works</span>
                   </div>
                   <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                    {formatText(solution.notes)}
+                    {formatText(aiRecommendationDraft.approach.whyItWorks)}
                   </p>
                 </div>
               )}
-
-              {/* ── Implementation Code (User vs AI) ─────────── */}
-              <div className="mt-6 border-t border-[#383838] pt-5 space-y-3.5">
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-400">
-                        {selectedVaultOption === "user"
-                          ? "My Accepted Implementation"
-                          : "Optimized Implementation"}
-                      </span>
-                      {submissionCode &&
-                        draft.code.code &&
-                        submissionCode.trim() === draft.code.code.trim() && (
-                          <span className="rounded bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 text-[11px] font-medium text-amber-300">
-                            AI suggested code matches your submission
-                          </span>
-                        )}
-                    </div>
-                    <p className="text-xs sm:text-sm text-zinc-300 mt-0.5">
-                      {selectedVaultOption === "user"
-                        ? "Your actual code submitted on LeetCode for this attempt"
-                        : "AI-suggested optimized code — not saved"}
-                    </p>
+              {aiRecommendationDraft.approach.whenToUse && (
+                <div className="rounded-xl border border-[#4a4a4a] bg-[#1e1e1e] p-5 text-white shadow-2xs">
+                  <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2.5">
+                    <Compass className="size-5 text-purple-400 shrink-0" />
+                    <span>When To Use</span>
                   </div>
-
-                  {userSubmissionDraft && (
-                    <div
-                      role="tablist"
-                      aria-label="Code Source"
-                      className="flex items-center gap-1.5 rounded-lg bg-[#1a1a1a] p-1 border border-[#4a4a4a] self-start sm:self-auto"
-                    >
-                      <button
-                        type="button"
-                        role="tab"
-                        aria-selected={selectedVaultOption === "user"}
-                        onClick={() => setSelectedVaultOption("user")}
-                        className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
-                          selectedVaultOption === "user"
-                            ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-xs"
-                            : "text-zinc-400 hover:text-white"
-                        }`}
-                      >
-                        <CheckCircle2 className="size-3.5 text-emerald-400" />
-                        <span>My Accepted Code</span>
-                      </button>
-
-                      <button
-                        type="button"
-                        role="tab"
-                        aria-selected={selectedVaultOption === "ai"}
-                        onClick={() => setSelectedVaultOption("ai")}
-                        className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition-all ${
-                          selectedVaultOption === "ai"
-                            ? "bg-primary/20 text-white border border-primary/40 shadow-xs"
-                            : "text-zinc-400 hover:text-white"
-                        }`}
-                      >
-                        <DsaLogo size="xs" className="h-3.5 w-auto" />
-                        <span>AI Suggested Code</span>
-                      </button>
-                    </div>
-                  )}
+                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                    {formatText(aiRecommendationDraft.approach.whenToUse)}
+                  </p>
                 </div>
+              )}
+            </div>
+          )}
 
-                <CodeViewer
-                  code={code.code}
-                  language={code.language}
-                  badge={
-                    selectedVaultOption === "user"
-                      ? "My Accepted Attempt"
-                      : "AI Suggested Implementation"
-                  }
-                />
-
-                {code.notes && (
-                  <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-4 text-xs sm:text-sm text-zinc-300 shadow-2xs">
-                    <span className="font-semibold text-zinc-200">
-                      Code Notes:{" "}
-                    </span>
-                    <span className="text-zinc-300">{formatText(code.notes)}</span>
-                  </div>
-                )}
+          {/* Algorithm */}
+          {aiRecommendationDraft.solution.algorithm && (
+            <div className="rounded-xl border border-[#4a4a4a] bg-[#1e1e1e] p-5 text-white shadow-2xs">
+              <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-zinc-100 mb-2.5">
+                <ListOrdered className="size-5 text-amber-400 shrink-0" />
+                <span>
+                  Method: {aiRecommendationDraft.solution.name}
+                </span>
+              </div>
+              <div className="rounded-lg bg-[#141414] border border-[#4a4a4a] p-4 text-zinc-300">
+                <p className="whitespace-pre-wrap font-mono text-xs sm:text-[14px] text-zinc-200 leading-relaxed">
+                  {formatText(aiRecommendationDraft.solution.algorithm)}
+                </p>
               </div>
             </div>
+          )}
+
+          {/* Canonical Code */}
+          <div className="border-t border-[#444444] pt-5 space-y-3.5">
+            <div className="flex items-center justify-between">
+              <div>
+                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-400">
+                  Recommended Canonical Implementation
+                </span>
+                <p className="text-xs text-zinc-400 mt-0.5">
+                  AI-provided reference implementation
+                </p>
+              </div>
+            </div>
+
+            <CodeViewer
+              code={aiRecommendationDraft.code.code}
+              language={aiRecommendationDraft.code.language}
+              badge="AI Recommended"
+            />
           </div>
         </div>
-      </div>
+      ) : recommendationReason ? (
+        /* Optimal feedback when no recommendation is necessary */
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-white shadow-2xs flex items-start gap-3">
+          <CheckCircle2 className="size-5 text-emerald-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <h5 className="text-sm font-bold text-emerald-300">
+              Optimal Approach Confirmed
+            </h5>
+            <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+              {recommendationReason}
+            </p>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

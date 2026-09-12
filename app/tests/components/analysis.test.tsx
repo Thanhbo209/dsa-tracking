@@ -20,6 +20,16 @@ vi.mock("next/navigation", () => ({
 
 describe("Submission Analysis UI Components", () => {
   const mockReview: AiReview = {
+    actualApproach: {
+      name: "One-Pass Hash Map",
+      coreIdea: "Store visited numbers to find complement in single iteration",
+      explanation: "Iterates through array while checking if complement exists in Map.",
+    },
+    actualSolution: {
+      name: "One-Pass Hash Map Solution",
+      description: "Tracks seen values and their indices using Map.",
+      algorithm: "1. Initialize Map\n2. Loop nums\n3. Check target - nums[i]\n4. Return indices",
+    },
     summary: "High performance one-pass hash map solution.",
     isCorrect: true,
     timeComplexity: {
@@ -174,27 +184,25 @@ describe("Submission Analysis UI Components", () => {
       );
 
       // Draft disclaimer banner
-      expect(html).toContain("AI-generated draft — not saved to your knowledge base");
+      expect(html).toContain("AI-generated analysis — not saved to your knowledge base");
 
       // Action buttons
-      expect(html).toContain("Save to Vault");
+      expect(html).toContain("Save Recommendation to Vault");
       expect(html).toContain("Edit Draft");
-      expect(html).toContain("Reject Draft");
+      expect(html).not.toContain("Reject Draft");
 
       // Approach details
-      expect(html).toContain("Suggested Approach");
+      expect(html).toContain("AI Recommendation");
       expect(html).toContain("Hash Map Lookup");
       expect(html).toContain("Store visited numbers to find complement in O(1) time.");
-      expect(html).toContain("Fast linear execution in a single pass.");
 
       // Solution details
-      expect(html).toContain("Suggested Method");
-      expect(html).toContain("One-Pass Complement Search");
+      expect(html).toContain("Method: One-Pass Complement Search");
       expect(html).toContain("1. Create Map");
 
       // Code details
-      expect(html).toContain("Optimized Implementation");
-      expect(html).toContain("AI-suggested optimized code — not saved");
+      expect(html).toContain("Recommended Canonical Implementation");
+      expect(html).toContain("AI-provided reference implementation");
       expect(html).toContain("function twoSum(nums: number[], target: number)");
     });
 
@@ -214,13 +222,20 @@ describe("Submission Analysis UI Components", () => {
         />,
       );
 
-      // Vault option selector tabs
-      expect(html).toContain("Choose Vault Knowledge Model");
-      expect(html).toContain("Option 1: My Attempt &amp; AI Analytics");
-      expect(html).toContain("Option 2: AI Suggested Solution");
-      expect(html).toContain("Save My Attempt to Vault");
-      expect(html).toContain("My Accepted Implementation");
+      // Section 1: My Approach (derived from review.actualApproach and submissionCode)
+      expect(html).toContain("My Approach");
+      expect(html).toContain("One-Pass Hash Map");
+      expect(html).toContain("Accepted Attempt");
+      expect(html).toContain("Save My Approach to Vault");
+      expect(html).toContain("Actual Submitted Code");
       expect(html).toContain("function myAttempt() { return [0, 1]; }");
+
+      // Section 2: AI Recommendation (derived from draft)
+      expect(html).toContain("AI Recommendation");
+      expect(html).toContain("Hash Map Lookup");
+      expect(html).toContain("Save Recommendation to Vault");
+      expect(html).toContain("Recommended Canonical Implementation");
+      expect(html).toContain("function twoSum(nums: number[], target: number)");
     });
 
     it("renders active knowledge vault banner and keeps actions available when status is ACCEPTED", () => {
@@ -235,7 +250,7 @@ describe("Submission Analysis UI Components", () => {
       );
 
       expect(html).toContain("Knowledge Vault Active");
-      expect(html).toContain("Save to Vault");
+      expect(html).toContain("Save Recommendation to Vault");
       expect(html).toContain("Edit Draft");
       expect(html).not.toContain("Reject Draft");
     });
@@ -251,9 +266,10 @@ describe("Submission Analysis UI Components", () => {
         />,
       );
 
-      expect(html).toContain("Draft Rejected — This draft was rejected and not saved");
-      expect(html).not.toContain("Accept Draft");
-      expect(html).not.toContain("Reject Draft");
+      expect(html).toContain("Draft Rejected — This draft was rejected and not saved to your knowledge base.");
+      expect(html).not.toContain("Save Recommendation to Vault");
+      expect(html).not.toContain("Save My Approach to Vault");
+      expect(html).not.toContain("Edit Draft");
     });
   });
 
@@ -368,7 +384,7 @@ describe("Submission Analysis UI Components", () => {
       expect(html).toContain("Latest Analysis");
       expect(html).toContain("gemini-2.5-flash");
       expect(html).toContain("AI Diagnostic Review");
-      expect(html).toContain("AI-generated draft — not saved to your knowledge base");
+      expect(html).toContain("AI-generated analysis — not saved to your knowledge base");
       expect(html).toContain("Re-analyze");
     });
 

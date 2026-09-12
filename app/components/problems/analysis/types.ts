@@ -1,4 +1,4 @@
-import type { AiReview, AiDraft } from "@/lib/validation/analysis";
+import type { AiReview, AiDraft, AiRecommendation } from "@/lib/validation/analysis";
 
 export type AnalysisStatus =
   | "GENERATING"
@@ -13,7 +13,7 @@ export interface SerializedSubmissionAnalysis {
   status: AnalysisStatus;
   modelName: string | null;
   review: AiReview | null;
-  draft: AiDraft | null;
+  draft: (AiRecommendation & Partial<AiDraft>) | AiDraft | null;
   errorMessage: string | null;
   createdAt: string | Date;
   updatedAt: string | Date;
