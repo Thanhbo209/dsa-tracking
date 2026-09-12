@@ -85,20 +85,20 @@ export const aiReviewSchema = z.object({
 export const aiDraftApproachSchema = z.object({
   name: z.string().trim().min(1),
   coreIdea: z.string().trim().min(1),
-  whyItWorks: z.string().trim().min(1),
-  whenToUse: z.string().trim().min(1),
+  whyItWorks: z.string().optional().or(z.literal("")),
+  whenToUse: z.string().optional().or(z.literal("")),
   timeComplexity: z.string().trim().min(1),
   spaceComplexity: z.string().trim().min(1),
-  pros: z.string().trim().min(1),
-  cons: z.string().trim().min(1),
+  pros: z.string().optional().or(z.literal("")),
+  cons: z.string().optional().or(z.literal("")),
   notes: z.string().optional(),
   mistakes: z.string().optional(),
 });
 
 export const aiDraftSolutionSchema = z.object({
   name: z.string().trim().min(1),
-  description: z.string().trim().min(1),
-  algorithm: z.string().trim().min(1),
+  description: z.string().optional().or(z.literal("")),
+  algorithm: z.string(),
   notes: z.string().optional(),
 });
 

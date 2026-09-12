@@ -311,6 +311,88 @@ describe("Knowledge Draft Promotion Service", () => {
         promoteDraftToKnowledge("user-1", "sub-1", "analysis-1"),
       ).rejects.toThrow("Database connection lost");
     });
+
+    it("promotes draft when analysis.draft is an AiRecommendation with available: true", async () => {
+      submissionAnalysisFindUniqueMock.mockResolvedValue({
+        ...mockAnalysisRecord,
+        draft: {
+          available: true,
+          reason: "Asymptotically optimal alternative.",
+          approach: validDraft.approach,
+          solution: validDraft.solution,
+          code: validDraft.code,
+        },
+      });
+      submissionAnalysisUpdateManyMock.mockResolvedValue({ count: 1 });
+      approachCreateMock.mockResolvedValue({ id: "app-rec-1", problemId: "problem-100" });
+      solutionCreateMock.mockResolvedValue({ id: "sol-rec-1", approachId: "app-rec-1" });
+      codeCreateMock.mockResolvedValue({ id: "code-rec-1", solutionId: "sol-rec-1" });
+
+      const result = await promoteDraftToKnowledge("user-1", "sub-1", "analysis-1");
+
+      expect(approachCreateMock).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          name: "Hash Map Lookup",
+          userId: "user-1",
+          problemId: "problem-100",
+        }),
+      });
+      expect(result.approach.id).toBe("app-rec-1");
+    });
+
+    it("throws error if analysis.draft is an AiRecommendation with available: false", async () => {
+      submissionAnalysisFindUniqueMock.mockResolvedValue({
+        ...mockAnalysisRecord,
+        draft: {
+          available: false,
+          reason: "User solution is already optimal.",
+        },
+      });
+
+      await expect(
+        promoteDraftToKnowledge("user-1", "sub-1", "analysis-1"),
+      ).rejects.toThrow("No AI recommendation is available to promote for this submission");
+    });
+
+    it("accepts edited draft with empty strings for optional fields like whenToUse and whyItWorks", async () => {
+      const draftWithEmptyFields = {
+        approach: {
+          name: "Linear Scan",
+          coreIdea: "Scan elements sequentially.",
+          whyItWorks: "",
+          whenToUse: "",
+          timeComplexity: "O(n)",
+          spaceComplexity: "O(1)",
+          pros: "",
+          cons: "",
+        },
+        solution: {
+          name: "Simple Scan",
+          description: "",
+          algorithm: "",
+        },
+        code: {
+          language: "python",
+          code: "def scan(): pass",
+        },
+      };
+
+      submissionAnalysisFindUniqueMock.mockResolvedValue(mockAnalysisRecord);
+      submissionAnalysisUpdateManyMock.mockResolvedValue({ count: 1 });
+      approachCreateMock.mockResolvedValue({ id: "app-2", problemId: "problem-100" });
+      solutionCreateMock.mockResolvedValue({ id: "sol-2", approachId: "app-2" });
+      codeCreateMock.mockResolvedValue({ id: "code-2", solutionId: "sol-2" });
+
+      const result = await promoteDraftToKnowledge("user-1", "sub-1", "analysis-1", draftWithEmptyFields);
+
+      expect(approachCreateMock).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          name: "Linear Scan",
+          whenToUse: "",
+        }),
+      });
+      expect(result.approach.id).toBe("app-2");
+    });
   });
 
   describe("rejectDraft", () => {

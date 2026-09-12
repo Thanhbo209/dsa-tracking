@@ -104,14 +104,36 @@ export async function promoteDraftToKnowledge(
     }
 
     // 2. Determine draft to use: edited draft takes precedence, otherwise use stored draft
-    const rawDraft = validatedEditedDraft || analysis.draft;
-    if (!rawDraft) {
-      throw new Error("Analysis contains no knowledge draft to promote");
-    }
+    let draftToUse: AiDraft;
+    if (validatedEditedDraft) {
+      draftToUse = validatedEditedDraft;
+    } else {
+      const rawDraft = analysis.draft;
+      if (!rawDraft || typeof rawDraft !== "object") {
+        throw new Error("Analysis contains no knowledge draft to promote");
+      }
 
-    const draftToUse: AiDraft = validatedEditedDraft
-      ? validatedEditedDraft
-      : aiDraftSchema.parse(rawDraft);
+      // Check if rawDraft is an AiRecommendation ({ available: boolean, reason?: string, approach?, solution?, code? })
+      if ("available" in rawDraft) {
+        const rec = rawDraft as {
+          available?: boolean;
+          approach?: unknown;
+          solution?: unknown;
+          code?: unknown;
+        };
+        if (!rec.available || !rec.approach) {
+          throw new Error("No AI recommendation is available to promote for this submission");
+        }
+        draftToUse = aiDraftSchema.parse({
+          approach: rec.approach,
+          solution: rec.solution,
+          code: rec.code,
+        });
+      } else {
+        // Legacy draft shape: { approach, solution, code }
+        draftToUse = aiDraftSchema.parse(rawDraft);
+      }
+    }
 
     // 3. Concurrency-safe atomic transition from DRAFT_READY / ACCEPTED -> ACCEPTED
     const updateResult = await tx.submissionAnalysis.updateMany({

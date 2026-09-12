@@ -87,11 +87,14 @@ export function KnowledgeDraftSection({
     // Derived directly from the user's actual approach identified by AI
     const approachName = review?.actualApproach?.name || "Historical Submission Attempt";
     const coreIdeaText = review?.actualApproach?.coreIdea || review?.summary || "Implementation analyzed from submission code.";
-    const whyItWorksText = review?.actualApproach?.explanation || review?.timeComplexity?.explanation || "";
+    const whyItWorksText =
+      review?.actualApproach?.explanation ||
+      review?.timeComplexity?.explanation ||
+      coreIdeaText;
     const whenToUseText =
       review?.conceptGaps && review.conceptGaps.length > 0
         ? `Best applied when solving problems requiring: ${review.conceptGaps.join(", ")}.`
-        : "";
+        : "General problem-solving approach applicable to this problem type.";
 
     const timeComp = review?.timeComplexity?.value?.trim() || "O(n)";
     const spaceComp = review?.spaceComplexity?.value?.trim() || "O(1)";
@@ -127,13 +130,13 @@ export function KnowledgeDraftSection({
       (isSubmissionAccepted ? "My Accepted Solution" : "My Submission Attempt");
 
     const solutionDescription =
-      review?.actualSolution?.description || review?.summary || "";
+      review?.actualSolution?.description || review?.summary || "Implementation analyzed from submission code.";
 
     const algorithmText =
       review?.actualSolution?.algorithm ||
       (review?.timeComplexity?.reasoning && review.timeComplexity.reasoning.length > 0
         ? review.timeComplexity.reasoning.map((step, idx) => `${idx + 1}. ${step}`).join("\n")
-        : "");
+        : "1. Implemented according to submission logic.");
 
     return {
       approach: {
