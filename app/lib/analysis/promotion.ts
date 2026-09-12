@@ -121,7 +121,6 @@ export async function promoteDraftToKnowledge(
       },
       data: {
         status: "ACCEPTED",
-        ...(validatedEditedDraft ? { draft: draftToUse } : {}),
       },
     });
 

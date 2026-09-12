@@ -117,7 +117,6 @@ export function SubmissionAnalysisContainer({
             ? {
                 ...item,
                 status: "ACCEPTED",
-                draft: (editedDraft as any) || item.draft,
               }
             : item,
         ),
