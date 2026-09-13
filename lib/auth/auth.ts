@@ -4,12 +4,15 @@ import { username } from "better-auth/plugins";
 import { prisma } from "@/lib/db/prisma";
 
 export const auth = betterAuth({
-  baseURL: process.env.BETTER_AUTH_URL || "http://localhost:3000",
+  baseURL:
+    process.env.BETTER_AUTH_URL ||
+    (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000"),
   secret: process.env.BETTER_AUTH_SECRET,
   trustedOrigins: [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
     "https://leetcode.com",
+    ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
   ],
   database: prismaAdapter(prisma, {
     provider: "postgresql",
