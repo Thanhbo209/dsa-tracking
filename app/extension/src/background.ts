@@ -97,12 +97,16 @@ async function handleLogin(email: string, password: string) {
       success: true,
       user: data.user,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[DSA Tracker Background] Login error:", error);
     const origin = await getServerOrigin();
+    const message =
+      error instanceof Error
+        ? error.message
+        : `Network error. Is DSA Tracker running at ${origin}?`;
     return {
       success: false,
-      error: error.message || `Network error. Is DSA Tracker running at ${origin}?`,
+      error: message,
     };
   }
 }
@@ -195,12 +199,14 @@ async function importSubmission(submission: CapturedSubmission) {
       success: true,
       data,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[DSA Tracker Background] Import fetch error:", error);
+    const message =
+      error instanceof Error ? error.message : "Failed to reach DSA Tracker server.";
     return {
       success: false,
       error: "NETWORK_ERROR",
-      message: error.message || "Failed to reach DSA Tracker server.",
+      message,
     };
   }
 }
@@ -248,12 +254,14 @@ async function syncLeetCodeToDashboard() {
       success: true,
       data,
     };
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("[DSA Tracker Background] Sync error:", error);
+    const message =
+      error instanceof Error ? error.message : "Failed to sync LeetCode data.";
     return {
       success: false,
       error: "SYNC_ERROR",
-      message: error.message || "Failed to sync LeetCode data.",
+      message,
     };
   }
 }

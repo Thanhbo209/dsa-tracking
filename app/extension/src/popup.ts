@@ -96,7 +96,7 @@ function getStatusClass(status: string): string {
   }
 }
 
-async function sendMessage<T = any>(msg: ExtensionMessage): Promise<T> {
+async function sendMessage<T = unknown>(msg: ExtensionMessage): Promise<T> {
   return new Promise((resolve) => {
     chrome.runtime.sendMessage(msg, (response) => {
       resolve(response);
@@ -280,10 +280,11 @@ btnSyncDashboard.onclick = async () => {
       elSyncMessage.textContent = res?.message || res?.error || "Sync failed. Make sure you are signed into LeetCode.";
       elSyncMessage.style.display = "block";
     }
-  } catch (err: any) {
+  } catch (err: unknown) {
     btnSyncText.textContent = "Sync to Dashboard";
     elSyncMessage.className = "sync-message error";
-    elSyncMessage.textContent = err.message || "Failed to trigger sync.";
+    elSyncMessage.textContent =
+      err instanceof Error ? err.message : "Failed to trigger sync.";
     elSyncMessage.style.display = "block";
   } finally {
     setTimeout(() => {

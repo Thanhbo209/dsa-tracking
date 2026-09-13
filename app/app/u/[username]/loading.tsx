@@ -1,7 +1,6 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   SkeletonCard,
-  SkeletonText,
   SkeletonBadge,
   SkeletonCircle,
 } from "@/components/ui/skeletons";

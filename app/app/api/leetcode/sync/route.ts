@@ -213,8 +213,9 @@ export async function POST(request: Request) {
           });
           problemMap.set(slug, created.id);
           syncedProblemsCount++;
-        } catch (err: any) {
-          errors.push(`Failed to register problem ${slug}: ${err.message}`);
+        } catch (err: unknown) {
+          const msg = err instanceof Error ? err.message : String(err);
+          errors.push(`Failed to register problem ${slug}: ${msg}`);
         }
       }
     }
@@ -228,8 +229,9 @@ export async function POST(request: Request) {
         const synced = await syncProblem(slug);
         problemMap.set(slug, synced.id);
         syncedProblemsCount++;
-      } catch (err: any) {
-        errors.push(`Failed to fetch problem ${slug} from LeetCode: ${err.message}`);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        errors.push(`Failed to fetch problem ${slug} from LeetCode: ${msg}`);
       }
     }
 
@@ -273,8 +275,9 @@ export async function POST(request: Request) {
           },
         });
         syncedSubmissionsCount++;
-      } catch (err: any) {
-        errors.push(`Failed to upsert submission ${sub.externalId}: ${err.message}`);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        errors.push(`Failed to upsert submission ${sub.externalId}: ${msg}`);
       }
     }
 

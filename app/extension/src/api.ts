@@ -1,8 +1,10 @@
-import type { CapturedSubmission } from "./types";
+import type { CapturedSubmission, SubmissionImportResult } from "./types";
 
 const API_URL = "http://localhost:3000/api/submissions/import";
 
-export async function sendSubmission(submission: CapturedSubmission): Promise<any> {
+export async function sendSubmission(
+  submission: CapturedSubmission,
+): Promise<SubmissionImportResult> {
   // Prefer background service worker to circumvent third-party cookie restrictions
   if (typeof chrome !== "undefined" && chrome.runtime?.sendMessage) {
     return new Promise((resolve, reject) => {

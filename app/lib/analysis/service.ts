@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import type { Prisma } from "@/lib/generated/prisma/client";
 import {
   aiAnalysisInputSchema,
   aiAnalysisOutputSchema,
@@ -7,7 +8,7 @@ import {
 import { buildAnalysisPrompt } from "./prompt";
 import { callGeminiForAnalysis, type GeminiAnalysisOptions } from "./gemini";
 
-export interface AnalyzeSubmissionOptions extends GeminiAnalysisOptions {}
+export type AnalyzeSubmissionOptions = GeminiAnalysisOptions;
 
 export async function analyzeSubmission(
   userId: string,
@@ -150,13 +151,24 @@ export async function analyzeSubmission(
     }
 
     // Successfully analyzed and validated
+    const reviewJson =
+      outputValidation.data.review as unknown as Prisma.InputJsonValue;
+    const rawDraft =
+      outputValidation.data.recommendation ??
+      outputValidation.data.draft ??
+      null;
+    const draftJson =
+      rawDraft === null
+        ? undefined
+        : (rawDraft as unknown as Prisma.InputJsonValue);
+
     return await prisma.submissionAnalysis.update({
       where: { id: analysis.id },
       data: {
         status: "DRAFT_READY",
         modelName,
-        review: outputValidation.data.review as any,
-        draft: (outputValidation.data.recommendation ?? outputValidation.data.draft ?? null) as any,
+        review: reviewJson,
+        draft: draftJson,
         errorMessage: null,
       },
     });

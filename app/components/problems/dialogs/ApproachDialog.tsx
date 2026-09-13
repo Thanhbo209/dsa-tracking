@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, useEffect } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -108,12 +108,17 @@ export function ApproachDialog(props: ApproachDialogProps) {
     props.onOpenChange?.(nextOpen);
   }
 
-  // Update fields if editing approach changes
-  useEffect(() => {
+  const editingId = mode === "edit" ? props.approach?.id : null;
+  const [prevApproachId, setPrevApproachId] = useState(editingId);
+  const [prevOpen, setPrevOpen] = useState(open);
+
+  if (open !== prevOpen || editingId !== prevApproachId) {
+    setPrevOpen(open);
+    setPrevApproachId(editingId);
     if (open) {
       resetForm();
     }
-  }, [open, mode === "edit" ? props.approach?.id : undefined]);
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

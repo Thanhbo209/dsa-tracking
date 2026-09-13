@@ -27,18 +27,29 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
       return null;
     }
 
-    return {
-      id: session.user.id,
-      name: session.user.name,
-      email: session.user.email,
-      username: (session.user as any).username ?? null,
-      displayUsername: (session.user as any).displayUsername ?? null,
-      bio: (session.user as any).bio ?? null,
-      image: session.user.image ?? null,
-      createdAt: session.user.createdAt,
+    const user = session.user as typeof session.user & {
+      username?: string | null;
+      displayUsername?: string | null;
+      bio?: string | null;
     };
-  } catch (error: any) {
-    if (error?.digest === "DYNAMIC_SERVER_USAGE") {
+
+    return {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      username: user.username ?? null,
+      displayUsername: user.displayUsername ?? null,
+      bio: user.bio ?? null,
+      image: user.image ?? null,
+      createdAt: user.createdAt,
+    };
+  } catch (error: unknown) {
+    if (
+      typeof error === "object" &&
+      error !== null &&
+      "digest" in error &&
+      (error as { digest: string }).digest === "DYNAMIC_SERVER_USAGE"
+    ) {
       throw error;
     }
     console.error("Failed to resolve current user:", error);

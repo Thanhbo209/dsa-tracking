@@ -8,16 +8,13 @@ import { DraftEditForm } from "./DraftEditForm";
 import { Button } from "@/components/ui/button";
 import { DsaLogo } from "@/components/brand/DsaLogo";
 import {
-  BookOpen,
   CheckCircle2,
   XCircle,
   Edit3,
   Check,
-  X,
   Lightbulb,
   Compass,
   AlertTriangle,
-  FileText,
   Clock,
   HardDrive,
   ListOrdered,
@@ -52,7 +49,7 @@ interface KnowledgeDraftSectionProps {
   review?: AiReview | null;
   status: AnalysisStatus;
   onAccept: (editedDraft?: AiDraft) => Promise<void>;
-  onReject: () => Promise<void>;
+  onReject?: () => Promise<void>;
   isPromoting: boolean;
   submissionCode?: string | null;
   submissionLanguage?: string | null;
@@ -65,7 +62,6 @@ export function KnowledgeDraftSection({
   review,
   status,
   onAccept,
-  onReject,
   isPromoting,
   submissionCode,
   submissionLanguage,

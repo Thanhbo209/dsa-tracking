@@ -59,6 +59,13 @@ export interface SyncResult {
   error?: string;
 }
 
+export interface SubmissionImportResult {
+  submission?: unknown;
+  created?: boolean;
+  error?: string;
+  issues?: unknown[];
+}
+
 export type ExtensionMessage =
   | { type: "SUBMISSION_CAPTURED"; payload: CapturedSubmission }
   | { type: "GET_SUBMISSIONS" }

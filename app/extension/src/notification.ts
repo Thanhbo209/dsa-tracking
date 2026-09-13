@@ -385,13 +385,14 @@ export function showSubmissionNotification(submission: CapturedSubmission) {
       });
 
       addButton.insertAdjacentElement("afterend", openButton);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("[DSA Tracker] Import failed:", error);
 
+      const errorMsg = error instanceof Error ? error.message : "";
       const isAuthError =
-        error?.message?.includes("log in") ||
-        error?.message?.includes("Authentication") ||
-        error?.message?.includes("401");
+        errorMsg.includes("log in") ||
+        errorMsg.includes("Authentication") ||
+        errorMsg.includes("401");
 
       if (isAuthError) {
         addButton.textContent = "Log in to DSA Tracker";
@@ -402,7 +403,7 @@ export function showSubmissionNotification(submission: CapturedSubmission) {
         };
       } else {
         addButton.disabled = false;
-        addButton.textContent = error?.message ? `Failed: ${error.message.slice(0, 20)}` : "Try again";
+        addButton.textContent = errorMsg ? `Failed: ${errorMsg.slice(0, 20)}` : "Try again";
       }
     }
   });

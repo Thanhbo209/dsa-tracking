@@ -241,6 +241,16 @@ export function DraftEditForm({
             className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] px-3 py-1.5 text-xs text-white outline-none focus:border-primary"
           />
         </div>
+
+        <div>
+          <label className="text-xs font-medium text-white">Approach Notes</label>
+          <input
+            type="text"
+            value={approachNotes}
+            onChange={(e) => setApproachNotes(e.target.value)}
+            className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] px-3 py-1.5 text-xs text-white outline-none focus:border-primary"
+          />
+        </div>
       </div>
 
       {/* ── SOLUTION FIELDS ───────────────────────────────── */}
@@ -281,6 +291,16 @@ export function DraftEditForm({
             value={algorithm}
             onChange={(e) => setAlgorithm(e.target.value)}
             className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] font-mono px-3 py-1.5 text-xs text-white outline-none focus:border-primary"
+          />
+        </div>
+
+        <div>
+          <label className="text-xs font-medium text-white">Solution Notes</label>
+          <input
+            type="text"
+            value={solutionNotes}
+            onChange={(e) => setSolutionNotes(e.target.value)}
+            className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] px-3 py-1.5 text-xs text-white outline-none focus:border-primary"
           />
         </div>
       </div>

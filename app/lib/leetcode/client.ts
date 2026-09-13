@@ -92,7 +92,7 @@ export async function getProblemBySlug(
       }
 
       return result.data;
-    } catch (error: any) {
+    } catch (error: unknown) {
       if (error instanceof LeetCodeRateLimitError) {
         throw error;
       }

@@ -4,7 +4,6 @@ import { ApproachDialog } from "@/components/problems/dialogs/ApproachDialog";
 import { SolutionDialog } from "@/components/problems/dialogs/SolutionDialog";
 import { CodeDialog } from "@/components/problems/dialogs/CodeDialog";
 import { KnowledgeWorkspace } from "@/components/problems/knowledge/KnowledgeWorkspace";
-import { ApproachOverview } from "@/components/problems/knowledge/ApproachOverview";
 import { SolutionTechniqueView } from "@/components/problems/knowledge/SolutionTechniqueView";
 import { KnowledgeCodeBlock } from "@/components/problems/knowledge/KnowledgeCodeBlock";
 import type {
@@ -26,8 +25,23 @@ vi.mock("next/navigation", () => ({
 // Mock @base-ui/react/dialog for static server-side markup testing in node
 const DialogTestContext = React.createContext<{ open: boolean }>({ open: false });
 
+interface MockRootProps {
+  children?: React.ReactNode;
+  open?: boolean;
+  defaultOpen?: boolean;
+}
+
+interface MockTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  render?: React.ReactElement;
+  children?: React.ReactNode;
+}
+
+interface MockCommonProps extends React.HTMLAttributes<HTMLElement> {
+  children?: React.ReactNode;
+}
+
 vi.mock("@base-ui/react/dialog", () => {
-  const Root = ({ children, open, defaultOpen }: any) => {
+  const Root = ({ children, open, defaultOpen }: MockRootProps) => {
     const isOpen = open !== undefined ? open : (defaultOpen ?? false);
     return (
       <DialogTestContext.Provider value={{ open: isOpen }}>
@@ -36,12 +50,12 @@ vi.mock("@base-ui/react/dialog", () => {
     );
   };
 
-  const Trigger = ({ render, children, ...props }: any) => {
+  const Trigger = ({ render, children, ...props }: MockTriggerProps) => {
     if (render) {
       return React.cloneElement(render, {
         ...props,
         "data-slot": "dialog-trigger",
-      });
+      } as React.HTMLAttributes<HTMLElement>);
     }
     return (
       <button data-slot="dialog-trigger" {...props}>
@@ -50,35 +64,39 @@ vi.mock("@base-ui/react/dialog", () => {
     );
   };
 
-  const Portal = ({ children }: any) => {
+  const Portal = ({ children }: { children?: React.ReactNode }) => {
     const { open } = React.useContext(DialogTestContext);
     if (!open) return null;
     return <div data-slot="dialog-portal">{children}</div>;
   };
 
-  const Popup = ({ children, className, ...props }: any) => (
+  const Popup = ({ children, className, ...props }: MockCommonProps) => (
     <div data-slot="dialog-content" className={className} {...props}>
       {children}
     </div>
   );
 
-  const Backdrop = ({ className, ...props }: any) => (
+  const Backdrop = ({ className, ...props }: MockCommonProps) => (
     <div data-slot="dialog-backdrop" className={className} {...props} />
   );
 
-  const Title = ({ children, className, ...props }: any) => (
+  const Title = ({ children, className, ...props }: MockCommonProps) => (
     <h2 data-slot="dialog-title" className={className} {...props}>
       {children}
     </h2>
   );
 
-  const Description = ({ children, className, ...props }: any) => (
+  const Description = ({ children, className, ...props }: MockCommonProps) => (
     <p data-slot="dialog-description" className={className} {...props}>
       {children}
     </p>
   );
 
-  const Close = ({ children, className, ...props }: any) => (
+  const Close = ({
+    children,
+    className,
+    ...props
+  }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
     <button data-slot="dialog-close" className={className} {...props}>
       {children}
     </button>
@@ -94,7 +112,7 @@ vi.mock("@base-ui/react/dialog", () => {
       Title,
       Description,
       Close,
-      Viewport: ({ children }: any) => <div>{children}</div>,
+      Viewport: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
     },
   };
 });

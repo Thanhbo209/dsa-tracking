@@ -79,7 +79,9 @@ describe("Public Profile Privacy & Knowledge Isolation (lib/profile/service)", (
     expect(profile.problems[0].approachCount).toBe(1);
 
     // Verify no approach/solution/code nested objects leak out of the list profile
-    expect((profile as any).approaches).toBeUndefined();
+    expect(
+      (profile as unknown as Record<string, unknown>).approaches,
+    ).toBeUndefined();
 
     // CRITICAL: Ensure no private fields exist anywhere in the serialized output
     const serialized = JSON.stringify(profile);

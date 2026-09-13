@@ -2,6 +2,7 @@ import { getLatestSubmission } from "./leetcode";
 import { getSubmissionDetails } from "./submission-details";
 import { mapSubmissionStatus } from "./status";
 import { showSubmissionNotification } from "./notification";
+import type { CapturedSubmission } from "./types";
 
 const POLL_INTERVAL_MS = 2000;
 
@@ -22,12 +23,12 @@ function getProblemTitle(slug: string): string {
     .join(" ");
 }
 
-function persistSubmission(submission: any) {
+function persistSubmission(submission: CapturedSubmission) {
   // 1. Direct write to chrome.storage.local so popup sees it immediately
   if (typeof chrome !== "undefined" && chrome.storage?.local) {
     chrome.storage.local.get(["capturedSubmissions"], (data) => {
-      const existing = data.capturedSubmissions || [];
-      const filtered = existing.filter((s: any) => s.externalId !== submission.externalId);
+      const existing = (data.capturedSubmissions as CapturedSubmission[]) || [];
+      const filtered = existing.filter((s) => s.externalId !== submission.externalId);
       const updated = [submission, ...filtered].slice(0, 20);
       chrome.storage.local.set({
         capturedSubmissions: updated,
@@ -145,7 +146,6 @@ async function startSubmissionWatcher(problemSlug: string) {
   };
 }
 
-// eslint-disable-next-line prefer-const
 let currentProblemSlug = getProblemSlug();
 let stopWatcher: (() => void) | null = null;
 

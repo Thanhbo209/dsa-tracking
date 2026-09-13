@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { ProblemDetailPanel } from "@/components/problems/ProblemDetailPanel";
-import { ProblemLearningWorkspace } from "@/components/problems/ProblemLearningWorkspace";
+import {
+  ProblemLearningWorkspace,
+  type WorkspaceSubmission,
+} from "@/components/problems/ProblemLearningWorkspace";
+import type { KnowledgeApproach } from "@/components/problems/knowledge/types";
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/session";
 import { syncProblem } from "@/lib/leetcode/sync";
@@ -125,8 +129,8 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
       submissionId: a.submissionId,
       status: a.status,
       modelName: a.modelName,
-      review: a.review as any,
-      draft: a.draft as any,
+      review: a.review as unknown as WorkspaceSubmission["analyses"][number]["review"],
+      draft: a.draft as unknown as WorkspaceSubmission["analyses"][number]["draft"],
       errorMessage: a.errorMessage,
       createdAt: a.createdAt.toISOString(),
       updatedAt: a.updatedAt.toISOString(),
@@ -153,7 +157,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
           <ProblemLearningWorkspace
             problemId={problem.id}
             submissions={serializedSubmissions}
-            approaches={problem.approaches as any}
+            approaches={problem.approaches as unknown as KnowledgeApproach[]}
           />
         </div>
       </div>

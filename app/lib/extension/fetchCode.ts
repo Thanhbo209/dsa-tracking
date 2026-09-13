@@ -1,5 +1,11 @@
 // Client helper for requesting historical submission code from the DSA Tracker browser extension
 
+declare global {
+  interface Window {
+    __DSA_TRACKER_EXTENSION_INSTALLED__?: boolean;
+  }
+}
+
 export interface FetchedSubmissionDetails {
   code: string;
   runtimeMs?: number;
@@ -19,7 +25,7 @@ export async function fetchSubmissionCodeViaExtension(
 
     const isInstalled =
       document.documentElement.dataset.dsaTrackerInstalled === "true" ||
-      Boolean((window as any).__DSA_TRACKER_EXTENSION_INSTALLED__);
+      Boolean(window.__DSA_TRACKER_EXTENSION_INSTALLED__);
 
     const requestId = `req_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
     let hasResponded = false;

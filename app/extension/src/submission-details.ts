@@ -60,8 +60,10 @@ export async function getSubmissionDetails(
 
   const result = await response.json();
 
-  if (result.errors && result.errors.length > 0) {
-    const errorMsg = result.errors.map((e: any) => e.message).join(", ");
+  if (result.errors && Array.isArray(result.errors) && result.errors.length > 0) {
+    const errorMsg = (result.errors as { message: string }[])
+      .map((e) => e.message)
+      .join(", ");
     throw new Error(`LeetCode GraphQL error: ${errorMsg}`);
   }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, useEffect } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -13,15 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import type { KnowledgeCode, KnowledgeSolution } from "../knowledge/types";
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  AlertTriangle,
-  Code2,
-  FileCode,
-  FileText,
-} from "lucide-react";
+import { Plus, Pencil, Trash2, AlertTriangle } from "lucide-react";
 
 interface BaseCodeDialogProps {
   open?: boolean;
@@ -85,11 +77,17 @@ export function CodeDialog(props: CodeDialogProps) {
     props.onOpenChange?.(nextOpen);
   }
 
-  useEffect(() => {
+  const editingId = mode === "edit" ? props.codeRecord?.id : null;
+  const [prevCodeRecordId, setPrevCodeRecordId] = useState(editingId);
+  const [prevOpen, setPrevOpen] = useState(open);
+
+  if (open !== prevOpen || editingId !== prevCodeRecordId) {
+    setPrevOpen(open);
+    setPrevCodeRecordId(editingId);
     if (open) {
       resetForm();
     }
-  }, [open, mode === "edit" ? props.codeRecord?.id : undefined]);
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

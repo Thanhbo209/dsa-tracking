@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { ChevronDown, ChevronUp, AlertCircle, Code, CheckCircle2 } from "lucide-react";
 import { DsaLogo } from "@/components/brand/DsaLogo";
 import { SubmissionAnalysisContainer } from "./analysis/SubmissionAnalysisContainer";
 import type { SerializedSubmissionAnalysis } from "./analysis/types";
 import { cn } from "@/lib/utils";
 import { CodeViewer } from "./CodeViewer";
-import { fetchSubmissionCodeViaExtension } from "@/lib/extension/fetchCode";
+import {
+  fetchSubmissionCodeViaExtension,
+  type FetchedSubmissionDetails,
+} from "@/lib/extension/fetchCode";
 
 export interface SubmissionCardProps {
   id: string;
@@ -22,7 +25,7 @@ export interface SubmissionCardProps {
   isSelected?: boolean;
   onSelect?: () => void;
   showAnalysisInside?: boolean;
-  onCodeUpdated?: (newCode: string, details?: any) => void;
+  onCodeUpdated?: (newCode: string, details?: FetchedSubmissionDetails) => void;
 }
 
 function statusBadgeClass(status: string): string {
@@ -73,12 +76,16 @@ export function SubmissionCard({
   const [isFetchingCode, setIsFetchingCode] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const [prevSubmissionId, setPrevSubmissionId] = useState(id);
+  const [prevSubmissionCode, setPrevSubmissionCode] = useState(code);
+  if (id !== prevSubmissionId || code !== prevSubmissionCode) {
+    setPrevSubmissionId(id);
+    setPrevSubmissionCode(code);
     setCurrentCode(code);
     setCurrentLanguage(language);
     setCurrentRuntime(runtimeMs);
     setCurrentMemory(memoryBytes);
-  }, [code, language, runtimeMs, memoryBytes]);
+  }
 
   const latestAnalysis = analyses[0];
 
@@ -114,8 +121,10 @@ export function SubmissionCard({
       if (details.memoryBytes != null) setCurrentMemory(details.memoryBytes);
 
       onCodeUpdated?.(details.code, details);
-    } catch (err: any) {
-      setFetchError(err.message || "Failed to fetch code from LeetCode.");
+    } catch (err: unknown) {
+      setFetchError(
+        err instanceof Error ? err.message : "Failed to fetch code from LeetCode.",
+      );
     } finally {
       setIsFetchingCode(false);
     }
@@ -138,6 +147,7 @@ export function SubmissionCard({
       {/* Header — click to select and expand/collapse */}
       <button
         type="button"
+        role="tab"
         onClick={handleCardClick}
         aria-selected={isSelected}
         aria-expanded={isExpanded}

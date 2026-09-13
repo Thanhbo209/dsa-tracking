@@ -1,9 +1,17 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
+import {
+  useState,
+  useMemo,
+  useRef,
+  useEffect,
+  useSyncExternalStore,
+} from "react";
 import { createPortal } from "react-dom";
 import { Flame, Calendar, BookOpen, CheckCircle } from "lucide-react";
 import { calculateStreak } from "@/lib/activity/streak";
+
+const emptySubscribe = () => () => {};
 
 export interface ActivityHeatmapProps {
   submissionActivities: Record<string, number>; // { [YYYY-MM-DD]: count }
@@ -49,7 +57,11 @@ export function ActivityHeatmap({
   leetcodeUsername,
 }: ActivityHeatmapProps) {
   const [activeTab, setActiveTab] = useState<"SOLVES" | "KNOWLEDGE">("SOLVES");
-  const [mounted, setMounted] = useState(false);
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
   const [tooltip, setTooltip] = useState<{
     text: string;
     x: number;
@@ -60,7 +72,6 @@ export function ActivityHeatmap({
 
   // Auto-scroll to current week (right edge) on mount for small screens
   useEffect(() => {
-    setMounted(true);
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollLeft =
         scrollContainerRef.current.scrollWidth;

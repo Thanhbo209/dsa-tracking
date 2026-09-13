@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent, useEffect } from "react";
+import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
@@ -88,11 +88,17 @@ export function SolutionDialog(props: SolutionDialogProps) {
     props.onOpenChange?.(nextOpen);
   }
 
-  useEffect(() => {
+  const editingId = mode === "edit" ? props.solution?.id : null;
+  const [prevSolutionId, setPrevSolutionId] = useState(editingId);
+  const [prevOpen, setPrevOpen] = useState(open);
+
+  if (open !== prevOpen || editingId !== prevSolutionId) {
+    setPrevOpen(open);
+    setPrevSolutionId(editingId);
     if (open) {
       resetForm();
     }
-  }, [open, mode === "edit" ? props.solution?.id : undefined]);
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();

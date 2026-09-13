@@ -92,8 +92,9 @@ describe("Knowledge Draft Promotion Service", () => {
     vi.clearAllMocks();
 
     // Default transaction executes callback with tx mock
-    transactionMock.mockImplementation(async (callback: any) => {
-      const tx = {
+    transactionMock.mockImplementation(
+      async (callback: (tx: unknown) => Promise<unknown>) => {
+        const tx = {
         submissionAnalysis: {
           findUnique: submissionAnalysisFindUniqueMock,
           updateMany: submissionAnalysisUpdateManyMock,

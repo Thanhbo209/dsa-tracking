@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { History, BookOpen, AlertCircle, X, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import { History, BookOpen, AlertCircle, X } from "lucide-react";
 import { DsaLogo } from "@/components/brand/DsaLogo";
 import { cn } from "@/lib/utils";
 import { SubmissionCard } from "./SubmissionCard";
@@ -9,6 +9,7 @@ import { SubmissionAnalysisContainer } from "./analysis/SubmissionAnalysisContai
 import { KnowledgeWorkspace } from "./knowledge/KnowledgeWorkspace";
 import type { KnowledgeApproach } from "./knowledge/types";
 import type { SerializedSubmissionAnalysis } from "./analysis/types";
+import type { FetchedSubmissionDetails } from "@/lib/extension/fetchCode";
 
 export interface WorkspaceSubmission {
   id: string;
@@ -40,9 +41,11 @@ export function ProblemLearningWorkspace({
   const [workspaceSubmissions, setWorkspaceSubmissions] =
     useState<WorkspaceSubmission[]>(submissions);
 
-  useEffect(() => {
+  const [prevSubmissions, setPrevSubmissions] = useState(submissions);
+  if (submissions !== prevSubmissions) {
+    setPrevSubmissions(submissions);
     setWorkspaceSubmissions(submissions);
-  }, [submissions]);
+  }
 
   const [activeTab, setActiveTab] = useState<WorkspaceTab>(
     defaultTab ?? (approaches.length > 0 ? "knowledge" : "submissions"),
@@ -58,7 +61,11 @@ export function ProblemLearningWorkspace({
     workspaceSubmissions[0] ||
     null;
 
-  function handleCodeUpdated(submissionId: string, newCode: string, details?: any) {
+  function handleCodeUpdated(
+    submissionId: string,
+    newCode: string,
+    details?: FetchedSubmissionDetails,
+  ) {
     setWorkspaceSubmissions((prev) =>
       prev.map((sub) =>
         sub.id === submissionId

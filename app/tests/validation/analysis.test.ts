@@ -94,7 +94,8 @@ describe("aiAnalysisInputSchema", () => {
   });
 
   it("rejects missing submission code", () => {
-    const { code: _, ...submissionWithoutCode } = validSubmission;
+    const submissionWithoutCode = { ...validSubmission };
+    delete (submissionWithoutCode as { code?: string }).code;
     const result = aiAnalysisInputSchema.safeParse({
       problem: validProblem,
       submission: submissionWithoutCode,
@@ -265,7 +266,8 @@ describe("aiAnalysisOutputSchema", () => {
   });
 
   it("rejects missing required review fields", () => {
-    const { summary: _, ...incompleteReview } = validReview;
+    const incompleteReview = { ...validReview };
+    delete (incompleteReview as { summary?: string }).summary;
     const result = aiAnalysisOutputSchema.safeParse({
       review: incompleteReview,
       draft: validDraft,
@@ -331,7 +333,8 @@ describe("aiAnalysisOutputSchema", () => {
   });
 
   it("rejects missing required draft fields", () => {
-    const { algorithm: _, ...incompleteSolution } = validDraft.solution;
+    const incompleteSolution = { ...validDraft.solution };
+    delete (incompleteSolution as { algorithm?: string }).algorithm;
     const result = aiAnalysisOutputSchema.safeParse({
       review: validReview,
       draft: {

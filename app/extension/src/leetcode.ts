@@ -109,7 +109,7 @@ export interface LatestSubmission {
   isPending: "Pending" | "Not Pending";
 }
 
-async function leetcodeGraphQL(query: string, variables: Record<string, any> = {}) {
+async function leetcodeGraphQL(query: string, variables: Record<string, unknown> = {}) {
   const response = await fetch(LEETCODE_GRAPHQL_URL, {
     method: "POST",
     headers: {
@@ -128,8 +128,8 @@ async function leetcodeGraphQL(query: string, variables: Record<string, any> = {
   }
 
   const json = await response.json();
-  if (json.errors && json.errors.length > 0) {
-    const msg = json.errors.map((e: any) => e.message).join(", ");
+  if (json.errors && Array.isArray(json.errors) && json.errors.length > 0) {
+    const msg = (json.errors as { message: string }[]).map((e) => e.message).join(", ");
     if (msg.toLowerCase().includes("rate limit") || msg.toLowerCase().includes("too many requests")) {
       throw new Error("LeetCode rate-limited, try again shortly.");
     }
