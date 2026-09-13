@@ -11,7 +11,8 @@
     "contract:emit": "prisma contract emit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "extension:build": "node extension/build.mjs"
+    "extension:build": "node extension/build.mjs",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
