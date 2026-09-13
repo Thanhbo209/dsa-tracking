@@ -1,6 +1,9 @@
-# Ignore extension and testing directories for Vercel deployment
-extension/
-tests/
-.agents/
-.claude/
-.windsurf/
+# Ignore top-level non-app directories for Vercel deployment
+/extension/
+/tests/
+/.agents/
+/.claude/
+/.windsurf/
+
+# Ensure lib/extension is never ignored
+!/lib/extension/
