@@ -44,7 +44,7 @@ export function PublicProblemCard({
   return (
     <Link
       href={`/u/${username}/${problem.slug}`}
-      className="group flex flex-col justify-between rounded-xl border border-[#383838] bg-[#262626] p-4 sm:p-5 hover:border-[#555555] hover:bg-[#2e2e2e] transition-colors shadow-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary"
+      className="group flex flex-col justify-between rounded-xl border border-[#383838] bg-[#262626] p-4 sm:p-5 hover:border-zinc-500 hover:bg-[#383838] transition-all shadow-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white/40"
     >
       <div className="space-y-3">
         {/* Title row */}
@@ -55,7 +55,7 @@ export function PublicProblemCard({
                 #{problem.leetcodeId}
               </span>
             )}
-            <h3 className="text-sm font-semibold text-white leading-snug group-hover:text-primary transition-colors truncate">
+            <h3 className="text-sm font-semibold text-white leading-snug group-hover:text-white transition-colors truncate">
               {problem.title}
             </h3>
           </div>
@@ -81,9 +81,9 @@ export function PublicProblemCard({
                       onTagClick?.(topic);
                     }}
                     className={cn(
-                      "rounded border px-1.5 py-0.5 text-[10px] transition-colors cursor-pointer shrink-0 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-primary",
+                      "rounded border px-1.5 py-0.5 text-[10px] transition-colors cursor-pointer shrink-0 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40",
                       isSelected
-                        ? "bg-primary/20 border-primary text-white font-medium"
+                        ? "bg-white/20 border-white/50 text-white font-medium"
                         : "bg-[#1a1a1a] border-[#444444] text-zinc-300 hover:border-zinc-300 hover:text-white",
                     )}
                   >

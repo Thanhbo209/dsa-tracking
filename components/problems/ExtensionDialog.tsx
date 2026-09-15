@@ -83,7 +83,7 @@ export function ExtensionDialog() {
             className="h-9 gap-2 border-[#444444] bg-[#262626] text-zinc-200 hover:bg-[#333333] hover:text-white hover:border-zinc-500 shadow-xs cursor-pointer text-xs sm:text-sm font-medium"
             aria-label="Browser Extension Status and Setup"
           >
-            <Puzzle className="size-4 text-primary" />
+            <Puzzle className="size-4 text-white" />
             <span className="hidden sm:inline">Chrome Extension</span>
             <span className="sm:hidden">Extension</span>
             {isInstalled ? (
@@ -98,8 +98,8 @@ export function ExtensionDialog() {
       <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto bg-[#222222] border-[#383838] text-white p-6 sm:p-7">
         <DialogHeader className="space-y-1.5 text-left">
           <div className="flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/15 text-primary border border-primary/20">
-              <Puzzle className="size-5" />
+            <div className="flex size-9 items-center justify-center rounded-lg bg-white/10 text-white border border-white/20">
+              <Puzzle className="size-5 text-white" />
             </div>
             <div>
               <DialogTitle className="text-lg sm:text-xl font-bold text-white tracking-tight">
@@ -182,7 +182,7 @@ export function ExtensionDialog() {
 
             <ol className="space-y-3 text-xs sm:text-sm text-zinc-300">
               <li className="flex items-start gap-2.5">
-                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[11px] font-bold text-primary">
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-white/15 border border-white/30 text-[11px] font-bold text-white">
                   1
                 </span>
                 <div className="flex-1 min-w-0">
@@ -202,7 +202,7 @@ export function ExtensionDialog() {
               </li>
 
               <li className="flex items-start gap-2.5">
-                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[11px] font-bold text-primary">
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-white/15 border border-white/30 text-[11px] font-bold text-white">
                   2
                 </span>
                 <div className="flex-1 min-w-0">
@@ -222,7 +222,7 @@ export function ExtensionDialog() {
               </li>
 
               <li className="flex items-start gap-2.5">
-                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[11px] font-bold text-primary">
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-white/15 border border-white/30 text-[11px] font-bold text-white">
                   3
                 </span>
                 <div className="flex-1">
@@ -233,7 +233,7 @@ export function ExtensionDialog() {
               </li>
 
               <li className="flex items-start gap-2.5">
-                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[11px] font-bold text-primary">
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-white/15 border border-white/30 text-[11px] font-bold text-white">
                   4
                 </span>
                 <div className="flex-1">
@@ -248,7 +248,7 @@ export function ExtensionDialog() {
               </li>
 
               <li className="flex items-start gap-2.5">
-                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-primary/20 text-[11px] font-bold text-primary">
+                <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-white/15 border border-white/30 text-[11px] font-bold text-white">
                   5
                 </span>
                 <div className="flex-1">
@@ -266,7 +266,7 @@ export function ExtensionDialog() {
             href="https://leetcode.com/problemset/"
             target="_blank"
             rel="noreferrer"
-            className="text-xs text-zinc-400 hover:text-primary transition-colors flex items-center gap-1.5"
+            className="text-xs text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
           >
             <span>Open LeetCode Problemset</span>
             <ExternalLink className="size-3" />

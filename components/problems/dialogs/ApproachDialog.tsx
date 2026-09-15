@@ -284,8 +284,8 @@ export function ApproachDialog(props: ApproachDialogProps) {
           <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-6 py-2">
             {/* 1. Strategy Section */}
             <div className="space-y-3">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground uppercase tracking-wider">
-                <Lightbulb className="size-3.5 text-primary" />
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                <Lightbulb className="size-3.5 text-white" />
                 <span>Strategy</span>
               </div>
 
@@ -322,8 +322,8 @@ export function ApproachDialog(props: ApproachDialogProps) {
 
             {/* 2. Reasoning Section */}
             <div className="space-y-3 border-t pt-4">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground uppercase tracking-wider">
-                <Compass className="size-3.5 text-primary" />
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                <Compass className="size-3.5 text-white" />
                 <span>Reasoning</span>
               </div>
 
@@ -362,8 +362,8 @@ export function ApproachDialog(props: ApproachDialogProps) {
 
             {/* 3. Complexity Section */}
             <div className="space-y-3 border-t pt-4">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground uppercase tracking-wider">
-                <Scale className="size-3.5 text-primary" />
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                <Scale className="size-3.5 text-white" />
                 <span>Complexity</span>
               </div>
 
@@ -400,8 +400,8 @@ export function ApproachDialog(props: ApproachDialogProps) {
 
             {/* 4. Trade-offs Section */}
             <div className="space-y-3 border-t pt-4">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground uppercase tracking-wider">
-                <Scale className="size-3.5 text-primary" />
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                <Scale className="size-3.5 text-white" />
                 <span>Trade-offs</span>
               </div>
 
@@ -440,8 +440,8 @@ export function ApproachDialog(props: ApproachDialogProps) {
 
             {/* 5. Learning Notes Section */}
             <div className="space-y-3 border-t pt-4">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground uppercase tracking-wider">
-                <FileText className="size-3.5 text-primary" />
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                <FileText className="size-3.5 text-white" />
                 <span>Learning Notes</span>
               </div>
 
@@ -512,6 +512,7 @@ export function ApproachDialog(props: ApproachDialogProps) {
               type="submit"
               size="sm"
               disabled={isSubmitting || isDeleting}
+              className="bg-black text-white hover:bg-zinc-900 border border-zinc-700 font-semibold cursor-pointer"
             >
               {isSubmitting ? "Saving..." : mode === "create" ? "Save Approach" : "Update Approach"}
             </Button>

@@ -258,7 +258,7 @@ export function ApproachForm({ problemId }: ApproachFormProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="rounded-md bg-black text-white border border-zinc-700 hover:bg-zinc-900 px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer"
         >
           {isSubmitting ? "Saving..." : "Save Approach"}
         </button>

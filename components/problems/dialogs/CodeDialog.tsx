@@ -197,7 +197,7 @@ export function CodeDialog(props: CodeDialogProps) {
       <DialogContent className="max-w-3xl">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+            <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-white">
               Solution: {solution.name}
             </span>
           </div>

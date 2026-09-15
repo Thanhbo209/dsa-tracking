@@ -333,9 +333,9 @@ export function KnowledgeDraftSection({
                     setConfirmAction("accept");
                   }}
                   disabled={isPromoting}
-                  className="gap-1.5 text-white font-semibold"
+                  className="gap-1.5 bg-black text-white hover:bg-zinc-900 border border-zinc-700 font-semibold cursor-pointer shadow-xs"
                 >
-                  <Check className="size-3.5" />
+                  <Check className="size-3.5 text-white" />
                   <span>Save My Approach to Vault</span>
                 </Button>
               </div>
@@ -380,9 +380,9 @@ export function KnowledgeDraftSection({
                   size="xs"
                   onClick={() => handleConfirmAccept("user")}
                   disabled={isPromoting}
-                  className="gap-1 text-white font-semibold"
+                  className="gap-1 bg-black text-white hover:bg-zinc-900 border border-zinc-700 font-semibold cursor-pointer shadow-xs"
                 >
-                  <Check className="size-3" />
+                  <Check className="size-3 text-white" />
                   <span>{isPromoting ? "Saving..." : "Confirm & Save"}</span>
                 </Button>
               </div>
@@ -528,11 +528,11 @@ export function KnowledgeDraftSection({
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#444444] pb-4">
             <div>
               <div className="flex items-center gap-2">
-                <Sparkles className="size-4 text-primary shrink-0" />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-primary">
+                <Sparkles className="size-4 text-white shrink-0" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-white">
                   AI Recommendation
                 </span>
-                <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+                <span className="rounded-full border border-white/30 bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-white">
                   Alternative / Optimization
                 </span>
               </div>
@@ -571,9 +571,9 @@ export function KnowledgeDraftSection({
                     setConfirmAction("accept");
                   }}
                   disabled={isPromoting}
-                  className="gap-1.5 bg-primary text-white font-semibold hover:bg-primary/90"
+                  className="gap-1.5 bg-black text-white hover:bg-zinc-900 border border-zinc-700 font-semibold cursor-pointer shadow-xs"
                 >
-                  <Check className="size-3.5" />
+                  <Check className="size-3.5 text-white" />
                   <span>Save Recommendation to Vault</span>
                 </Button>
               </div>
@@ -584,7 +584,7 @@ export function KnowledgeDraftSection({
           {confirmTarget === "ai" && confirmAction === "accept" && (
             <div className="rounded-lg border border-primary/40 bg-[#1e1e1e] p-4 space-y-3 text-white">
               <div className="flex items-start gap-2">
-                <Sparkles className="size-4 text-primary shrink-0 mt-0.5" />
+                <Sparkles className="size-4 text-white shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-semibold text-white">
                     Confirm Saving AI Recommendation
@@ -618,9 +618,9 @@ export function KnowledgeDraftSection({
                   size="xs"
                   onClick={() => handleConfirmAccept("ai")}
                   disabled={isPromoting}
-                  className="gap-1 bg-primary text-white font-semibold hover:bg-primary/90"
+                  className="gap-1 bg-black text-white hover:bg-zinc-900 border border-zinc-700 font-semibold cursor-pointer shadow-xs"
                 >
-                  <Check className="size-3" />
+                  <Check className="size-3 text-white" />
                   <span>{isPromoting ? "Saving..." : "Confirm & Save"}</span>
                 </Button>
               </div>

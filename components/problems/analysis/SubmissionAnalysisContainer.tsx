@@ -201,7 +201,7 @@ export function SubmissionAnalysisContainer({
       {/* Top Controls: Analysis Switcher / History & Re-analyze */}
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#4a4a4a] bg-[#373737] px-3.5 py-2 text-white shadow-2xs">
         <div className="flex items-center gap-2">
-          <Bot className="size-4 text-primary shrink-0" />
+          <Bot className="size-4 text-white shrink-0" />
           <div className="flex flex-wrap items-center gap-1.5 text-xs">
             <span className="font-semibold text-white">
               {selectedIndex === 0 ? "Latest Analysis" : "Previous Analysis"}

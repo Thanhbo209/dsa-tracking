@@ -44,13 +44,13 @@ export function PublicProblemRow({
   return (
     <Link
       href={`/u/${username}/${problem.slug}`}
-      className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-[#383838] bg-[#262626] px-4 py-3 hover:border-[#555555] hover:bg-[#2e2e2e] transition-colors shadow-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-primary"
+      className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-[#383838] bg-[#262626] px-4 py-3 hover:border-zinc-500 hover:bg-[#383838] transition-all shadow-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white/40"
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <span className="font-mono text-xs text-zinc-400 w-12 shrink-0">
           {problem.leetcodeId != null ? `#${problem.leetcodeId}` : "—"}
         </span>
-        <span className="text-sm font-semibold text-white group-hover:text-primary transition-colors truncate">
+        <span className="text-sm font-semibold text-white group-hover:text-white transition-colors truncate">
           {problem.title}
         </span>
       </div>
@@ -75,9 +75,9 @@ export function PublicProblemRow({
                       onTagClick?.(topic);
                     }}
                     className={cn(
-                      "rounded border px-1.5 py-0.5 text-[10px] transition-colors cursor-pointer shrink-0 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-primary",
+                      "rounded border px-1.5 py-0.5 text-[10px] transition-colors cursor-pointer shrink-0 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40",
                       isSelected
-                        ? "bg-primary/20 border-primary text-white font-medium"
+                        ? "bg-white/20 border-white/50 text-white font-medium"
                         : "bg-[#1a1a1a] border-[#444444] text-zinc-300 hover:border-zinc-300 hover:text-white",
                     )}
                   >

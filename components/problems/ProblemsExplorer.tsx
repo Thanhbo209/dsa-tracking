@@ -371,7 +371,7 @@ export function ProblemsExplorer({
                 }}
                 className={`min-w-7 h-7 sm:min-w-8 sm:h-8 rounded-lg text-xs font-semibold transition-colors ${
                   safeCurrentPage === p
-                    ? "bg-primary text-primary-foreground font-bold shadow-xs"
+                    ? "border border-white/40 bg-white/20 text-white font-bold shadow-xs"
                     : "border border-[#383838] bg-[#262626] text-zinc-300 hover:bg-[#333333] hover:text-white"
                 }`}
                 aria-label={`Page ${p}`}
@@ -617,7 +617,7 @@ export function ProblemsExplorer({
             <button
               type="button"
               onClick={clearAllFilters}
-              className="text-xs text-primary hover:underline font-medium"
+              className="text-xs text-white hover:underline font-medium"
             >
               Clear filters
             </button>
@@ -667,7 +667,7 @@ export function ProblemsExplorer({
               <Link
                 key={problem.id}
                 href={`/problems/${problem.slug}`}
-                className={`group relative flex flex-col justify-between h-full rounded-xl border border-[#383838] bg-[#262626] p-4.5 sm:p-5 shadow-xs transition-all hover:border-[#525252] hover:bg-[#2b2b2b] hover:shadow-md ${difficultyCardStripe(
+                className={`group relative flex flex-col justify-between h-full rounded-xl border border-[#383838] bg-[#262626] p-4.5 sm:p-5 shadow-xs transition-all hover:border-zinc-500 hover:bg-[#383838] hover:shadow-lg ${difficultyCardStripe(
                   problem.difficulty,
                 )}`}
               >
@@ -704,7 +704,7 @@ export function ProblemsExplorer({
                           #{problem.leetcodeId}
                         </span>
                       )}
-                      <h2 className="text-base font-bold text-white group-hover:text-primary transition-colors line-clamp-2">
+                      <h2 className="text-base font-bold text-white group-hover:text-white transition-colors line-clamp-2">
                         {problem.title}
                       </h2>
                     </div>

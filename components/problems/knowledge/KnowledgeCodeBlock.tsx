@@ -35,7 +35,7 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
     return (
       <div className="rounded-lg border border-dashed border-[#4a4a4a] p-6 text-center bg-[#2a2a2a] text-white shadow-2xs">
         <div className="mx-auto flex size-8 items-center justify-center rounded-full bg-[#333333] text-white mb-2 border border-[#4a4a4a]">
-          <Code2 className="size-4 text-primary" />
+          <Code2 className="size-4 text-white" />
         </div>
         <p className="text-xs font-semibold text-white">
           No Implementation Recorded

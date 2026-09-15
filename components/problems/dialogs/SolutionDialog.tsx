@@ -205,7 +205,7 @@ export function SolutionDialog(props: SolutionDialogProps) {
       <DialogContent className="max-w-xl">
         <DialogHeader>
           <div className="flex items-center gap-2">
-            <span className="rounded-md bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+            <span className="rounded-md bg-white/10 px-2 py-0.5 text-[10px] font-semibold text-white">
               Approach: {approach.name}
             </span>
           </div>
@@ -262,8 +262,8 @@ export function SolutionDialog(props: SolutionDialogProps) {
           <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-5 py-2">
             {/* 1. Technique Section */}
             <div className="space-y-3">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground uppercase tracking-wider">
-                <Layers className="size-3.5 text-primary" />
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                <Layers className="size-3.5 text-white" />
                 <span>Technique</span>
               </div>
 
@@ -300,8 +300,8 @@ export function SolutionDialog(props: SolutionDialogProps) {
 
             {/* 2. Algorithm Section (Readable Multiline, Not Monospace) */}
             <div className="space-y-3 border-t pt-4">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground uppercase tracking-wider">
-                <ListOrdered className="size-3.5 text-primary" />
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                <ListOrdered className="size-3.5 text-white" />
                 <span>Algorithm Steps</span>
               </div>
 
@@ -323,8 +323,8 @@ export function SolutionDialog(props: SolutionDialogProps) {
 
             {/* 3. Notes Section */}
             <div className="space-y-3 border-t pt-4">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground uppercase tracking-wider">
-                <FileText className="size-3.5 text-primary" />
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                <FileText className="size-3.5 text-white" />
                 <span>Notes</span>
               </div>
 

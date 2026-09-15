@@ -136,7 +136,7 @@ export function DraftEditForm({
 
       {/* ── APPROACH FIELDS ───────────────────────────────── */}
       <div className="space-y-3">
-        <p className="text-xs font-bold uppercase tracking-wider text-primary">
+        <p className="text-xs font-bold uppercase tracking-wider text-white">
           1. Approach (Strategy)
         </p>
 
@@ -255,7 +255,7 @@ export function DraftEditForm({
 
       {/* ── SOLUTION FIELDS ───────────────────────────────── */}
       <div className="space-y-3 border-t border-[#4a4a4a] pt-4">
-        <p className="text-xs font-bold uppercase tracking-wider text-primary">
+        <p className="text-xs font-bold uppercase tracking-wider text-white">
           2. Solution (Concrete Technique)
         </p>
 
@@ -268,7 +268,7 @@ export function DraftEditForm({
             required
             value={solutionName}
             onChange={(e) => setSolutionName(e.target.value)}
-            className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] px-3 py-1.5 text-xs text-white outline-none focus:border-primary"
+            className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] px-3 py-1.5 text-xs text-white outline-none focus:border-white"
           />
         </div>
 
@@ -278,7 +278,7 @@ export function DraftEditForm({
             rows={2}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] px-3 py-1.5 text-xs text-white outline-none focus:border-primary"
+            className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] px-3 py-1.5 text-xs text-white outline-none focus:border-white"
           />
         </div>
 
@@ -290,7 +290,7 @@ export function DraftEditForm({
             rows={4}
             value={algorithm}
             onChange={(e) => setAlgorithm(e.target.value)}
-            className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] font-mono px-3 py-1.5 text-xs text-white outline-none focus:border-primary"
+            className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] font-mono px-3 py-1.5 text-xs text-white outline-none focus:border-white"
           />
         </div>
 
@@ -300,14 +300,14 @@ export function DraftEditForm({
             type="text"
             value={solutionNotes}
             onChange={(e) => setSolutionNotes(e.target.value)}
-            className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] px-3 py-1.5 text-xs text-white outline-none focus:border-primary"
+            className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] px-3 py-1.5 text-xs text-white outline-none focus:border-white"
           />
         </div>
       </div>
 
       {/* ── CODE FIELDS ──────────────────────────────────── */}
       <div className="space-y-3 border-t border-[#4a4a4a] pt-4">
-        <p className="text-xs font-bold uppercase tracking-wider text-primary">
+        <p className="text-xs font-bold uppercase tracking-wider text-white">
           3. Optimized Implementation
         </p>
 
@@ -318,7 +318,7 @@ export function DraftEditForm({
             required
             value={language}
             onChange={(e) => setLanguage(e.target.value)}
-            className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] px-3 py-1.5 text-xs text-white outline-none focus:border-primary"
+            className="mt-1 w-full rounded-md border border-[#555555] bg-[#222222] px-3 py-1.5 text-xs text-white outline-none focus:border-white"
           />
         </div>
 
@@ -334,7 +334,7 @@ export function DraftEditForm({
                   setCode(submissionCode);
                   if (submissionLanguage) setLanguage(submissionLanguage);
                 }}
-                className="text-[11px] text-primary hover:underline font-medium"
+                className="text-[11px] text-white hover:underline font-medium"
               >
                 Load My Submitted Code
               </button>

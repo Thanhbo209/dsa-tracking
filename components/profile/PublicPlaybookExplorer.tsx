@@ -338,9 +338,9 @@ export function PublicPlaybookExplorer({
                     type="button"
                     onClick={() => toggleTopic(name)}
                     className={cn(
-                      "rounded border px-2 py-0.5 text-xs transition-colors cursor-pointer focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-primary flex items-center gap-1.5",
+                      "rounded border px-2 py-0.5 text-xs transition-colors cursor-pointer focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40 flex items-center gap-1.5",
                       isSelected
-                        ? "bg-primary/20 border-primary text-white font-medium"
+                        ? "bg-white/20 border-white/50 text-white font-medium"
                         : "bg-[#1a1a1a] border-[#383838] text-zinc-300 hover:border-zinc-400 hover:text-white",
                     )}
                     aria-pressed={isSelected}
@@ -358,9 +358,9 @@ export function PublicPlaybookExplorer({
                   type="button"
                   onClick={() => toggleTopic("Untagged")}
                   className={cn(
-                    "rounded border px-2 py-0.5 text-xs transition-colors cursor-pointer italic flex items-center gap-1.5",
+                    "rounded border px-2 py-0.5 text-xs transition-colors cursor-pointer italic flex items-center gap-1.5 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40",
                     selectedTopics.includes("Untagged")
-                      ? "bg-primary/20 border-primary text-white font-medium not-italic"
+                      ? "bg-white/20 border-white/50 text-white font-medium not-italic"
                       : "bg-[#1a1a1a] border-[#383838] text-zinc-400 hover:border-zinc-400 hover:text-white",
                   )}
                   aria-pressed={selectedTopics.includes("Untagged")}
