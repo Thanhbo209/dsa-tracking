@@ -76,7 +76,8 @@ export type ExtensionMessage =
   | { type: "CLEAR_SUBMISSIONS" }
   | { type: "SYNC_LEETCODE" }
   | { type: "FETCH_SUBMISSION_DETAILS"; externalId: string }
-  | { type: "REGISTER_WEB_APP_ORIGIN"; origin: string };
+  | { type: "REGISTER_WEB_APP_ORIGIN"; origin: string }
+  | { type: "SET_SERVER_ORIGIN"; origin: string };
 
 
 

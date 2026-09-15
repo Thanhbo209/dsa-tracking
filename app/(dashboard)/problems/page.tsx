@@ -8,6 +8,7 @@ import {
   type ProblemExplorerItem,
   type ProblemStatus,
 } from "@/components/problems/ProblemsExplorer";
+import { ExtensionDialog } from "@/components/problems/ExtensionDialog";
 
 export const metadata: Metadata = {
   title: "Problems",
@@ -150,13 +151,18 @@ export default async function ProblemsPage() {
 
   return (
     <main className="w-full px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
-      <div className="mb-6 space-y-1">
-        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
-          Problems
-        </h1>
-        <p className="text-sm text-zinc-400">
-          Practice library, historical attempts, and permanent algorithmic knowledge.
-        </p>
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="space-y-1">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+            Problems
+          </h1>
+          <p className="text-sm text-zinc-400">
+            Practice library, historical attempts, and permanent algorithmic knowledge.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <ExtensionDialog />
+        </div>
       </div>
 
       <ProblemsExplorer

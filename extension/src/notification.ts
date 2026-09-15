@@ -1,6 +1,20 @@
 import type { CapturedSubmission } from "./types";
 import { sendSubmission } from "./api";
 
+const DEFAULT_SERVER_ORIGIN = "https://dsa-tracking-six.vercel.app";
+
+async function getServerOrigin(): Promise<string> {
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage?.local) {
+      const data = await chrome.storage.local.get(["serverOrigin"]);
+      return data.serverOrigin || DEFAULT_SERVER_ORIGIN;
+    }
+  } catch {
+    // Ignore storage errors and use default
+  }
+  return DEFAULT_SERVER_ORIGIN;
+}
+
 let currentNotification: HTMLDivElement | null = null;
 let currentStyle: HTMLStyleElement | null = null;
 
@@ -377,9 +391,10 @@ export function showSubmissionNotification(submission: CapturedSubmission) {
       openButton.type = "button";
       openButton.textContent = "Open in DSA Tracker";
 
-      openButton.addEventListener("click", () => {
+      openButton.addEventListener("click", async () => {
+        const origin = await getServerOrigin();
         window.open(
-          `http://localhost:3000/problems/${submission.problemSlug}`,
+          `${origin}/problems/${submission.problemSlug}`,
           "_blank",
         );
       });
@@ -398,8 +413,9 @@ export function showSubmissionNotification(submission: CapturedSubmission) {
         addButton.textContent = "Log in to DSA Tracker";
         addButton.disabled = false;
         addButton.style.background = "#f59e0b"; // amber accent
-        addButton.onclick = () => {
-          window.open("http://localhost:3000/login", "_blank");
+        addButton.onclick = async () => {
+          const origin = await getServerOrigin();
+          window.open(`${origin}/login`, "_blank");
         };
       } else {
         addButton.disabled = false;

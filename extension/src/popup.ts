@@ -1,6 +1,60 @@
 import type { CapturedSubmission, AuthState, ExtensionMessage } from "./types";
 
-const SERVER_URL = "http://localhost:3000";
+const PROD_SERVER_ORIGIN = "https://dsa-tracking-six.vercel.app";
+const LOCAL_SERVER_ORIGIN = "http://localhost:3000";
+
+// Server switcher elements
+const elServerUrlDisplay = document.getElementById("server-url-display") as HTMLElement;
+const btnToggleServer = document.getElementById("btn-toggle-server") as HTMLButtonElement;
+const elServerPanel = document.getElementById("server-panel") as HTMLElement;
+const btnPresetProd = document.getElementById("btn-preset-prod") as HTMLButtonElement;
+const btnPresetLocal = document.getElementById("btn-preset-local") as HTMLButtonElement;
+const inputServerUrl = document.getElementById("input-server-url") as HTMLInputElement;
+const btnSaveServer = document.getElementById("btn-save-server") as HTMLButtonElement;
+
+async function getServerOrigin(): Promise<string> {
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage?.local) {
+      const data = await chrome.storage.local.get(["serverOrigin"]);
+      return data.serverOrigin || PROD_SERVER_ORIGIN;
+    }
+  } catch {
+    // fallback
+  }
+  return PROD_SERVER_ORIGIN;
+}
+
+async function updateServerOrigin(newOrigin: string) {
+  let formatted = newOrigin.trim().replace(/\/+$/, "");
+  if (!formatted.startsWith("http://") && !formatted.startsWith("https://")) {
+    formatted = `https://${formatted}`;
+  }
+  await sendMessage({ type: "SET_SERVER_ORIGIN", origin: formatted });
+  await updateServerBar();
+  await init();
+}
+
+async function updateServerBar() {
+  const current = await getServerOrigin();
+  if (elServerUrlDisplay) {
+    elServerUrlDisplay.textContent = current;
+  }
+  if (inputServerUrl) {
+    inputServerUrl.value = current;
+  }
+  if (btnPresetProd && btnPresetLocal) {
+    if (current === PROD_SERVER_ORIGIN) {
+      btnPresetProd.classList.add("active");
+      btnPresetLocal.classList.remove("active");
+    } else if (current === LOCAL_SERVER_ORIGIN) {
+      btnPresetLocal.classList.add("active");
+      btnPresetProd.classList.remove("active");
+    } else {
+      btnPresetProd.classList.remove("active");
+      btnPresetLocal.classList.remove("active");
+    }
+  }
+}
 
 // DOM Elements
 const elStatusDot = document.getElementById("status-dot") as HTMLElement;
@@ -142,8 +196,9 @@ function renderSubmissions(submissions: CapturedSubmission[]) {
   }
 
   // Open problem in workspace
-  btnOpenProblem.onclick = () => {
-    window.open(`${SERVER_URL}/problems/${latest.problemSlug}`, "_blank");
+  btnOpenProblem.onclick = async () => {
+    const origin = await getServerOrigin();
+    window.open(`${origin}/problems/${latest.problemSlug}`, "_blank");
   };
 
   // Sync button
@@ -191,8 +246,9 @@ function renderSubmissions(submissions: CapturedSubmission[]) {
         </span>
       `;
 
-      item.onclick = () => {
-        window.open(`${SERVER_URL}/problems/${sub.problemSlug}`, "_blank");
+      item.onclick = async () => {
+        const origin = await getServerOrigin();
+        window.open(`${origin}/problems/${sub.problemSlug}`, "_blank");
       };
 
       historyList.appendChild(item);
@@ -204,6 +260,7 @@ function renderSubmissions(submissions: CapturedSubmission[]) {
 
 // Check Authentication & Load state
 async function init() {
+  await updateServerBar();
   showView("loading");
   updateConnectionStatus(false, "Connecting...");
 
@@ -294,19 +351,54 @@ btnSyncDashboard.onclick = async () => {
   }
 };
 
-linkSignup.onclick = (e) => {
-
+linkSignup.onclick = async (e) => {
   e.preventDefault();
-  window.open(`${SERVER_URL}/signup`, "_blank");
+  const origin = await getServerOrigin();
+  window.open(`${origin}/signup`, "_blank");
 };
 
 btnOpenLeetCode.onclick = () => {
   window.open("https://leetcode.com/problemset/", "_blank");
 };
 
-btnOpenDsaEmpty.onclick = () => {
-  window.open(`${SERVER_URL}/problems`, "_blank");
+btnOpenDsaEmpty.onclick = async () => {
+  const origin = await getServerOrigin();
+  window.open(`${origin}/problems`, "_blank");
 };
+
+if (btnToggleServer && elServerPanel) {
+  btnToggleServer.onclick = () => {
+    const isHidden = elServerPanel.style.display === "none";
+    elServerPanel.style.display = isHidden ? "flex" : "none";
+    btnToggleServer.textContent = isHidden ? "Close" : "Change";
+  };
+}
+
+if (btnPresetProd) {
+  btnPresetProd.onclick = async () => {
+    await updateServerOrigin(PROD_SERVER_ORIGIN);
+    if (elServerPanel) elServerPanel.style.display = "none";
+    if (btnToggleServer) btnToggleServer.textContent = "Change";
+  };
+}
+
+if (btnPresetLocal) {
+  btnPresetLocal.onclick = async () => {
+    await updateServerOrigin(LOCAL_SERVER_ORIGIN);
+    if (elServerPanel) elServerPanel.style.display = "none";
+    if (btnToggleServer) btnToggleServer.textContent = "Change";
+  };
+}
+
+if (btnSaveServer && inputServerUrl) {
+  btnSaveServer.onclick = async () => {
+    if (inputServerUrl.value) {
+      await updateServerOrigin(inputServerUrl.value);
+      if (elServerPanel) elServerPanel.style.display = "none";
+      if (btnToggleServer) btnToggleServer.textContent = "Change";
+    }
+  };
+}
 
 btnToggleCode.onclick = () => {
   const isOpen = elFeaturedCode.classList.toggle("open");

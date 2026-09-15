@@ -6,7 +6,7 @@ import type {
 import { fetchLeetCodeSyncData } from "./leetcode";
 import { getSubmissionDetails } from "./submission-details";
 
-const DEFAULT_SERVER_ORIGIN = "http://localhost:3000";
+const DEFAULT_SERVER_ORIGIN = "https://dsa-tracking-six.vercel.app";
 const MAX_STORED_SUBMISSIONS = 20;
 
 // Resolve active server origin (supports any localhost port or deployed Vercel/custom domain)
@@ -350,13 +350,14 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendRe
     return true;
   }
 
-  if (message.type === "REGISTER_WEB_APP_ORIGIN") {
+  if (message.type === "REGISTER_WEB_APP_ORIGIN" || message.type === "SET_SERVER_ORIGIN") {
     if (
       message.origin &&
       (message.origin.startsWith("http://") || message.origin.startsWith("https://"))
     ) {
-      chrome.storage.local.set({ serverOrigin: message.origin }).then(() => {
-        sendResponse({ success: true, origin: message.origin });
+      const origin = message.origin.replace(/\/+$/, "");
+      chrome.storage.local.set({ serverOrigin: origin }).then(() => {
+        sendResponse({ success: true, origin });
       });
       return true;
     }

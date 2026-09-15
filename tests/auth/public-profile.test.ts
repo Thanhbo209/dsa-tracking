@@ -41,6 +41,7 @@ describe("Public Profile Privacy & Knowledge Isolation (lib/profile/service)", (
     approachFindManyMock.mockResolvedValue([
       {
         id: "app-1",
+        createdAt: new Date("2026-03-01T12:00:00.000Z"),
         solutions: [
           {
             id: "sol-1",

@@ -1,6 +1,18 @@
 import type { CapturedSubmission, SubmissionImportResult } from "./types";
 
-const API_URL = "http://localhost:3000/api/submissions/import";
+const DEFAULT_SERVER_ORIGIN = "https://dsa-tracking-six.vercel.app";
+
+async function getServerOrigin(): Promise<string> {
+  try {
+    if (typeof chrome !== "undefined" && chrome.storage?.local) {
+      const data = await chrome.storage.local.get(["serverOrigin"]);
+      return data.serverOrigin || DEFAULT_SERVER_ORIGIN;
+    }
+  } catch {
+    // Ignore storage errors and use default
+  }
+  return DEFAULT_SERVER_ORIGIN;
+}
 
 export async function sendSubmission(
   submission: CapturedSubmission,
@@ -12,18 +24,25 @@ export async function sendSubmission(
         { type: "IMPORT_SUBMISSION", payload: submission },
         (response) => {
           if (chrome.runtime.lastError) {
-            console.warn("[DSA Tracker] Background messaging failed, falling back to direct fetch:", chrome.runtime.lastError.message);
+            console.warn(
+              "[DSA Tracker] Background messaging failed, falling back to direct fetch:",
+              chrome.runtime.lastError.message,
+            );
             directFetch(submission).then(resolve).catch(reject);
             return;
           }
 
           if (!response || !response.success) {
-            reject(new Error(response?.message || response?.error || "Import failed"));
+            reject(
+              new Error(
+                response?.message || response?.error || "Import failed",
+              ),
+            );
             return;
           }
 
           resolve(response.data);
-        }
+        },
       );
     });
   }
@@ -32,7 +51,8 @@ export async function sendSubmission(
 }
 
 async function directFetch(submission: CapturedSubmission) {
-  const response = await fetch(API_URL, {
+  const origin = await getServerOrigin();
+  const response = await fetch(`${origin}/api/submissions/import`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -43,7 +63,9 @@ async function directFetch(submission: CapturedSubmission) {
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || `Submission import failed: ${response.status}`);
+    throw new Error(
+      errorData.error || `Submission import failed: ${response.status}`,
+    );
   }
 
   return response.json();

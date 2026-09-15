@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, BookOpen } from "lucide-react";
 import type { Metadata } from "next";
 import { getPublicUserProfile } from "@/lib/profile/service";
 import { DsaLogo } from "@/components/brand/DsaLogo";
+import { PublicPlaybookExplorer } from "@/components/profile/PublicPlaybookExplorer";
 
 interface PublicProfilePageProps {
   params: Promise<{
@@ -21,19 +23,6 @@ export async function generateMetadata({
   };
 }
 
-function difficultyClass(difficulty: string | null): string {
-  switch (difficulty) {
-    case "EASY":
-      return "bg-[#46C6C2]/10 text-[#46C6C2] border-[#46C6C2]/30";
-    case "MEDIUM":
-      return "bg-yellow-500/10 text-yellow-400 border-yellow-500/30";
-    case "HARD":
-      return "bg-red-500/10 text-red-400 border-red-500/30";
-    default:
-      return "bg-zinc-800 text-zinc-400 border-zinc-700";
-  }
-}
-
 export default async function PublicProfilePage({
   params,
 }: PublicProfilePageProps) {
@@ -44,8 +33,13 @@ export default async function PublicProfilePage({
     notFound();
   }
 
-  const { user, stats, problems } = profile;
+  const { user, problems } = profile;
   const displayName = user.displayUsername ?? user.username;
+
+  const easyCount = problems.filter((p) => p.difficulty === "EASY").length;
+  const mediumCount = problems.filter((p) => p.difficulty === "MEDIUM").length;
+  const hardCount = problems.filter((p) => p.difficulty === "HARD").length;
+  const distinctTopicsCount = new Set(problems.flatMap((p) => p.topics)).size;
 
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white">
@@ -70,7 +64,7 @@ export default async function PublicProfilePage({
             <span>DSA Explorer</span>
           </Link>
         </div>
-        <span className="text-xs font-mono text-zinc-500">
+        <span className="text-xs font-mono text-zinc-400">
           Public Knowledge Profile
         </span>
       </header>
@@ -100,7 +94,7 @@ export default async function PublicProfilePage({
                 <h1 className="text-xl sm:text-2xl font-bold text-white">
                   {user.name}
                 </h1>
-                <p className="text-sm font-mono text-primary">
+                <p className="text-sm font-mono text-zinc-300">
                   @{displayName}
                 </p>
                 {user.bio && (
@@ -108,7 +102,7 @@ export default async function PublicProfilePage({
                     {user.bio}
                   </p>
                 )}
-                <p className="text-xs text-zinc-500 pt-1">
+                <p className="text-xs text-zinc-400 pt-1">
                   Joined{" "}
                   {new Date(user.createdAt).toLocaleDateString("en-US", {
                     month: "short",
@@ -118,41 +112,39 @@ export default async function PublicProfilePage({
               </div>
             </div>
 
-            {/* Quick Stats Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-t-0 border-[#383838]">
-              <div className="rounded-xl border border-[#383838] bg-[#1e1e1e] p-3 text-center">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                  Approaches
+            {/* Informative Stats Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-t-0 border-[#383838]">
+              {/* Total Solved */}
+              <div className="rounded-xl border border-[#383838] bg-[#1e1e1e] p-3 text-center min-w-[105px]">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
+                  Total Solved
                 </span>
-                <p className="text-lg font-bold text-amber-300">
-                  {stats.approachCount}
+                <p className="text-xl font-bold text-white mt-0.5">
+                  {problems.length}
                 </p>
               </div>
 
-              <div className="rounded-xl border border-[#383838] bg-[#1e1e1e] p-3 text-center">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                  Solutions
+              {/* Difficulty Breakdown */}
+              <div className="rounded-xl border border-[#383838] bg-[#1e1e1e] p-3 text-center min-w-[130px]">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
+                  Difficulty
                 </span>
-                <p className="text-lg font-bold text-emerald-400">
-                  {stats.solutionCount}
-                </p>
+                <div className="flex items-center justify-center gap-1.5 text-xs font-semibold">
+                  <span className="text-[#46C6C2]" title="Easy">{easyCount}E</span>
+                  <span className="text-zinc-600">/</span>
+                  <span className="text-yellow-400" title="Medium">{mediumCount}M</span>
+                  <span className="text-zinc-600">/</span>
+                  <span className="text-red-400" title="Hard">{hardCount}H</span>
+                </div>
               </div>
 
-              <div className="rounded-xl border border-[#383838] bg-[#1e1e1e] p-3 text-center">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                  Codes
+              {/* Topics Covered */}
+              <div className="rounded-xl border border-[#383838] bg-[#1e1e1e] p-3 text-center min-w-[105px]">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
+                  Topics
                 </span>
-                <p className="text-lg font-bold text-blue-400">
-                  {stats.codeCount}
-                </p>
-              </div>
-
-              <div className="rounded-xl border border-[#383838] bg-[#1e1e1e] p-3 text-center">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400">
-                  Problems
-                </span>
-                <p className="text-lg font-bold text-purple-400">
-                  {stats.problemCount}
+                <p className="text-xl font-bold text-white mt-0.5">
+                  {distinctTopicsCount}
                 </p>
               </div>
             </div>
@@ -168,7 +160,7 @@ export default async function PublicProfilePage({
                 Public DSA Playbook
               </h2>
             </div>
-            <span className="text-xs text-zinc-500">
+            <span className="text-xs text-zinc-400">
               {problems.length}{" "}
               {problems.length === 1 ? "problem" : "problems"}
             </span>
@@ -186,69 +178,20 @@ export default async function PublicProfilePage({
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {problems.map((problem) => (
-                <Link
-                  key={problem.slug}
-                  href={`/u/${user.username}/${problem.slug}`}
-                  className="block group rounded-xl border border-[#383838] bg-[#262626] p-4 sm:p-5 space-y-3 hover:border-[#555555] hover:bg-[#2e2e2e] transition-colors shadow-xs"
-                >
-                  {/* Title row */}
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      {problem.leetcodeId && (
-                        <span className="font-mono text-xs text-zinc-500 block mb-0.5">
-                          #{problem.leetcodeId}
-                        </span>
-                      )}
-                      <h3 className="text-sm font-semibold text-white leading-snug group-hover:text-primary transition-colors truncate">
-                        {problem.title}
-                      </h3>
-                    </div>
-                    {problem.difficulty && (
-                      <span
-                        className={`shrink-0 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${difficultyClass(problem.difficulty)}`}
-                      >
-                        {problem.difficulty}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Topic chips */}
-                  {problem.topics.length > 0 && (
-                    <div className="flex flex-wrap gap-1.5">
-                      {problem.topics.slice(0, 4).map((topic) => (
-                        <span
-                          key={topic}
-                          className="rounded bg-[#1a1a1a] border border-[#444444] px-1.5 py-0.5 text-[10px] text-zinc-300"
-                        >
-                          {topic}
-                        </span>
-                      ))}
-                      {problem.topics.length > 4 && (
-                        <span className="rounded bg-[#1a1a1a] border border-[#444444] px-1.5 py-0.5 text-[10px] text-zinc-500">
-                          +{problem.topics.length - 4}
-                        </span>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Footer: approach count hint */}
-                  <div className="flex items-center justify-between pt-1 border-t border-[#333333]">
-                    <span className="text-[11px] text-zinc-500">
-                      {problem.approachCount}{" "}
-                      {problem.approachCount === 1 ? "approach" : "approaches"}
-                    </span>
-                    <span className="text-[11px] text-zinc-600 group-hover:text-zinc-400 transition-colors">
-                      View →
-                    </span>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <Suspense
+              fallback={
+                <div className="h-48 rounded-2xl border border-[#383838] bg-[#222222] animate-pulse" />
+              }
+            >
+              <PublicPlaybookExplorer
+                problems={problems}
+                username={user.username}
+              />
+            </Suspense>
           )}
         </section>
       </main>
     </div>
   );
 }
+

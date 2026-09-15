@@ -21,6 +21,7 @@ export interface PublicVaultProblem {
   topics: string[];
   /** Number of approaches this user has for this problem */
   approachCount: number;
+  latestApproachCreatedAt: string;
 }
 
 export interface PublicUserProfile {
@@ -120,6 +121,7 @@ export async function getPublicUserProfile(
     orderBy: { createdAt: "desc" },
     select: {
       id: true,
+      createdAt: true,
       solutions: {
         select: {
           id: true,
@@ -167,6 +169,11 @@ export async function getPublicUserProfile(
         difficulty,
         topics: topics.map((t) => t.topic.name),
         approachCount: 1,
+        latestApproachCreatedAt: a.createdAt
+          ? (typeof a.createdAt === "string"
+              ? new Date(a.createdAt).toISOString()
+              : a.createdAt.toISOString())
+          : new Date(0).toISOString(),
       });
     }
   }
