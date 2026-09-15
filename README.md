@@ -40,7 +40,9 @@ Grinding data structures and algorithms is often an exercise in diminishing retu
 
 ### Problems Explorer
 
-> _Problem library with multi-criteria search, topic filtering, difficulty distribution, and practice streak analytics._
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/db3e1aa3-6935-478d-ab28-ed131b5cd8cf" />
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/0002c57d-188f-4f4e-8dfc-1bd72d11a5a9" />
+
 
 <!-- Screenshot: add `docs/screenshots/problems-explorer.png` here later -->
 
@@ -52,7 +54,8 @@ Grinding data structures and algorithms is often an exercise in diminishing retu
 
 ### Problem Learning Workspace
 
-> _Split-view workspace with problem description, historical submissions, code viewer, and learning modes._
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/5f554f89-fade-4c13-916b-514459e9bf4c" />
+
 
 <!-- Screenshot: add `docs/screenshots/problem-workspace.png` here later -->
 
@@ -64,7 +67,10 @@ Grinding data structures and algorithms is often an exercise in diminishing retu
 
 ### AI Submission Analysis
 
-> _Automated submission evaluation powered by Google Gemini, analyzing time/space complexity, concept gaps, and drafting knowledge entries._
+<img width="900"  alt="image" src="https://github.com/user-attachments/assets/2398b546-c695-4163-a2f1-165b39a6e4b0" />
+<img width="900"  alt="image" src="https://github.com/user-attachments/assets/ceb59c71-045e-489d-9a1a-92441bef27ab" />
+<img width="900"  alt="image" src="https://github.com/user-attachments/assets/5ea698e5-c880-4b81-8f2c-87fcb2eb3efc" />
+
 
 <!-- Screenshot: add `docs/screenshots/ai-analysis.png` here later -->
 
@@ -74,21 +80,10 @@ Grinding data structures and algorithms is often an exercise in diminishing retu
 </p>
 -->
 
-### Knowledge Vault
-
-> _Permanent algorithmic playbook organizing solutions into high-level approaches, concrete techniques, and multi-language implementations._
-
-<!-- Screenshot: add `docs/screenshots/knowledge-vault.png` here later -->
-
-<!--
-<p align="center">
-  <img src="./docs/screenshots/knowledge-vault.png" alt="Knowledge Vault" width="900" />
-</p>
--->
-
 ### Public Profile
 
-> _Shareable public portfolio showcasing solved problems, difficulty statistics, and curated solution playbooks._
+<img width="900" alt="image" src="https://github.com/user-attachments/assets/59f1cade-c034-4608-ba62-f5bf973571b4" />
+
 
 <!-- Screenshot: add `docs/screenshots/public-profile.png` here later -->
 
@@ -100,7 +95,9 @@ Grinding data structures and algorithms is often an exercise in diminishing retu
 
 ### Chrome Extension
 
-> _Companion browser extension for automatic submission capture on LeetCode, code extraction, and background sync._
+<img width="1914" height="946" alt="image" src="https://github.com/user-attachments/assets/6d695b4d-7c73-4b7e-a511-ec93324f8c4c" />
+<img width="1908" height="937" alt="image" src="https://github.com/user-attachments/assets/6a863e3c-53cf-4307-a748-07ea227a812b" />
+
 
 <!-- Screenshot: add `docs/screenshots/chrome-extension.png` here later -->
 
@@ -146,30 +143,146 @@ Grinding data structures and algorithms is often an exercise in diminishing retu
 ### Data Flows & System Overview
 
 ```mermaid
-flowchart TD
-    subgraph LeetCode["LeetCode (Browser)"]
-        LC_DOM[LeetCode Editor / Page] -->|DOM Mutation / Intercept| CS[Content Script]
-        CS -->|Window PostMessage Bridge| BR[DOM Bridge Script]
-    end
+flowchart LR
 
-    subgraph Extension["Chrome Extension (MV3)"]
-        CS -->|chrome.runtime.sendMessage| BG[Background Service Worker]
-        POP[Extension Popup] -->|Switch Endpoint / Status| BG
-    end
+%% =========================================================
+%% USERS / EXTERNAL
+%% =========================================================
 
-    subgraph Backend["DSA Tracker (Next.js 16 + Node)"]
-        BG -->|POST /api/submissions/import| API_IMP[Submission Import API]
-        API_IMP --> DB[(PostgreSQL Database)]
-        API_IMP --> STREAK[Streak & Activity Engine]
-        
-        DASH[Web Dashboard & Workspace] -->|Request Review| AI_ROUTE[/api/submissions/[id]/analyze]
-        AI_ROUTE --> GEMINI[Google Gemini 2.5]
-        GEMINI -->|Structured Review| AI_ROUTE
-        AI_ROUTE -->|Draft Knowledge| DB
-        
-        VAULT[Knowledge Vault] -->|Promote Draft| APP_ROUTE[/api/approaches]
-        APP_ROUTE --> DB
-    end
+subgraph EXTERNAL["🌐 EXTERNAL"]
+    direction TB
+
+    LC["🟠 LeetCode<br/><small>Problem & Submission</small>"]
+
+    USER["👤 Developer<br/><small>Solves • Reviews • Learns</small>"]
+end
+
+
+%% =========================================================
+%% CHROME EXTENSION
+%% =========================================================
+
+subgraph EXT["🧩 CHROME EXTENSION · MV3"]
+    direction TB
+
+    CONTENT["📄 Content Script<br/><small>Detect submission</small>"]
+
+    BRIDGE["↔ DOM Bridge<br/><small>Page ↔ Extension</small>"]
+
+    WORKER["⚙️ Background Worker<br/><small>Validate • Queue • Send</small>"]
+
+    POPUP["🪟 Extension Popup<br/><small>Endpoint • Status</small>"]
+end
+
+
+%% =========================================================
+%% DSA TRACKER
+%% =========================================================
+
+subgraph APP["🚀 DSA TRACKER · Next.js 16"]
+    direction TB
+
+    IMPORT["📥 Submission Import API<br/><code>POST /api/submissions/import</code>"]
+
+    DB[("🗄️ PostgreSQL<br/><small>Source of Truth</small>")]
+
+    ACTIVITY["🔥 Activity Engine<br/><small>Streaks • Daily activity</small>"]
+
+    REVIEW["🤖 AI Review API<br/><code>/api/submissions/[id]/analyze</code>"]
+
+    GEMINI["✨ Gemini 2.5<br/><small>Structured Review</small>"]
+
+    DRAFT["📝 Knowledge Draft<br/><small>Generated from review</small>"]
+
+    VAULT["🧠 Knowledge Vault<br/><small>Approaches • Patterns • Notes</small>"]
+
+    APPROACH["📚 Approaches API<br/><code>/api/approaches</code>"]
+end
+
+
+%% =========================================================
+%% MAIN SUBMISSION FLOW
+%% =========================================================
+
+LC
+    -->|"① Submission"| CONTENT
+
+CONTENT
+    -->|"DOM / editor data"| BRIDGE
+
+BRIDGE
+    -->|"window.postMessage"| WORKER
+
+WORKER
+    -->|"② Import"| IMPORT
+
+IMPORT
+    -->|"③ Persist"| DB
+
+DB
+    -->|"④ Record activity"| ACTIVITY
+
+
+%% =========================================================
+%% AI KNOWLEDGE FLOW
+%% =========================================================
+
+USER
+    -->|"Review submission"| REVIEW
+
+REVIEW
+    -->|"Analyze"| GEMINI
+
+GEMINI
+    -->|"Structured review"| REVIEW
+
+REVIEW
+    -->|"Generate"| DRAFT
+
+DRAFT
+    -->|"Save"| DB
+
+USER
+    -->|"Promote draft"| APPROACH
+
+APPROACH
+    -->|"Create / update"| VAULT
+
+VAULT
+    -->|"Persist"| DB
+
+
+%% =========================================================
+%% EXTENSION CONTROL
+%% =========================================================
+
+POPUP
+    -->|"Endpoint / status"| WORKER
+
+
+%% =========================================================
+%% STYLES
+%% =========================================================
+
+classDef external fill:#171b22,stroke:#f59e0b,stroke-width:2px,color:#fff
+classDef extension fill:#141d2b,stroke:#3b82f6,stroke-width:2px,color:#fff
+classDef backend fill:#151b24,stroke:#8b5cf6,stroke-width:2px,color:#fff
+classDef database fill:#111827,stroke:#22c55e,stroke-width:3px,color:#fff
+classDef ai fill:#21172d,stroke:#d946ef,stroke-width:2px,color:#fff
+classDef knowledge fill:#17251d,stroke:#22c55e,stroke-width:2px,color:#fff
+classDef activity fill:#2a2115,stroke:#f97316,stroke-width:2px,color:#fff
+
+class LC,USER external
+class CONTENT,BRIDGE,WORKER,POPUP extension
+class IMPORT,REVIEW,APPROACH backend
+class DB database
+class GEMINI ai
+class DRAFT,VAULT knowledge
+class ACTIVITY activity
+
+style EXTERNAL fill:#0d1117,stroke:#374151,stroke-width:2px
+style EXT fill:#0d1117,stroke:#2563eb,stroke-width:2px
+style APP fill:#0d1117,stroke:#7c3aed,stroke-width:2px
 ```
 
 ### Extension DOM Bridge Workflow
