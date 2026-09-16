@@ -7,6 +7,7 @@ import {
   updateSolution,
 } from "@/lib/solutions/service";
 import { getCurrentUser } from "@/lib/auth/session";
+import { revalidatePublicProfile } from "@/lib/profile/revalidate";
 
 interface SolutionRouteProps {
   params: Promise<{
@@ -48,6 +49,8 @@ export async function PATCH(request: Request, { params }: SolutionRouteProps) {
 
     const solution = await updateSolution(user.id, id, body);
 
+    revalidatePublicProfile(user);
+
     return NextResponse.json(solution);
   } catch (error) {
     if (error instanceof ZodError) {
@@ -88,6 +91,8 @@ export async function DELETE(
     const { id } = await params;
 
     await deleteSolution(user.id, id);
+
+    revalidatePublicProfile(user);
 
     return new NextResponse(null, {
       status: 204,

@@ -7,6 +7,7 @@ import {
   deleteApproach,
 } from "@/lib/approaches/service";
 import { getCurrentUser } from "@/lib/auth/session";
+import { revalidatePublicProfile } from "@/lib/profile/revalidate";
 
 interface ApproachRouteProps {
   params: Promise<{
@@ -48,6 +49,8 @@ export async function PATCH(request: Request, { params }: ApproachRouteProps) {
 
     const approach = await updateApproach(user.id, id, body);
 
+    revalidatePublicProfile(user);
+
     return NextResponse.json(approach);
   } catch (error) {
     if (error instanceof ZodError) {
@@ -84,6 +87,8 @@ export async function DELETE(
     const { id } = await params;
 
     await deleteApproach(user.id, id);
+
+    revalidatePublicProfile(user);
 
     return new NextResponse(null, {
       status: 204,

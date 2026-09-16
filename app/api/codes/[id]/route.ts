@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { deleteCode, getCode, updateCode } from "@/lib/codes/service";
 import { getCurrentUser } from "@/lib/auth/session";
+import { revalidatePublicProfile } from "@/lib/profile/revalidate";
 
 interface RouteContext {
   params: Promise<{
@@ -38,6 +39,8 @@ export async function PATCH(request: Request, { params }: RouteContext) {
 
     const code = await updateCode(user.id, id, body);
 
+    revalidatePublicProfile(user);
+
     return NextResponse.json(code);
   } catch (error) {
     if (error instanceof ZodError) {
@@ -73,6 +76,8 @@ export async function DELETE(_request: Request, { params }: RouteContext) {
     const { id } = await params;
 
     await deleteCode(user.id, id);
+
+    revalidatePublicProfile(user);
 
     return new NextResponse(null, { status: 204 });
   } catch (error) {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { promoteDraftToKnowledge } from "@/lib/analysis/promotion";
 import { getCurrentUser } from "@/lib/auth/session";
+import { revalidatePublicProfile } from "@/lib/profile/revalidate";
 
 interface AcceptRouteProps {
   params: Promise<{
@@ -42,6 +43,9 @@ export async function POST(request: Request, { params }: AcceptRouteProps) {
       analysisId,
       editedDraft,
     );
+
+    revalidatePublicProfile(user);
+
     return NextResponse.json(result, { status: 200 });
   } catch (error) {
     if (error instanceof ZodError) {

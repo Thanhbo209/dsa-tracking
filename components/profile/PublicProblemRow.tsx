@@ -32,7 +32,7 @@ function getDifficultyBadge(difficulty: string | null) {
 
 const VISIBLE_ROW_TAGS = 2;
 
-export function PublicProblemRow({
+export const PublicProblemRow = React.memo(function PublicProblemRow({
   problem,
   username,
   onTagClick,
@@ -109,4 +109,4 @@ export function PublicProblemRow({
       </div>
     </Link>
   );
-}
+});

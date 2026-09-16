@@ -32,7 +32,7 @@ function getDifficultyBadge(difficulty: string | null) {
 
 const VISIBLE_TAG_LIMIT = 3;
 
-export function PublicProblemCard({
+export const PublicProblemCard = React.memo(function PublicProblemCard({
   problem,
   username,
   onTagClick,
@@ -112,4 +112,4 @@ export function PublicProblemCard({
       </div>
     </Link>
   );
-}
+});

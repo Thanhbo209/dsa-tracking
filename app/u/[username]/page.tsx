@@ -7,6 +7,13 @@ import { getPublicUserProfile } from "@/lib/profile/service";
 import { DsaLogo } from "@/components/brand/DsaLogo";
 import { PublicPlaybookExplorer } from "@/components/profile/PublicPlaybookExplorer";
 
+// ISR caching: serve cached profile page for 60 seconds before background regeneration
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  return [];
+}
+
 interface PublicProfilePageProps {
   params: Promise<{
     username: string;

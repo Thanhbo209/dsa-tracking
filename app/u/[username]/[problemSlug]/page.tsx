@@ -7,6 +7,13 @@ import { ProblemDetailPanel } from "@/components/problems/ProblemDetailPanel";
 import { PublicApproachList } from "@/components/profile/PublicApproachList";
 import { DsaLogo } from "@/components/brand/DsaLogo";
 
+// ISR caching: serve cached problem detail page for 60 seconds before background regeneration
+export const revalidate = 60;
+
+export async function generateStaticParams() {
+  return [];
+}
+
 interface ProblemDetailPageProps {
   params: Promise<{
     username: string;

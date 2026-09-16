@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 
 import { createSolution, getSolutions } from "@/lib/solutions/service";
 import { getCurrentUser } from "@/lib/auth/session";
+import { revalidatePublicProfile } from "@/lib/profile/revalidate";
 
 export async function GET(request: Request) {
   const user = await getCurrentUser();
@@ -37,6 +38,8 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     const solution = await createSolution(user.id, body);
+
+    revalidatePublicProfile(user);
 
     return NextResponse.json(solution, {
       status: 201,

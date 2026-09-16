@@ -3,6 +3,7 @@ import { ZodError } from "zod";
 import { getApproaches, createApproach } from "@/lib/approaches/service";
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/session";
+import { revalidatePublicProfile } from "@/lib/profile/revalidate";
 
 export async function POST(request: Request) {
   try {
@@ -27,6 +28,8 @@ export async function POST(request: Request) {
     }
 
     const approach = await createApproach(user.id, body);
+
+    revalidatePublicProfile(user);
 
     return NextResponse.json(approach, {
       status: 201,
