@@ -122,7 +122,7 @@ Grinding data structures and algorithms is often an exercise in diminishing retu
 - **Practice Analytics**: Visual difficulty distribution donut chart, solved totals, and a GitHub-style practice streak heatmap.
 
 ### 🤖 AI Submission Analysis
-- **Gemini-Powered Code Review**: Analyzes submissions using Google Gemini (`gemini-2.5-flash`) for time and space complexity, strengths, vulnerabilities, and missing edge cases.
+- **Gemini-Powered Code Review**: Analyzes submissions using Google Gemini (`gemini-3.6-flash`) for time and space complexity, strengths, vulnerabilities, and missing edge cases.
 - **One-Click Vault Promotion**: Automatically drafts structural approach and solution entities from the AI review, allowing instant promotion into your Knowledge Vault.
 
 ### 🏛️ The Knowledge Vault
