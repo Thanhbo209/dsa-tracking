@@ -295,6 +295,17 @@ style APP fill:#0d1117,stroke:#7c3aed,stroke-width:2px
 
 ---
 
+### 🧪 Testing Account
+
+For testing the deployed application, you can use the following demo account:
+
+| Field | Value |
+|---|---|
+| **Username** | `thanhcow` |
+| **Password** | `123123123` |
+
+> **Note:** This account is intended for demonstration and testing purposes only. Do not use these credentials for sensitive data or production accounts.
+
 ## 🛠️ Tech Stack
 
 | Layer | Technologies |
@@ -352,6 +363,8 @@ pnpm prisma generate
 # Push database schema without creating migration files (development)
 pnpm prisma db push
 ```
+
+
 
 ### Running the Web Application
 
