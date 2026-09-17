@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signUp } from "@/lib/auth/auth-client";
+import { signUp, useSession } from "@/lib/auth/auth-client";
 import { ArrowRight, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DsaLogo } from "@/components/brand/DsaLogo";
 
 export default function SignupPage() {
   const router = useRouter();
+  const { data: session, isPending } = useSession();
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -17,6 +18,20 @@ export default function SignupPage() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (session?.user) {
+      router.replace("/problems");
+    }
+  }, [session, router]);
+
+  if (isPending || session?.user) {
+    return (
+      <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-4">
+        <div className="size-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
+    );
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -51,7 +66,7 @@ export default function SignupPage() {
         return;
       }
 
-      router.push("/problems");
+      router.replace("/problems");
       router.refresh();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create account");
