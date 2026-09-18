@@ -11,9 +11,11 @@ import {
   Target,
   FileCode2,
 } from "lucide-react";
+import { formatModelDisplayName } from "@/lib/analysis/models";
 
 interface AiReviewSectionProps {
   review: AiReview;
+  modelName?: string | null;
 }
 
 /**
@@ -37,16 +39,23 @@ function formatText(text: string): React.ReactNode {
   });
 }
 
-export function AiReviewSection({ review }: AiReviewSectionProps) {
+export function AiReviewSection({ review, modelName }: AiReviewSectionProps) {
+  const displayModel = formatModelDisplayName(modelName);
+
   return (
     <div className="space-y-6 text-white">
       {/* Header & Correctness Banner */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#4a4a4a] pb-4">
         <div>
-          <div className="flex items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2.5">
             <h4 className="text-lg font-bold text-white">
               AI Diagnostic Review
             </h4>
+            {displayModel && (
+              <span className="text-[11px] font-mono text-zinc-400 bg-[#252525] border border-[#3f3f3f] px-2 py-0.5 rounded">
+                {displayModel}
+              </span>
+            )}
             <span
               className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs sm:text-sm font-medium ${
                 review.isCorrect

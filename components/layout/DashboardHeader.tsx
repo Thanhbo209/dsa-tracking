@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth/auth-client";
-import { LogOut, User as UserIcon, BookOpen } from "lucide-react";
+import { LogOut, User as UserIcon, BookOpen, Cpu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DsaLogo } from "@/components/brand/DsaLogo";
 
@@ -58,6 +58,13 @@ export function DashboardHeader({ user }: DashboardHeaderProps) {
                 <span>My Public Playbook</span>
               </Link>
             )}
+            <Link
+              href="/admin/ai-usage"
+              className="text-zinc-400 hover:text-white transition-colors flex items-center gap-1.5"
+            >
+              <Cpu className="size-3.5 text-zinc-400" />
+              <span>AI Usage</span>
+            </Link>
           </nav>
         </div>
 

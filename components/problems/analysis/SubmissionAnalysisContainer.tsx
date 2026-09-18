@@ -263,11 +263,10 @@ export function SubmissionAnalysisContainer({
           {/* Re-analyze Action Button */}
           <Button
             type="button"
-            variant="outline"
             size="xs"
             onClick={handleAnalyze}
             disabled={isAnalyzing}
-            className="gap-1 text-xs h-7 border-[#555555] bg-[#2a2a2a] text-white hover:bg-[#333333]"
+            className="gap-1.5 text-xs h-7 bg-black hover:bg-zinc-900 active:bg-zinc-950 text-white border border-[#444444] transition-colors"
           >
             <RotateCcw className="size-3" />
             <span>Re-analyze</span>
@@ -292,7 +291,10 @@ export function SubmissionAnalysisContainer({
             />
           ) : activeAnalysis.review ? (
             <div className="space-y-10 sm:space-y-12">
-              <AiReviewSection review={activeAnalysis.review} />
+              <AiReviewSection
+                review={activeAnalysis.review}
+                modelName={activeAnalysis.modelName}
+              />
 
               {activeAnalysis.draft && (
                 <div className="pt-8 sm:pt-10 border-t border-[#444444]">

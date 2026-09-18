@@ -99,6 +99,8 @@ describe("Submission Analysis UI Components", () => {
       expect(html).toContain("No AI Analysis Yet");
       expect(html).toContain("Analyze this submission to evaluate your code");
       expect(html).toContain("Analyze Submission");
+      expect(html).toContain("bg-black");
+      expect(html).toContain("border-[#444444]");
     });
   });
 
@@ -168,6 +170,30 @@ describe("Submission Analysis UI Components", () => {
       expect(html).toContain("Uses non-null assertion operator.");
       expect(html).toContain("None; handles duplicates and negative numbers.");
       expect(html).toContain("Trading O(n) memory for hash table lookups eliminates quadratic search costs.");
+    });
+
+    it("renders clean model indicator badge when modelName is provided", () => {
+      const html36 = renderToStaticMarkup(
+        <AiReviewSection review={mockReview} modelName="gemini-3.6-flash" />,
+      );
+      expect(html36).toContain("Gemini 3.6 Flash");
+
+      const html25 = renderToStaticMarkup(
+        <AiReviewSection review={mockReview} modelName="gemini-2.5-flash" />,
+      );
+      expect(html25).toContain("Gemini 2.5 Flash");
+    });
+
+    it("omits model indicator badge gracefully when modelName is null or undefined", () => {
+      const htmlNull = renderToStaticMarkup(
+        <AiReviewSection review={mockReview} modelName={null} />,
+      );
+      expect(htmlNull).not.toContain("Gemini");
+
+      const htmlUndef = renderToStaticMarkup(
+        <AiReviewSection review={mockReview} modelName={undefined} />,
+      );
+      expect(htmlUndef).not.toContain("Gemini");
     });
   });
 

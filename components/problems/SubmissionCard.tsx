@@ -225,7 +225,7 @@ export function SubmissionCard({
               <p>{currentRuntime != null ? `${currentRuntime} ms` : "—"}</p>
               <p>
                 {currentMemory != null
-                  ? `${Math.round(Number(currentMemory) / 1024 / 1024)} MB`
+                  ? `${(Number(currentMemory) / 1_000_000).toFixed(2)} MB`
                   : "—"}
               </p>
             </div>

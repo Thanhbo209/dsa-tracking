@@ -6,7 +6,13 @@ import {
   type AiAnalysisInput,
 } from "@/lib/validation/analysis";
 import { buildAnalysisPrompt } from "./prompt";
-import { callGeminiForAnalysis, type GeminiAnalysisOptions } from "./gemini";
+import {
+  callGeminiForAnalysis,
+  type GeminiAnalysisOptions,
+  type GeminiAnalysisResult,
+} from "./gemini";
+import { getActiveModel, switchModelOnQuotaError } from "./model-state";
+import { isQuotaError, analyzeQuotaError } from "./quota";
 
 export type AnalyzeSubmissionOptions = GeminiAnalysisOptions;
 
@@ -56,15 +62,15 @@ export async function analyzeSubmission(
     });
   }
 
-  const configuredModel =
-    options?.modelName || process.env.GEMINI_MODEL || "gemini-2.5-flash";
+  const initialModel =
+    options?.modelName || (await getActiveModel());
 
   // Create initial SubmissionAnalysis record in GENERATING state
   const analysis = await prisma.submissionAnalysis.create({
     data: {
       submissionId: submission.id,
       status: "GENERATING",
-      modelName: configuredModel,
+      modelName: initialModel,
     },
   });
 
@@ -116,10 +122,77 @@ export async function analyzeSubmission(
 
   try {
     const prompt = buildAnalysisPrompt(input);
-    const { rawText, modelName } = await callGeminiForAnalysis(prompt, {
-      ...options,
-      modelName: configuredModel,
-    });
+
+    let callResult: GeminiAnalysisResult;
+
+    try {
+      callResult = await callGeminiForAnalysis(prompt, {
+        ...options,
+        modelName: initialModel,
+      });
+    } catch (firstError) {
+      if (isQuotaError(firstError)) {
+        // Quota error on initial model -> switch and retry once with opposite model
+        const switchResult = await switchModelOnQuotaError(initialModel, firstError);
+        const fallbackModel = switchResult.newModel;
+
+        try {
+          callResult = await callGeminiForAnalysis(prompt, {
+            ...options,
+            modelName: fallbackModel,
+          });
+        } catch (retryError) {
+          if (isQuotaError(retryError)) {
+            // Both models are now in cooldown / quota-limited!
+            // Strictly do NOT attempt a third switch/retry.
+            const secondQuota = analyzeQuotaError(retryError, fallbackModel);
+            const earliestCooldown =
+              switchResult.quotaAnalysis.cooldownExpiresAt > secondQuota.cooldownExpiresAt
+                ? switchResult.quotaAnalysis.cooldownExpiresAt
+                : secondQuota.cooldownExpiresAt;
+
+            return await prisma.submissionAnalysis.update({
+              where: { id: analysis.id },
+              data: {
+                status: "FAILED",
+                modelName: fallbackModel,
+                errorMessage: `Both Gemini models (${initialModel}, ${fallbackModel}) are currently rate-limited; earliest retry at ${earliestCooldown.toISOString()}`,
+              },
+            });
+          }
+
+          // Non-quota error on retry
+          const retryMessage =
+            retryError instanceof Error
+              ? retryError.message
+              : "Failed during fallback Gemini model execution";
+          return await prisma.submissionAnalysis.update({
+            where: { id: analysis.id },
+            data: {
+              status: "FAILED",
+              modelName: fallbackModel,
+              errorMessage: retryMessage,
+            },
+          });
+        }
+      } else {
+        // Non-quota error on initial model: fail without switching
+        const firstMessage =
+          firstError instanceof Error
+            ? firstError.message
+            : "Failed during Gemini analysis";
+        return await prisma.submissionAnalysis.update({
+          where: { id: analysis.id },
+          data: {
+            status: "FAILED",
+            modelName: initialModel,
+            errorMessage: firstMessage,
+          },
+        });
+      }
+    }
+
+    const { rawText, modelName } = callResult;
 
     let parsedJson: unknown;
     try {

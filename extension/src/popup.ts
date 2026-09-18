@@ -183,7 +183,7 @@ function renderSubmissions(submissions: CapturedSubmission[]) {
   elFeaturedLang.textContent = latest.language || "Unknown";
   elFeaturedRuntime.textContent = latest.runtimeMs != null ? `${latest.runtimeMs} ms` : "N/A ms";
   elFeaturedMemory.textContent = latest.memoryBytes != null
-    ? `${(latest.memoryBytes / 1024 / 1024).toFixed(1)} MB`
+    ? `${(Number(latest.memoryBytes) / 1_000_000).toFixed(2)} MB`
     : "N/A MB";
 
   // Code block

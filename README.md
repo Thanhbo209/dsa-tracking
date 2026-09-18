@@ -9,289 +9,170 @@
 </p>
 
 <p align="center">
+  <a href="https://dsa-tracking-six.vercel.app"><strong>🌐 Live Demo: dsa-tracking-six.vercel.app</strong></a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/Build-Passing-22c55e?style=flat-square" alt="Build Status" />
   <img src="https://img.shields.io/badge/Next.js-16.3-black?style=flat-square&logo=next.js" alt="Next.js" />
   <img src="https://img.shields.io/badge/Prisma-7.10-5a67d8?style=flat-square&logo=prisma" alt="Prisma" />
-  <img src="https://img.shields.io/badge/Tailwind-CSS-38bdf8?style=flat-square&logo=tailwindcss" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/TypeScript-5.0-3178c6?style=flat-square&logo=typescript" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-v4-38bdf8?style=flat-square&logo=tailwindcss" alt="Tailwind CSS v4" />
+  <img src="https://img.shields.io/badge/Gemini-3.6%20%2F%202.5%20Dual--Model-d946ef?style=flat-square&logo=google" alt="Gemini Dual-Model" />
   <img src="https://img.shields.io/badge/Manifest-V3-4285f4?style=flat-square&logo=googlechrome" alt="Chrome Extension Manifest V3" />
+  <img src="https://img.shields.io/badge/Tests-32%20suites%20%7C%20274%20passed-22c55e?style=flat-square&logo=vitest" alt="Vitest 274 Passed" />
+  <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License: MIT" />
 </p>
 
 ---
 
-## 💡 Introduction & Motivation
+## 💡 Overview & Problem Statement
 
-### Why DSA Tracker?
+Grinding algorithms often creates diminishing returns due to three core friction points:
+* **The Retention Gap**: Intuitions, edge cases, and trade-offs fade weeks after solving a problem.
+* **Unstructured Code**: Submissions capture raw code without context, alternatives, or asymptotic trade-offs.
+* **Fragmented Documentation**: Personal notes in Notion, Obsidian, or Docs quickly disconnect from actual submissions.
 
-Grinding data structures and algorithms is often an exercise in diminishing returns:
-- **The Amnesia Problem**: You solve 300 problems, but two months later, the exact intuition and edge cases for a problem solved in week 2 are completely gone.
-- **Unstructured Submissions**: Platforms like LeetCode store raw source code submissions, but raw code is poor documentation. It lacks your conceptual thought process, time/space trade-offs, and structural comparison across alternative solutions.
-- **Fragmented Notes**: Developers often keep scattered Notion pages, Markdown files, or Google Docs that quickly become disconnected from actual LeetCode submissions.
-
-**DSA Tracker** fixes this by closing the loop between problem solving and knowledge retention:
-1. **Passive Capture**: As you solve problems on LeetCode, a companion Chrome extension automatically captures your code, language, status, and execution metrics without disrupting your flow.
-2. **AI-Assisted Synthesis**: An integrated Google Gemini analysis engine evaluates your code, uncovers subtle anti-patterns, audits algorithmic complexity, and proposes structured knowledge drafts.
-3. **The Knowledge Vault**: Your solutions are organized into a permanent 3-tier hierarchy (**Approach ➔ Solution ➔ Code**), transforming disposable solutions into an evergreen playbook.
-4. **Public Portfolio**: Showcase your verified algorithmic expertise with a shareable public profile and interactive problem playbook.
+**DSA Tracker** resolves this by closing the loop:
+1. **Passive Ingestion**: As you solve problems on LeetCode, a companion Chrome MV3 extension captures code, runtime, and memory metrics in the background.
+2. **AI Diagnostic Review**: An automated review engine audits algorithmic complexity, identifies anti-patterns, tests edge cases, and drafts structured takeaways.
+3. **Evergreen Knowledge Vault**: Insights are codified into a permanent 3-tier hierarchy (**Approach ➔ Solution ➔ Code**), transforming one-off attempts into a searchable, shareable personal playbook.
 
 ---
 
-## 🖥️ UI Showcase
+## ⚡ Core Engineering Highlights
 
-### Problems Explorer
+### 1. Resilient Dual-Model AI Failover Engine
+Production LLM integrations face aggressive rate limits and sudden quota exhaustions. DSA Tracker implements a self-healing model routing and circuit-breaker architecture:
+* **Dual-Model Pairing**: Uses **`gemini-3.6-flash`** as the high-intelligence primary model and dynamically fails over to **`gemini-2.5-flash`** upon quota exhaustion.
+* **Concurrency-Safe Atomic State**: Active model state is persisted in a database singleton (`AiModelState`). Model failover transitions execute via atomic SQL conditional updates (`updateMany ... WHERE activeModel = expected`), ensuring concurrent serverless requests never trigger duplicate switch events.
+* **Categorized Cooldown Derivation**:
+  * *Daily Quota Exceeded (`PerDay`)*: Sets a conservative cooldown until the next UTC midnight boundary (minimum 6–12 hours), avoiding premature retry loops.
+  * *Short-Window Rate Limit*: Enforces a strict minimum 30-second cooldown floor, deriving duration from API retry headers when available.
+* **Graceful Circuit Breaker**: If both models are simultaneously in cooldown, execution terminates cleanly without infinite loops, surfacing an informative retry ETA.
+* **Immediate Retry**: When a quota error occurs on an incoming analysis request, the system atomically switches models and retries the request against the fallback model in the same user turn.
 
-<img width="900" alt="image" src="https://github.com/user-attachments/assets/db3e1aa3-6935-478d-ab28-ed131b5cd8cf" />
-<img width="900" alt="image" src="https://github.com/user-attachments/assets/0002c57d-188f-4f4e-8dfc-1bd72d11a5a9" />
+### 2. Chrome Extension (Manifest V3) Ingestion Pipeline
+* **Official GraphQL Polling**: Unlike fragile DOM or Monaco/CodeMirror scraping, the extension monitors LeetCode submission completion and queries LeetCode's official `submissionDetails` GraphQL API for verified source code, execution runtime, and memory metrics.
+* **Shared Cookie Session Authentication**: The background service worker sends imported submissions directly to `/api/submissions/import` using session cookies shared with the configured host, requiring no manual API token management.
+* **In-Page LeetCode HUD**: Injects a lightweight notification banner into the active LeetCode tab confirming capture and sync status.
+* **Web Bridge**: Injected on DSA Tracker domains to register web origins and fetch code snippets on demand.
 
+### 3. 3-Tier Knowledge Vault
+* **Hierarchical Organization**: Separates concepts into **Approach** (algorithmic paradigm, e.g. *Two Pointers*), **Solution** (concrete implementation and complexity trade-offs), and **Code** (multi-language implementations).
+* **One-Click AI Promotion**: Turn AI diagnostic reviews directly into structured approach and solution drafts with a single click.
 
-<!-- Screenshot: add `docs/screenshots/problems-explorer.png` here later -->
+### 4. Admin AI Usage & Quota Audit Dashboard (`/admin/ai-usage`)
+* Real-time monitoring of the active Gemini model and failover status.
+* Live cooldown expiry countdown and analyses count by model.
+* Historical switch audit table backed by `AiModelSwitchEvent`, recording model transitions, exact violation reasons, and quota categories.
+* Access control secured via `ADMIN_EMAILS` with fallback authenticated access.
 
-<!--
-<p align="center">
-  <img src="./docs/screenshots/problems-explorer.png" alt="Problems Explorer" width="900" />
-</p>
--->
+---
+
+## 🖥️ Visual Tour
+
+### Dashboard & Problem Explorer
+<img width="900" alt="Problems Explorer Catalog" src="https://github.com/user-attachments/assets/db3e1aa3-6935-478d-ab28-ed131b5cd8cf" />
+<p align="center"><em>Filter problems by text, topic tags, and difficulty status.</em></p>
+
+<img width="900" alt="Practice Analytics and Streaks" src="https://github.com/user-attachments/assets/0002c57d-188f-4f4e-8dfc-1bd72d11a5a9" />
+<p align="center"><em>Practice analytics dashboard showing difficulty breakdown and commit-style activity streak heatmap.</em></p>
 
 ### Problem Learning Workspace
+<img width="900" alt="Problem Learning Workspace" src="https://github.com/user-attachments/assets/5f554f89-fade-4c13-916b-514459e9bf4c" />
+<p align="center"><em>Workspace displaying submission history, decimal MB memory metrics, and side-by-side solution tabs.</em></p>
 
-<img width="900" alt="image" src="https://github.com/user-attachments/assets/5f554f89-fade-4c13-916b-514459e9bf4c" />
+### AI Diagnostic Review & Knowledge Generation
+<img width="900" alt="AI Diagnostic Review Overview" src="https://github.com/user-attachments/assets/2398b546-c695-4163-a2f1-165b39a6e4b0" />
+<p align="center"><em>AI diagnostic summary with model indicator badge, time/space audit, and architectural assessment.</em></p>
 
+<img width="900" alt="AI Complexity Audit & Anti-patterns" src="https://github.com/user-attachments/assets/ceb59c71-045e-489d-9a1a-92441bef27ab" />
+<p align="center"><em>Deep algorithmic review highlighting subtle anti-patterns and missing edge cases.</em></p>
 
-<!-- Screenshot: add `docs/screenshots/problem-workspace.png` here later -->
+<img width="900" alt="Knowledge Draft Generation" src="https://github.com/user-attachments/assets/5ea698e5-c880-4b81-8f2c-87fcb2eb3efc" />
+<p align="center"><em>Automated knowledge draft creation ready for instant promotion into the 3-tier Knowledge Vault.</em></p>
 
-<!--
-<p align="center">
-  <img src="./docs/screenshots/problem-workspace.png" alt="Problem Learning Workspace" width="900" />
-</p>
--->
+### Public Portfolio Playbook
+<img width="900" alt="Public Profile Playbook" src="https://github.com/user-attachments/assets/59f1cade-c034-4608-ba62-f5bf973571b4" />
+<p align="center"><em>Shareable public profile (<code>/u/[username]</code>) featuring interactive problem search, topic filtering, and grid/table views.</em></p>
 
-### AI Submission Analysis
+### Chrome Extension (Manifest V3)
+<img width="900" alt="Chrome Extension Popup Interface" src="https://github.com/user-attachments/assets/6d695b4d-7c73-4b7e-a511-ec93324f8c4c" />
+<p align="center"><em>Extension popup displaying active host endpoint, authenticated user status, and recent submission syncs.</em></p>
 
-<img width="900"  alt="image" src="https://github.com/user-attachments/assets/2398b546-c695-4163-a2f1-165b39a6e4b0" />
-<img width="900"  alt="image" src="https://github.com/user-attachments/assets/ceb59c71-045e-489d-9a1a-92441bef27ab" />
-<img width="900"  alt="image" src="https://github.com/user-attachments/assets/5ea698e5-c880-4b81-8f2c-87fcb2eb3efc" />
-
-
-<!-- Screenshot: add `docs/screenshots/ai-analysis.png` here later -->
-
-<!--
-<p align="center">
-  <img src="./docs/screenshots/ai-analysis.png" alt="AI Submission Analysis" width="900" />
-</p>
--->
-
-### Public Profile
-
-<img width="900" alt="image" src="https://github.com/user-attachments/assets/59f1cade-c034-4608-ba62-f5bf973571b4" />
-
-
-<!-- Screenshot: add `docs/screenshots/public-profile.png` here later -->
-
-<!--
-<p align="center">
-  <img src="./docs/screenshots/public-profile.png" alt="Public Profile" width="900" />
-</p>
--->
-
-### Chrome Extension
-
-<img width="1914" height="946" alt="image" src="https://github.com/user-attachments/assets/6d695b4d-7c73-4b7e-a511-ec93324f8c4c" />
-<img width="1908" height="937" alt="image" src="https://github.com/user-attachments/assets/6a863e3c-53cf-4307-a748-07ea227a812b" />
-
-
-<!-- Screenshot: add `docs/screenshots/chrome-extension.png` here later -->
-
-<!--
-<p align="center">
-  <img src="./docs/screenshots/chrome-extension.png" alt="Chrome Extension" width="900" />
-</p>
--->
+<img width="900" alt="LeetCode In-Page HUD Toast" src="https://github.com/user-attachments/assets/6a863e3c-53cf-4307-a748-07ea227a812b" />
+<p align="center"><em>In-page notification toast injected into LeetCode immediately after solving a problem.</em></p>
 
 ---
 
-## ✨ Key Features
-
-### 🧩 Chrome Extension (Manifest V3)
-- **Automatic Submission Capture**: Listens to LeetCode submission lifecycle events directly inside the browser.
-- **On-Screen LeetCode Notifications**: Injects unobtrusive status toasts directly into the LeetCode UI upon capture.
-- **Monaco / CodeMirror Extraction**: Extracts the active editor code and language accurately across different LeetCode UI revisions.
-- **Dynamic Endpoint Configuration**: Seamlessly switch between Localhost (`http://localhost:3000`) and Production (`https://dsa-tracking-six.vercel.app`) with full origin permission requesting.
-
-### 📊 Problems Explorer & Analytics Dashboard
-- **Comprehensive Problem Catalog**: Filter problems by title, problem number, difficulty (`EASY`, `MEDIUM`, `HARD`), and dynamic topic tags.
-- **Practice Analytics**: Visual difficulty distribution donut chart, solved totals, and a GitHub-style practice streak heatmap.
-
-### 🤖 AI Submission Analysis
-- **Gemini-Powered Code Review**: Analyzes submissions using Google Gemini (`gemini-3.6-flash`) for time and space complexity, strengths, vulnerabilities, and missing edge cases.
-- **One-Click Vault Promotion**: Automatically drafts structural approach and solution entities from the AI review, allowing instant promotion into your Knowledge Vault.
-
-### 🏛️ The Knowledge Vault
-- **Structured 3-Tier Hierarchy**:
-  - **Approach**: High-level algorithmic paradigm (e.g., *Two Pointers*, *Monotonic Stack*, *Prefix Sum + Hash Map*).
-  - **Solution**: Concrete implementation strategy and trade-offs.
-  - **Code**: Multi-language code snippets with syntax highlighting and explanation.
-- **Continuous Knowledge Accumulation**: Retain and compare multiple approaches per problem rather than keeping just one ad-hoc snippet.
-
-### 🌐 Public Knowledge Profiles
-- **Shareable Playbook (`/u/[username]`)**: Public portfolio of solved problems with real-time text search, difficulty filters, dynamic topic tags, and grid/table views.
-- **Problem Deep Dive (`/u/[username]/[problemSlug]`)**: Public view of your approaches, trade-offs, and multi-language code for individual problems.
-
----
-
-## 🏗️ Architecture & Workflows
-
-### Data Flows & System Overview
+## 🏗️ System Architecture
 
 ```mermaid
-flowchart LR
+flowchart TD
 
-%% =========================================================
-%% USERS / EXTERNAL
-%% =========================================================
-
-subgraph EXTERNAL["🌐 EXTERNAL"]
+subgraph EXTERNAL["🌐 External Services & Users"]
     direction TB
-
-    LC["🟠 LeetCode<br/><small>Problem & Submission</small>"]
-
-    USER["👤 Developer<br/><small>Solves • Reviews • Learns</small>"]
+    LC["LeetCode GraphQL API<br/>submissionDetails query"]
+    DEV["Developer / User"]
 end
 
-
-%% =========================================================
-%% CHROME EXTENSION
-%% =========================================================
-
-subgraph EXT["🧩 CHROME EXTENSION · MV3"]
+subgraph EXT["🧩 Chrome Extension (Manifest V3)"]
     direction TB
-
-    CONTENT["📄 Content Script<br/><small>Detect submission</small>"]
-
-    BRIDGE["↔ DOM Bridge<br/><small>Page ↔ Extension</small>"]
-
-    WORKER["⚙️ Background Worker<br/><small>Validate • Queue • Send</small>"]
-
-    POPUP["🪟 Extension Popup<br/><small>Endpoint • Status</small>"]
+    CONTENT["Content Script<br/>Watches & polls submission status"]
+    TOAST["In-Page HUD Toast<br/>Instant sync confirmation"]
+    WORKER["Background Service Worker<br/>Cookie-based auth & payload relay"]
+    POPUP["Popup Interface<br/>Endpoint selector & login status"]
 end
 
-
-%% =========================================================
-%% DSA TRACKER
-%% =========================================================
-
-subgraph APP["🚀 DSA TRACKER · Next.js 16"]
+subgraph APP["🚀 DSA Tracker Platform (Next.js 16)"]
     direction TB
-
-    IMPORT["📥 Submission Import API<br/><code>POST /api/submissions/import</code>"]
-
-    DB[("🗄️ PostgreSQL<br/><small>Source of Truth</small>")]
-
-    ACTIVITY["🔥 Activity Engine<br/><small>Streaks • Daily activity</small>"]
-
-    REVIEW["🤖 AI Review API<br/><code>/api/submissions/[id]/analyze</code>"]
-
-    GEMINI["✨ Gemini 2.5<br/><small>Structured Review</small>"]
-
-    DRAFT["📝 Knowledge Draft<br/><small>Generated from review</small>"]
-
-    VAULT["🧠 Knowledge Vault<br/><small>Approaches • Patterns • Notes</small>"]
-
-    APPROACH["📚 Approaches API<br/><code>/api/approaches</code>"]
+    IMPORT["Import API<br/><code>POST /api/submissions/import</code>"]
+    REVIEW["AI Review Engine<br/><code>/api/submissions/[id]/analyze</code>"]
+    VAULT_API["Knowledge Vault API<br/><code>/api/approaches</code>"]
+    ADMIN_PAGE["Admin Dashboard<br/><code>/admin/ai-usage</code>"]
 end
 
+subgraph AI_ROUTER["🤖 AI Resilient Routing & Quota Fallback"]
+    direction TB
+    CIRCUIT["Circuit Breaker & Cooldown Manager<br/>Daily quota vs short-window classification"]
+    PRIMARY["Primary Engine<br/>gemini-3.6-flash"]
+    FALLBACK["Fallback Engine<br/>gemini-2.5-flash"]
+end
 
-%% =========================================================
-%% MAIN SUBMISSION FLOW
-%% =========================================================
+subgraph DB_LAYER["🗄️ PostgreSQL Database (Prisma ORM 7)"]
+    direction TB
+    DB_CORE[("Core Storage<br/>Problems • Submissions • Vault")]
+    DB_STATE[("AiModelState<br/>Atomic singleton state & cooldowns")]
+    DB_EVENTS[("AiModelSwitchEvent<br/>Failover history & switch audit")]
+end
 
-LC
-    -->|"① Submission"| CONTENT
+%% Ingestion Pipeline
+LC -->|"① Submission data"| CONTENT
+CONTENT -->|"Displays feedback"| TOAST
+CONTENT -->|"chrome.runtime.sendMessage"| WORKER
+POPUP -.->|"Configure endpoint"| WORKER
+WORKER -->|"② Authenticated POST (cookies)"| IMPORT
+IMPORT -->|"③ Persist submission"| DB_CORE
 
-CONTENT
-    -->|"DOM / editor data"| BRIDGE
+%% Learning & AI Review
+DEV -->|"Trigger analysis"| REVIEW
+REVIEW -->|"Check active model"| DB_STATE
+REVIEW -->|"Request review"| PRIMARY
+PRIMARY -.->|"429 / Quota Error"| CIRCUIT
+CIRCUIT -->|"Atomic switch"| DB_STATE
+CIRCUIT -->|"Log switch event"| DB_EVENTS
+CIRCUIT -->|"Immediate retry"| FALLBACK
+FALLBACK -.->|"Both exhausted"| CIRCUIT
 
-BRIDGE
-    -->|"window.postMessage"| WORKER
+%% Promotion to Vault
+REVIEW -->|"Generate draft"| DB_CORE
+DEV -->|"Promote draft"| VAULT_API
+VAULT_API -->|"Save approach & solution"| DB_CORE
 
-WORKER
-    -->|"② Import"| IMPORT
-
-IMPORT
-    -->|"③ Persist"| DB
-
-DB
-    -->|"④ Record activity"| ACTIVITY
-
-
-%% =========================================================
-%% AI KNOWLEDGE FLOW
-%% =========================================================
-
-USER
-    -->|"Review submission"| REVIEW
-
-REVIEW
-    -->|"Analyze"| GEMINI
-
-GEMINI
-    -->|"Structured review"| REVIEW
-
-REVIEW
-    -->|"Generate"| DRAFT
-
-DRAFT
-    -->|"Save"| DB
-
-USER
-    -->|"Promote draft"| APPROACH
-
-APPROACH
-    -->|"Create / update"| VAULT
-
-VAULT
-    -->|"Persist"| DB
-
-
-%% =========================================================
-%% EXTENSION CONTROL
-%% =========================================================
-
-POPUP
-    -->|"Endpoint / status"| WORKER
-
-
-%% =========================================================
-%% STYLES
-%% =========================================================
-
-classDef external fill:#171b22,stroke:#f59e0b,stroke-width:2px,color:#fff
-classDef extension fill:#141d2b,stroke:#3b82f6,stroke-width:2px,color:#fff
-classDef backend fill:#151b24,stroke:#8b5cf6,stroke-width:2px,color:#fff
-classDef database fill:#111827,stroke:#22c55e,stroke-width:3px,color:#fff
-classDef ai fill:#21172d,stroke:#d946ef,stroke-width:2px,color:#fff
-classDef knowledge fill:#17251d,stroke:#22c55e,stroke-width:2px,color:#fff
-classDef activity fill:#2a2115,stroke:#f97316,stroke-width:2px,color:#fff
-
-class LC,USER external
-class CONTENT,BRIDGE,WORKER,POPUP extension
-class IMPORT,REVIEW,APPROACH backend
-class DB database
-class GEMINI ai
-class DRAFT,VAULT knowledge
-class ACTIVITY activity
-
-style EXTERNAL fill:#0d1117,stroke:#374151,stroke-width:2px
-style EXT fill:#0d1117,stroke:#2563eb,stroke-width:2px
-style APP fill:#0d1117,stroke:#7c3aed,stroke-width:2px
+%% Admin Monitoring
+ADMIN_PAGE -->|"Read state & audit log"| DB_STATE
+ADMIN_PAGE -->|"Read switch metrics"| DB_EVENTS
 ```
-
-### Extension DOM Bridge Workflow
-
-1. **Submission Trigger**: When a solution is submitted on `leetcode.com`, the content script detects the submission response or DOM state change.
-2. **Code Extraction**: The extension reads the active code from the Monaco/CodeMirror editor DOM or GraphQL submission payload.
-3. **Session Verification**: The background service worker accesses the authenticated session cookie shared with the configured DSA Tracker host.
-4. **Ingestion & Streak Update**: The payload is dispatched to `/api/submissions/import`. The backend creates problem records, persists the submission, and recalculates the user's activity streak.
-5. **Instant Toast**: The extension displays an in-page floating toast on LeetCode confirming synchronization.
 
 ---
 
@@ -308,126 +189,160 @@ For testing the deployed application, you can use the following demo account:
 
 ## 🛠️ Tech Stack
 
-| Layer | Technologies |
-|---|---|
-| **Frontend** | [Next.js 16](https://nextjs.org/) (App Router, Turbopack), [React 19](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/), [Lucide React](https://lucide.dev/), [Base UI](https://base-ui.com/) |
-| **Backend** | Next.js Route Handlers, [Better Auth](https://better-auth.com/) (session authentication) |
-| **Database & ORM** | [PostgreSQL](https://www.postgresql.org/) (Supabase / Neon), [Prisma ORM 7](https://www.prisma.io/) (`@prisma/client`, `@prisma/adapter-pg`) |
-| **AI Engine** | [Google Gemini](https://ai.google.dev/) (`@google/genai`, Gemini 2.5 Flash) |
-| **Browser Extension** | Chrome Manifest V3, TypeScript, [esbuild](https://esbuild.github.io/) |
-| **Testing & Tooling** | [Vitest](https://vitest.dev/), ESLint 9, TypeScript 5, pnpm |
+| Layer | Technologies | Notes |
+|---|---|---|
+| **Frontend** | [Next.js 16.3](https://nextjs.org/) (App Router, Turbopack), [React 19](https://react.dev/), [Tailwind CSS v4](https://tailwindcss.com/), [Base UI](https://base-ui.com/), [Lucide React](https://lucide.dev/) | Modern styling with Tailwind CSS v4, dark-theme first design |
+| **Backend** | Next.js Route Handlers, [Better Auth](https://better-auth.com/) | Secure cookie session authentication, middleware protection |
+| **Database & ORM** | [PostgreSQL](https://www.postgresql.org/) (Supabase / Neon), [Prisma ORM 7.10](https://www.prisma.io/) (`@prisma/client`, `@prisma/adapter-pg`) | Typed SQL adapter, Prisma 7 client generation |
+| **AI Failover Engine** | [Google Gemini](https://ai.google.dev/) (`@google/genai`) | `gemini-3.6-flash` (primary) with automated fallback to `gemini-2.5-flash` |
+| **Browser Extension** | Chrome Manifest V3, TypeScript, [esbuild](https://esbuild.github.io/) | GraphQL submission polling, cookie authentication, DOM HUD injection |
+| **Tooling & Tests** | [Vitest 5.0](https://vitest.dev/), ESLint 9, TypeScript 5, [pnpm 11.5](https://pnpm.io/) | 32 test suites, 274 unit/integration tests |
 
 ---
 
 ## 🚀 Getting Started / Local Development
 
 ### Prerequisites
+* **Node.js**: `22.0.0+`
+* **pnpm**: `11.5.0+` (`corepack enable pnpm` or `npm i -g pnpm`)
+* **PostgreSQL**: Local PostgreSQL 15+ instance or hosted database (Supabase, Neon)
+* **Google Gemini API Key**: Obtainable from [Google AI Studio](https://aistudio.google.com/)
 
-Ensure you have the following installed on your machine:
-- **Node.js**: Version `22.0.0+` (recommended: Node `22.22+`)
-- **pnpm**: Version `9.0.0+` (`corepack enable pnpm` or `npm install -g pnpm`)
-- **PostgreSQL**: A running instance locally or a cloud database (e.g. Supabase, Neon)
-- **Google Gemini API Key**: Obtainable from [Google AI Studio](https://aistudio.google.com/)
+### 1. Environment Configuration (`.env`)
 
-### Environment Variables Setup (`.env`)
-
-Create a `.env` file in the root directory:
+Create a `.env` file in the project root:
 
 ```env
 # Database connection string (PostgreSQL)
 DATABASE_URL="postgresql://username:password@localhost:5432/dsa_tracker?schema=public"
 
-# Google Gemini API configuration
-GEMINI_API_KEY="your_gemini_api_key_here"
-GEMINI_MODEL="gemini-2.5-flash"
-
-# Better Auth configuration
-BETTER_AUTH_SECRET="generate_a_secure_random_32_byte_secret"
+# Better Auth Configuration
+BETTER_AUTH_SECRET="your-secure-32-byte-secret"
 BETTER_AUTH_URL="http://localhost:3000"
+
+# Google Gemini API Configuration
+GEMINI_API_KEY="your-gemini-api-key"
+
+# AI Model Configuration (Optional overrides)
+GEMINI_PRIMARY_MODEL="gemini-3.6-flash"    # Primary analysis model (default: gemini-3.6-flash)
+GEMINI_FALLBACK_MODEL="gemini-2.5-flash"   # Fallback model used on quota error (default: gemini-2.5-flash)
+
+# Admin Access Control (Optional)
+ADMIN_EMAILS="admin@example.com"           # Comma-separated list for /admin/ai-usage access (open to auth users if empty)
 ```
 
 > [!TIP]
-> You can generate a secure 32-byte secret for `BETTER_AUTH_SECRET` by running:
+> Generate a secure 32-byte random string for `BETTER_AUTH_SECRET` by running:
 > ```bash
-> node -e "console.log(crypto.randomBytes(32).toString('hex'))"
+> node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 > ```
 
-### Database Setup
-
-Initialize Prisma client and sync the schema to your PostgreSQL database:
+### 2. Database Initialization
 
 ```bash
-# Generate Prisma Client
+# 1. Generate the Prisma Client
 pnpm prisma generate
 
-# Push database schema without creating migration files (development)
+# 2. Synchronize schema with database:
+# For local development / rapid prototyping:
 pnpm prisma db push
+
+# For production / migration-tracked environments:
+pnpm prisma migrate deploy
 ```
 
-
-
-### Running the Web Application
-
-Start the Next.js development server:
+### 3. Running the Web Application
 
 ```bash
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser. Register a new user account to get started.
+Open [http://localhost:3000](http://localhost:3000). Create an account via `/signup` to begin tracking.
 
-### Building and Loading the Chrome Extension
+### 4. Building and Loading the Chrome Extension
 
 1. Build the extension bundle using esbuild:
    ```bash
    pnpm extension:build
    ```
 2. Open Google Chrome and navigate to `chrome://extensions`.
-3. Toggle **Developer mode** in the top right corner.
-4. Click **Load unpacked** and select the `extension/` directory inside this project repository.
-5. Click the extension icon in your Chrome toolbar:
-   - Ensure the Web App URL is set to `http://localhost:3000` (default for local development).
-   - Verify that your authentication status displays as logged in.
+3. Enable **Developer mode** (toggle in the top-right corner).
+4. Click **Load unpacked** and select the `extension/` directory.
+5. Click the extension icon in your toolbar:
+   - Ensure the Web App URL is set to `http://localhost:3000`.
+   - Confirm your login status shows **Logged in**.
 
-### Testing
-
-Run the test suite with Vitest:
-
-```bash
-# Run all tests once
-pnpm test
-
-# Run tests in watch mode
-pnpm test:watch
-
-# Run a specific test suite
-pnpm test run tests/profile/filtering.test.ts
-```
+**Extension Development & Troubleshooting**:
+* **Origin Permissions**: When toggling endpoints between `localhost` and a custom deployed domain, Chrome will prompt for origin access. Click "Allow".
+* **Cookie Permissions**: The extension reads session cookies for your configured DSA Tracker host. Ensure third-party cookie blockers are not interfering.
+* **Service Worker Console**: To debug capture events, click `service worker` in `chrome://extensions` under the DSA Tracker card to open DevTools for the background script.
+* **Rebuilding During Development**: To rebuild after making changes to `extension/src/`, run `pnpm extension:build` (or `node extension/build.mjs`).
 
 ---
 
-## 🚢 Deployment
+## 🧪 Testing & Code Quality
 
-### Vercel Deployment Guide
+The codebase enforces strict test coverage across model switching, quota detection, schema validation, and UI components:
 
-1. Push your repository to GitHub.
-2. Import the repository into [Vercel](https://vercel.com/new).
-3. Configure the **Build & Development Settings**:
+```bash
+# Run the complete test suite (32 test files, 274 tests)
+pnpm exec vitest run
+
+# Run tests in interactive watch mode
+pnpm test:watch
+
+# Static linting check (ESLint 9)
+pnpm lint
+
+# TypeScript strict type check
+pnpm exec tsc --noEmit
+
+# Production build verification (Prisma Client + Next.js Turbopack)
+pnpm build
+```
+
+**Test Suite Coverage**:
+* `tests/analysis/model-switching.test.ts`: Quota error categorization (`PerDay` vs short-window), minimum 30s floor, atomic concurrency failover, and display formatting.
+* `tests/analysis/service.test.ts`: Gemini analysis integration, immediate retry on failover, and dual-model cooldown circuit breaking.
+* `tests/validation/`: Zod schemas for submission imports, approaches, solutions, and code links.
+* `tests/components/`: Learning workspace, analysis cards, model indicator badges, and button styling.
+* `tests/profile/`: Playbook search, difficulty filters, and topic tag aggregations.
+
+---
+
+## 🚢 Production Deployment
+
+### Vercel Deployment
+
+1. Push the repository to GitHub.
+2. Import the project into [Vercel](https://vercel.com/new).
+3. Set the **Build & Development Settings**:
    - **Framework Preset**: Next.js
    - **Build Command**: `prisma generate && next build` (or `pnpm build`)
    - **Install Command**: `pnpm install`
-4. Add the following **Environment Variables** in your Vercel Project Settings:
-   - `DATABASE_URL`: Production PostgreSQL connection string (pooler recommended).
-   - `BETTER_AUTH_SECRET`: Production secret string.
-   - `BETTER_AUTH_URL`: Your production URL (e.g., `https://dsa-tracking-six.vercel.app`).
-   - `GEMINI_API_KEY`: Your Google Gemini API Key.
-   - `GEMINI_MODEL`: `gemini-2.5-flash`.
-5. Deploy!
+4. Configure Production Environment Variables in Vercel:
+   - `DATABASE_URL`: Production PostgreSQL connection string (Supabase / Neon connection pooler recommended).
+   - `BETTER_AUTH_SECRET`: Secure 32-byte production secret.
+   - `BETTER_AUTH_URL`: Canonical production domain (e.g. `https://dsa-tracking-six.vercel.app`).
+   - `GEMINI_API_KEY`: Production Google Gemini API key.
+   - `GEMINI_PRIMARY_MODEL`: `gemini-3.6-flash` *(do not force 2.5 in production)*.
+   - `GEMINI_FALLBACK_MODEL`: `gemini-2.5-flash`.
+   - `ADMIN_EMAILS`: Authorized admin emails for `/admin/ai-usage`.
+5. Run migrations against your production database:
+   ```bash
+   pnpm prisma migrate deploy
+   ```
 
 ### Chrome Extension Production Configuration
 
-When using the live deployed site:
-1. Open the Chrome extension popup by clicking its icon in the browser toolbar.
-2. Select **Production Vercel** (or input your production URL, e.g. `https://dsa-tracking-six.vercel.app`).
-3. Click **Save & Connect**. When prompted by Chrome, approve the origin permission request.
-4. Alternatively, click the **"Add Extension"** button inside the web app at `/problems` to view preconfigured setup instructions.
+1. In Google Chrome, open the DSA Tracker extension popup.
+2. Select **Production Vercel** or enter `https://dsa-tracking-six.vercel.app`.
+3. Click **Save & Connect** and approve the browser origin permission dialog.
+4. Log into your production account on the web app. The extension will automatically synchronize session credentials.
+
+---
+
+## 📄 License & Credits
+
+* **License**: This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+* **Author**: Built by [Thanhbo209](https://github.com/Thanhbo209).

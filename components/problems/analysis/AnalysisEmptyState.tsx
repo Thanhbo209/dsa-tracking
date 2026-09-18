@@ -32,9 +32,8 @@ export function AnalysisEmptyState({
           onClick={onAnalyze}
           disabled={isAnalyzing}
           size="sm"
-          className="gap-2 text-white"
+          className="bg-black hover:bg-zinc-900 active:bg-zinc-950 text-white border border-[#444444] transition-colors"
         >
-          <DsaLogo size="xs" className="h-3.5 w-auto inline-block" />
           <span>Analyze Submission</span>
         </Button>
       </div>

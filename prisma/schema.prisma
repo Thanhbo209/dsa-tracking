@@ -270,4 +270,33 @@ model Verification {
   @@index([identifier])
   @@map("verification")
 }
+
+model AiModelState {
+  id                String    @id @default("default")
+  activeModel       String
+  primaryModel      String
+  fallbackModel     String
+  inCooldown        Boolean   @default(false)
+  cooldownExpiresAt DateTime?
+  lastSwitchedAt    DateTime?
+  switchReason      String?
+  updatedAt         DateTime  @updatedAt
+
+  @@map("ai_model_state")
+}
+
+model AiModelSwitchEvent {
+  id                String    @id @default(cuid())
+  fromModel         String
+  toModel           String
+  category          String
+  reason            String
+  retryDelaySeconds Int?
+  cooldownExpiresAt DateTime?
+  createdAt         DateTime  @default(now())
+
+  @@index([createdAt])
+  @@map("ai_model_switch_event")
+}
+
 

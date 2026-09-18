@@ -39,7 +39,7 @@ export function showSubmissionNotification(submission: CapturedSubmission) {
 
   const memoryDisplay =
     submission.memoryBytes != null
-      ? `${(submission.memoryBytes / 1024 / 1024).toFixed(1)} MB`
+      ? `${(Number(submission.memoryBytes) / 1_000_000).toFixed(2)} MB`
       : null;
 
   const style = document.createElement("style");

@@ -4,6 +4,7 @@ import {
   aiAnalysisOutputSchema,
   complexityAnalysisSchema,
 } from "@/lib/validation/analysis";
+import { buildAnalysisPrompt } from "@/lib/analysis/prompt";
 
 describe("aiAnalysisInputSchema", () => {
   const validProblem = {
@@ -346,3 +347,65 @@ describe("aiAnalysisOutputSchema", () => {
     expect(result.success).toBe(false);
   });
 });
+
+describe("buildAnalysisPrompt memory formatting", () => {
+  const baseProblem = {
+    title: "Two Sum",
+    slug: "two-sum",
+    difficulty: "EASY" as const,
+    description: "Given an array...",
+    topics: ["Array"],
+  };
+
+  it("formats memoryBytes to decimal MB with 2 decimal places", () => {
+    const prompt = buildAnalysisPrompt({
+      problem: baseProblem,
+      submission: {
+        id: "sub-1",
+        status: "ACCEPTED",
+        language: "python",
+        code: "def solution(): pass",
+        runtimeMs: 10,
+        memoryBytes: 12324000,
+        submittedAt: new Date("2026-09-18T04:35:08.000Z"),
+      },
+    });
+
+    expect(prompt).toContain("Memory: 12.32 MB");
+  });
+
+  it("formats exact decimal amounts with trailing zeros", () => {
+    const prompt = buildAnalysisPrompt({
+      problem: baseProblem,
+      submission: {
+        id: "sub-2",
+        status: "ACCEPTED",
+        language: "python",
+        code: "def solution(): pass",
+        runtimeMs: 10,
+        memoryBytes: 45000000,
+        submittedAt: new Date("2026-09-18T04:35:08.000Z"),
+      },
+    });
+
+    expect(prompt).toContain("Memory: 45.00 MB");
+  });
+
+  it("formats null memoryBytes as N/A", () => {
+    const prompt = buildAnalysisPrompt({
+      problem: baseProblem,
+      submission: {
+        id: "sub-null",
+        status: "ACCEPTED",
+        language: "python",
+        code: "def solution(): pass",
+        runtimeMs: 10,
+        memoryBytes: null,
+        submittedAt: new Date("2026-09-18T04:35:08.000Z"),
+      },
+    });
+
+    expect(prompt).toContain("Memory: N/A");
+  });
+});
+

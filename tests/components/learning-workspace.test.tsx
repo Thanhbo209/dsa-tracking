@@ -479,5 +479,97 @@ describe("Phase 5C: Two-Column Learning Workspace Components", () => {
       expect(html).toContain(">1<");
     });
   });
+
+  /* ── 5. SubmissionCard (Decimal MB Memory Formatting) Tests ───── */
+  describe("SubmissionCard (Decimal MB Memory Formatting)", () => {
+    it("formats raw bytes to decimal MB with exactly 2 decimal places", () => {
+      // 12324000 bytes -> 12.32 MB
+      const html1 = renderToStaticMarkup(
+        <SubmissionCard
+          id="sub-1"
+          status="ACCEPTED"
+          language="python"
+          runtimeMs={5}
+          memoryBytes={12324000}
+          submittedAt="2026-09-18T04:35:08.000Z"
+          code="print(1)"
+        />,
+      );
+      expect(html1).toContain("12.32 MB");
+
+      // 45000000 bytes -> 45.00 MB
+      const html2 = renderToStaticMarkup(
+        <SubmissionCard
+          id="sub-2"
+          status="ACCEPTED"
+          language="python"
+          runtimeMs={5}
+          memoryBytes={45000000}
+          submittedAt="2026-09-18T04:35:08.000Z"
+          code="print(1)"
+        />,
+      );
+      expect(html2).toContain("45.00 MB");
+
+      // 15728640 bytes -> 15.73 MB
+      const html3 = renderToStaticMarkup(
+        <SubmissionCard
+          id="sub-3"
+          status="ACCEPTED"
+          language="python"
+          runtimeMs={5}
+          memoryBytes={15728640}
+          submittedAt="2026-09-18T04:35:08.000Z"
+          code="print(1)"
+        />,
+      );
+      expect(html3).toContain("15.73 MB");
+
+      // 14000000 bytes -> 14.00 MB
+      const html4 = renderToStaticMarkup(
+        <SubmissionCard
+          id="sub-4"
+          status="ACCEPTED"
+          language="python"
+          runtimeMs={5}
+          memoryBytes={14000000}
+          submittedAt="2026-09-18T04:35:08.000Z"
+          code="print(1)"
+        />,
+      );
+      expect(html4).toContain("14.00 MB");
+    });
+
+    it("handles BigInt memoryBytes values correctly", () => {
+      const html = renderToStaticMarkup(
+        <SubmissionCard
+          id="sub-bigint"
+          status="ACCEPTED"
+          language="python"
+          runtimeMs={5}
+          memoryBytes={BigInt(12324000)}
+          submittedAt="2026-09-18T04:35:08.000Z"
+          code="print(1)"
+        />,
+      );
+      expect(html).toContain("12.32 MB");
+    });
+
+    it("renders fallback dash when memoryBytes is null or undefined", () => {
+      const html = renderToStaticMarkup(
+        <SubmissionCard
+          id="sub-null"
+          status="ACCEPTED"
+          language="python"
+          runtimeMs={5}
+          memoryBytes={null}
+          submittedAt="2026-09-18T04:35:08.000Z"
+          code="print(1)"
+        />,
+      );
+      expect(html).toContain("—");
+      expect(html).not.toContain("MB");
+    });
+  });
 });
 

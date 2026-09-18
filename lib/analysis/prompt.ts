@@ -54,8 +54,12 @@ CRITICAL DIRECTIVES: SEPARATION OF USER APPROACH vs. AI RECOMMENDATION
    - "reasoning" MUST be an array of specific, step-by-step points explaining the concrete code behavior that produces the complexity:
      * Mention exact loops, nested loops, loop bounds, recursion depth, and data structure operations.
      * Ground every statement in the user's code.
-   - ALWAYS use "n" as the default variable for input size in Big-O notation (e.g. O(n), O(n log n), O(n^2), O(1)).
-     If there are multiple dimensions, explain them clearly (e.g. "n is total elements, m is max string length").
+   - VARIABLE NAMING IS MANDATORY AND NON-NEGOTIABLE:
+     * The ONLY variable name for input size in Big-O notation is lowercase "n" (e.g. O(n), O(n log n), O(n^2), O(1)).
+     * This applies REGARDLESS of what the submitted code names its variables, arguments, arrays, or strings — even if the code uses "nums", "arr", "s", "X", "len", or any other identifier, you MUST translate it to "n" in the complexity notation. The code's variable names are implementation details; "n" is the notation's variable, and it never changes.
+     * NEVER output any other single letter (X, N, m, k, s, L) as the PRIMARY size variable. Banned examples: "O(X)", "O(N)" (capital), "O(len)", "O(s)".
+     * ONLY IF the code genuinely has two or more independent input dimensions that cannot be honestly collapsed into one (e.g. one array of length n and a separate string of length m) may you introduce a SECOND variable — and it must be "m", clearly defined in the explanation (e.g. "n is the number of elements in the array, m is the length of the target string"). Never introduce a second variable just because the code has multiple loops over the SAME input — that is still "n".
+     * Before finalizing timeComplexity.value and spaceComplexity.value, re-read them and confirm every variable letter used is either "n" or, if genuinely justified, "m" — nothing else.
 
 4. EVALUATE CORRECTNESS:
    - Current Status: ${submission.status}
@@ -66,19 +70,64 @@ CRITICAL DIRECTIVES: SEPARATION OF USER APPROACH vs. AI RECOMMENDATION
           * Even if the submission is incorrect or incomplete, classify "actualApproach" based on what the user ATTEMPTED/WROTE. Do NOT rename the user's approach to match the fix!`
    }
 
-5. AI RECOMMENDATION RULES (ONLY WHEN MEANINGFULLY BETTER):
-   - Ask yourself: "Does this problem have a genuinely better algorithmic approach than what the user implemented?"
-   - IF THE USER'S APPROACH IS ALREADY OPTIMAL (e.g. user implemented O(n) Hash Map for Two Sum, or optimal scanning for Longest Common Prefix):
-     * Set "recommendation.available = false".
-     * Do NOT force an alternative approach! Do NOT invent a different paradigm just to have a recommendation!
-     * In "recommendation.reason", you may explain: "Your approach is already optimal for this problem."
+5. AI RECOMMENDATION RULES:
+   This is a learning vault, not just a complexity checker — the goal is to catalog every
+   algorithmically distinct approach worth knowing for a problem's topic(s), not only the
+   single fastest one. Evaluate TWO separate triggers below; either one alone is enough to
+   set "recommendation.available = true".
+
+   TRIGGER A — Complexity Improvement:
+   - Does a strictly better time/space complexity exist for this problem?
+   - IF the user's approach is already asymptotically optimal (e.g. O(n) Hash Map for Two
+     Sum): this trigger does NOT fire on its own. Fall through to Trigger B before deciding
+     recommendation.available.
+
+   TRIGGER B — Technique/Paradigm Diversity:
+   - Given this problem's topic tags (e.g. Array, Two Pointers, Sliding Window, DP, Hash
+     Table, Binary Search), does a DIFFERENT canonical technique exist that a learner
+     studying this topic should also see — even if it is not faster, or is slightly slower,
+     than the user's approach?
+   - Examples: user solved with Hash Table (O(n)) but the problem is commonly taught via
+     Two Pointers on a sorted array (also O(n), different technique) — recommend it.
+     User solved with DP but an equally valid Greedy approach exists for this specific
+     problem — recommend it. User solved with recursion but an iterative/stack-based
+     version is the more commonly expected pattern for this topic — recommend it.
+   - Do NOT invent a worse approach in an unrelated paradigm just to fill this field. The
+     alternative must be a technique that experienced problem-solvers would actually
+     associate with this problem's topic — not just "a different way to write the same
+     algorithm."
+   - A complexity regression is acceptable here (e.g. suggesting O(n log n) sort-based
+     alternative alongside an O(n) hash-based solution) AS LONG AS it teaches a distinct,
+     recognized pattern for this topic. State the tradeoff honestly in the reason field —
+     do not claim it's "better" if it isn't; frame it as "an alternative pattern worth
+     knowing" instead.
+
+   DECISION LOGIC:
+   - IF Trigger A fires (genuine complexity improvement exists):
+     * Set "recommendation.available = true"
+     * "recommendation.reason": explain the complexity improvement clearly (e.g. "Reduces
+       time complexity from O(n^2) to O(n) using a hash table for O(1) complement lookup.")
+     * Provide "recommendation.approach", "recommendation.solution", "recommendation.code"
+   - ELSE IF Trigger B fires (no complexity win, but a distinct topic-relevant technique
+     exists that the user hasn't captured yet):
+     * Set "recommendation.available = true"
+     * "recommendation.reason": explain WHY this alternative technique is worth having in
+       the vault — name the pattern, note the complexity tradeoff honestly (e.g. "Your hash
+       table solution is optimal at O(n). This two-pointer approach is also O(n) but relies
+       on the array being sorted first — a pattern worth recognizing for this topic
+       category.")
+     * Provide "recommendation.approach", "recommendation.solution", "recommendation.code"
+   - ELSE (user's approach is optimal AND no other recognized technique applies to this
+     topic that isn't already captured):
+     * Set "recommendation.available = false"
+     * Do NOT force an alternative just to have one.
+     * In "recommendation.reason", you may explain: "Your approach is already optimal, and
+       no other distinct technique is commonly associated with this problem's topic."
      * Leave approach, solution, and code omitted or null.
-   - IF THE USER'S APPROACH IS SUBOPTIMAL (e.g. O(n^2) Brute Force when an O(n) Hash Map exists, or O(2^n) recursion when DP exists):
-     * Set "recommendation.available = true".
-     * Set "recommendation.reason": Explain clearly why this alternative is superior (e.g. "Reduces time complexity from O(n^2) to O(n) using a hash table for O(1) complement lookup.").
-     * Provide "recommendation.approach", "recommendation.solution", and "recommendation.code" (clean, canonical implementation in ${submission.language}).
    - IF THE USER'S SUBMISSION IS FAILED / INCORRECT:
-     * Set "recommendation.available = true" ONLY if recommending a different optimal paradigm or a canonical corrected implementation provides clear educational value.
+     * Set "recommendation.available = true" if recommending a corrected canonical
+       implementation (in the same or a different technique) provides clear educational
+       value.
 
 ===============================================================================
 PROBLEM CONTEXT
@@ -97,7 +146,7 @@ Submission ID: ${submission.id}
 Status: ${submission.status}
 Language: ${submission.language}
 Runtime: ${submission.runtimeMs != null ? `${submission.runtimeMs} ms` : "N/A"}
-Memory: ${submission.memoryBytes != null ? `${Math.round(submission.memoryBytes / 1024 / 1024)} MB` : "N/A"}
+Memory: ${submission.memoryBytes != null ? `${(submission.memoryBytes / 1_000_000).toFixed(2)} MB` : "N/A"}
 Submitted At: ${submission.submittedAt ? new Date(submission.submittedAt).toISOString() : "N/A"}
 
 Submitted Code:
@@ -124,7 +173,7 @@ Respond ONLY with a valid JSON object strictly matching this schema:
     "summary": "Concise 1-3 sentence summary of the attempt and its outcome",
     "isCorrect": ${isAccepted ? "true" : "false"},
     "timeComplexity": {
-      "value": "e.g. O(n) or O(n^2)",
+      "value": "MUST use only 'n' (or 'n' and 'm' if two independent dimensions exist) — e.g. O(n), O(n log n), O(n^2). Never use any other letter.",
       "explanation": "Clear explanation of the user code's overall time complexity",
       "reasoning": [
         "First specific code behavior contributing to time complexity (loops, bounds)",
@@ -133,7 +182,7 @@ Respond ONLY with a valid JSON object strictly matching this schema:
       ]
     },
     "spaceComplexity": {
-      "value": "e.g. O(1) or O(n)",
+      "value": "MUST use only 'n' (or 'n' and 'm' if two independent dimensions exist) — e.g. O(1), O(n). Never use any other letter.",
       "explanation": "Clear explanation of the user code's auxiliary space complexity",
       "reasoning": [
         "First specific memory allocation or auxiliary structure in code",

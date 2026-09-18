@@ -10,6 +10,18 @@ export interface GeminiAnalysisResult {
   modelName: string;
 }
 
+export class GeminiServiceError extends Error {
+  status?: number;
+  details?: unknown;
+
+  constructor(message: string, status?: number, details?: unknown) {
+    super(message);
+    this.name = "GeminiServiceError";
+    this.status = status;
+    this.details = details;
+  }
+}
+
 export async function callGeminiForAnalysis(
   prompt: string,
   options?: GeminiAnalysisOptions,
@@ -20,7 +32,7 @@ export async function callGeminiForAnalysis(
   }
 
   const modelName =
-    options?.modelName || process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    options?.modelName || process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
   try {
     const ai = new GoogleGenAI({ apiKey });
@@ -42,8 +54,12 @@ export async function callGeminiForAnalysis(
   } catch (error) {
     if (error instanceof Error) {
       const sanitized = error.message.replace(/key=[^&]+/gi, "key=[REDACTED]");
-      throw new Error(`Gemini API error: ${sanitized}`);
+      const status = "status" in error && typeof (error as { status: unknown }).status === "number"
+        ? (error as { status: number }).status
+        : undefined;
+      const details = "details" in error ? (error as { details: unknown }).details : undefined;
+      throw new GeminiServiceError(`Gemini API error: ${sanitized}`, status, details);
     }
-    throw new Error("Gemini API error: Unknown error occurred");
+    throw new GeminiServiceError("Gemini API error: Unknown error occurred");
   }
 }

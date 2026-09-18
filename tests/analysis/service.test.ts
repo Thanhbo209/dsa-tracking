@@ -6,12 +6,22 @@ const {
   analysisUpdateMock,
   analysisFindManyMock,
   callGeminiMock,
+  aiModelStateFindUniqueMock,
+  aiModelStateUpsertMock,
+  aiModelStateUpdateMock,
+  aiModelStateUpdateManyMock,
+  aiModelSwitchEventCreateMock,
 } = vi.hoisted(() => ({
   submissionFindFirstMock: vi.fn(),
   analysisCreateMock: vi.fn(),
   analysisUpdateMock: vi.fn(),
   analysisFindManyMock: vi.fn(),
   callGeminiMock: vi.fn(),
+  aiModelStateFindUniqueMock: vi.fn(),
+  aiModelStateUpsertMock: vi.fn(),
+  aiModelStateUpdateMock: vi.fn(),
+  aiModelStateUpdateManyMock: vi.fn(),
+  aiModelSwitchEventCreateMock: vi.fn(),
 }));
 
 vi.mock("@/lib/db/prisma", () => ({
@@ -24,6 +34,15 @@ vi.mock("@/lib/db/prisma", () => ({
       create: analysisCreateMock,
       update: analysisUpdateMock,
       findMany: analysisFindManyMock,
+    },
+    aiModelState: {
+      findUnique: aiModelStateFindUniqueMock,
+      upsert: aiModelStateUpsertMock,
+      update: aiModelStateUpdateMock,
+      updateMany: aiModelStateUpdateManyMock,
+    },
+    aiModelSwitchEvent: {
+      create: aiModelSwitchEventCreateMock,
     },
   },
 }));
@@ -122,6 +141,16 @@ describe("analyzeSubmission", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     delete process.env.GEMINI_MODEL;
+    aiModelStateFindUniqueMock.mockResolvedValue({
+      id: "default",
+      activeModel: "gemini-2.5-flash",
+      primaryModel: "gemini-3.6-flash",
+      fallbackModel: "gemini-2.5-flash",
+      inCooldown: false,
+      cooldownExpiresAt: null,
+    });
+    aiModelStateUpdateManyMock.mockResolvedValue({ count: 1 });
+    aiModelSwitchEventCreateMock.mockResolvedValue({ id: "event-1" });
   });
 
   afterAll(() => {
@@ -541,6 +570,14 @@ describe("analyzeSubmission", () => {
 
   it("respects GEMINI_MODEL environment variable override", async () => {
     process.env.GEMINI_MODEL = "gemini-custom-env";
+    aiModelStateFindUniqueMock.mockResolvedValueOnce(null);
+    aiModelStateUpsertMock.mockResolvedValueOnce({
+      id: "default",
+      activeModel: "gemini-custom-env",
+      primaryModel: "gemini-custom-env",
+      fallbackModel: "gemini-2.5-flash",
+      inCooldown: false,
+    });
 
     const mockSubmission = {
       id: "sub-env-model",
@@ -624,6 +661,151 @@ describe("analyzeSubmission", () => {
     expect(callGeminiMock).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({ modelName: "gemini-options-explicit" }),
+    );
+  });
+
+  it("immediately retries against fallback model on quota error and succeeds", async () => {
+    aiModelStateFindUniqueMock.mockResolvedValueOnce({
+      id: "default",
+      activeModel: "gemini-3.6-flash",
+      primaryModel: "gemini-3.6-flash",
+      fallbackModel: "gemini-2.5-flash",
+      inCooldown: false,
+      cooldownExpiresAt: null,
+    });
+
+    const mockSubmission = {
+      id: "sub-quota-fallback",
+      status: "ACCEPTED",
+      language: "python3",
+      code: "print('hello')",
+      runtimeMs: 10,
+      memoryBytes: null,
+      submittedAt: null,
+      problem: mockProblem,
+    };
+    submissionFindFirstMock.mockResolvedValue(mockSubmission);
+    analysisCreateMock.mockResolvedValue({
+      id: "analysis-quota-retry",
+      submissionId: "sub-quota-fallback",
+      status: "GENERATING",
+      modelName: "gemini-3.6-flash",
+    });
+
+    // First call to gemini fails with a quota error (429)
+    const quotaError = new Error(
+      JSON.stringify({
+        error: {
+          code: 429,
+          status: "RESOURCE_EXHAUSTED",
+          message: "Rate limit exceeded. Please retry in 30s.",
+        },
+      })
+    );
+
+    // Second call (retry) succeeds with fallback model
+    callGeminiMock
+      .mockRejectedValueOnce(quotaError)
+      .mockResolvedValueOnce({
+        rawText: validOutputJson,
+        modelName: "gemini-2.5-flash",
+      });
+
+    analysisUpdateMock.mockResolvedValue({
+      id: "analysis-quota-retry",
+      status: "DRAFT_READY",
+      modelName: "gemini-2.5-flash",
+    });
+
+    const result = await analyzeSubmission("user-1", "sub-quota-fallback");
+
+    // Confirms Gemini was called twice: first with initial model, then with fallback
+    expect(callGeminiMock).toHaveBeenCalledTimes(2);
+    expect(callGeminiMock.mock.calls[0][1]).toEqual(
+      expect.objectContaining({ modelName: "gemini-3.6-flash" })
+    );
+    expect(callGeminiMock.mock.calls[1][1]).toEqual(
+      expect.objectContaining({ modelName: "gemini-2.5-flash" })
+    );
+
+    // Confirms switch event was created
+    expect(aiModelSwitchEventCreateMock).toHaveBeenCalled();
+
+    // Confirms user's analysis succeeded
+    expect(result.status).toBe("DRAFT_READY");
+    expect(analysisUpdateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          status: "DRAFT_READY",
+          modelName: "gemini-2.5-flash",
+        }),
+      })
+    );
+  });
+
+  it("fails gracefully with informative message when both models are in quota cooldown (no loop)", async () => {
+    const mockSubmission = {
+      id: "sub-both-quota",
+      status: "ACCEPTED",
+      language: "python3",
+      code: "print('hello')",
+      runtimeMs: 10,
+      memoryBytes: null,
+      submittedAt: null,
+      problem: mockProblem,
+    };
+    submissionFindFirstMock.mockResolvedValue(mockSubmission);
+    analysisCreateMock.mockResolvedValue({
+      id: "analysis-both-quota",
+      submissionId: "sub-both-quota",
+      status: "GENERATING",
+      modelName: "gemini-2.5-flash",
+    });
+
+    const quotaError1 = new Error(
+      JSON.stringify({
+        error: {
+          code: 429,
+          status: "RESOURCE_EXHAUSTED",
+          message: "Rate limit exceeded on primary.",
+        },
+      })
+    );
+
+    const quotaError2 = new Error(
+      JSON.stringify({
+        error: {
+          code: 429,
+          status: "RESOURCE_EXHAUSTED",
+          message: "Rate limit exceeded on fallback.",
+        },
+      })
+    );
+
+    // Both calls reject with quota errors
+    callGeminiMock
+      .mockRejectedValueOnce(quotaError1)
+      .mockRejectedValueOnce(quotaError2);
+
+    analysisUpdateMock.mockResolvedValue({
+      id: "analysis-both-quota",
+      status: "FAILED",
+      errorMessage: "Both Gemini models are currently rate-limited",
+    });
+
+    const result = await analyzeSubmission("user-1", "sub-both-quota");
+
+    // Strictly 2 calls, NO infinite loop or third retry!
+    expect(callGeminiMock).toHaveBeenCalledTimes(2);
+
+    expect(result.status).toBe("FAILED");
+    expect(analysisUpdateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          status: "FAILED",
+          errorMessage: expect.stringContaining("Both Gemini models"),
+        }),
+      })
     );
   });
 });
