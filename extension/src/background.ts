@@ -20,34 +20,57 @@ async function getServerOrigin(): Promise<string> {
   }
 }
 
-// Retrieve Better Auth session token directly from extension cookies
+// Retrieve Better Auth session token directly from extension cookies or local storage fallback
 async function getSessionToken(): Promise<string | null> {
   try {
     const origin = await getServerOrigin();
-    const cookie = await chrome.cookies.get({
-      url: origin,
-      name: "better-auth.session_token",
-    });
-    return cookie?.value ?? null;
+    const isHttps = origin.startsWith("https://");
+    const cookieNames = isHttps
+      ? ["__Secure-better-auth.session_token", "better-auth.session_token"]
+      : ["better-auth.session_token", "__Secure-better-auth.session_token"];
+
+    for (const name of cookieNames) {
+      try {
+        const cookie = await chrome.cookies.get({
+          url: origin,
+          name,
+        });
+        if (cookie?.value) {
+          return cookie.value;
+        }
+      } catch {
+        // continue
+      }
+    }
+
+    // Storage fallback for environments where third-party cookies or cross-origin cookie sync is blocked
+    const stored = await chrome.storage.local.get(["sessionToken"]);
+    return (stored?.sessionToken as string) || null;
   } catch (error) {
     console.error("[DSA Tracker Background] Failed to get session cookie:", error);
-    return null;
+    try {
+      const stored = await chrome.storage.local.get(["sessionToken"]);
+      return (stored?.sessionToken as string) || null;
+    } catch {
+      return null;
+    }
   }
 }
 
 // Check if user is authenticated
 async function checkAuth(): Promise<AuthState> {
   const token = await getSessionToken();
-  if (!token) {
-    return { isAuthenticated: false, user: null };
-  }
 
   try {
     const origin = await getServerOrigin();
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
     const res = await fetch(`${origin}/api/auth/get-session`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+      headers,
+      credentials: "include",
     });
 
     if (!res.ok) {
@@ -56,6 +79,10 @@ async function checkAuth(): Promise<AuthState> {
 
     const data = await res.json();
     if (data && data.user) {
+      // If server returned a session token, persist it
+      if (data.session?.token) {
+        await chrome.storage.local.set({ sessionToken: data.session.token });
+      }
       return {
         isAuthenticated: true,
         user: {
@@ -85,6 +112,7 @@ async function handleLogin(identifier: string, password: string) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(body),
+      credentials: "include",
     });
 
     const data = await res.json();
@@ -93,6 +121,27 @@ async function handleLogin(identifier: string, password: string) {
         success: false,
         error: data.message || "Failed to sign in. Please check your credentials.",
       };
+    }
+
+    // Persist session token to chrome.storage.local and browser cookies
+    if (data.token) {
+      await chrome.storage.local.set({ sessionToken: data.token });
+      const isHttps = origin.startsWith("https://");
+      const cookieName = isHttps
+        ? "__Secure-better-auth.session_token"
+        : "better-auth.session_token";
+      try {
+        await chrome.cookies.set({
+          url: origin,
+          name: cookieName,
+          value: data.token,
+          path: "/",
+          secure: isHttps,
+          sameSite: "lax",
+        });
+      } catch (cookieErr) {
+        console.warn("[DSA Tracker Background] Could not set session cookie:", cookieErr);
+      }
     }
 
     return {
@@ -124,15 +173,24 @@ async function handleLogout() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
-      await chrome.cookies.remove({
-        url: origin,
-        name: "better-auth.session_token",
-      });
+        credentials: "include",
+      }).catch(() => {});
     }
+
+    await chrome.cookies.remove({
+      url: origin,
+      name: "__Secure-better-auth.session_token",
+    }).catch(() => {});
+    await chrome.cookies.remove({
+      url: origin,
+      name: "better-auth.session_token",
+    }).catch(() => {});
+    await chrome.storage.local.remove(["sessionToken"]);
+
     return { success: true };
   } catch (error) {
     console.error("[DSA Tracker Background] Logout error:", error);
+    await chrome.storage.local.remove(["sessionToken"]).catch(() => {});
     return { success: false };
   }
 }
