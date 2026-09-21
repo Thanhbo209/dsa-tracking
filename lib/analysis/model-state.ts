@@ -37,14 +37,34 @@ export async function getActiveModel(): Promise<string> {
     return state.activeModel;
   }
 
+  // Check if primaryModel or fallbackModel have drifted from current code constants / env overrides
+  const modelsDrifted = state.primaryModel !== primary || state.fallbackModel !== fallback;
+
   // Check if cooldown has expired
-  if (state.inCooldown && state.cooldownExpiresAt && state.cooldownExpiresAt <= new Date()) {
+  const cooldownExpired = state.inCooldown && state.cooldownExpiresAt && state.cooldownExpiresAt <= new Date();
+
+  // If models drifted or cooldown expired, update the record
+  if (modelsDrifted || cooldownExpired) {
+    const updateData: {
+      primaryModel?: string;
+      fallbackModel?: string;
+      inCooldown?: boolean;
+      cooldownExpiresAt?: Date | null;
+    } = {};
+
+    if (modelsDrifted) {
+      updateData.primaryModel = primary;
+      updateData.fallbackModel = fallback;
+    }
+
+    if (cooldownExpired) {
+      updateData.inCooldown = false;
+      updateData.cooldownExpiresAt = null;
+    }
+
     state = await prisma.aiModelState.update({
       where: { id: "default" },
-      data: {
-        inCooldown: false,
-        cooldownExpiresAt: null,
-      },
+      data: updateData,
     });
   }
 

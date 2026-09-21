@@ -70,7 +70,14 @@ export type ExtensionMessage =
   | { type: "SUBMISSION_CAPTURED"; payload: CapturedSubmission }
   | { type: "GET_SUBMISSIONS" }
   | { type: "CHECK_AUTH" }
-  | { type: "LOGIN"; payload: { email: string; password: string } }
+  | {
+      type: "LOGIN";
+      payload: {
+        identifier?: string;
+        email?: string;
+        password: string;
+      };
+    }
   | { type: "LOGOUT" }
   | { type: "IMPORT_SUBMISSION"; payload: CapturedSubmission }
   | { type: "CLEAR_SUBMISSIONS" }

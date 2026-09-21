@@ -145,7 +145,7 @@ describe("analyzeSubmission", () => {
       id: "default",
       activeModel: "gemini-2.5-flash",
       primaryModel: "gemini-3.6-flash",
-      fallbackModel: "gemini-2.5-flash",
+      fallbackModel: "gemini-3.5-flash-lite",
       inCooldown: false,
       cooldownExpiresAt: null,
     });
@@ -575,7 +575,7 @@ describe("analyzeSubmission", () => {
       id: "default",
       activeModel: "gemini-custom-env",
       primaryModel: "gemini-custom-env",
-      fallbackModel: "gemini-2.5-flash",
+      fallbackModel: "gemini-3.5-flash-lite",
       inCooldown: false,
     });
 
@@ -669,7 +669,7 @@ describe("analyzeSubmission", () => {
       id: "default",
       activeModel: "gemini-3.6-flash",
       primaryModel: "gemini-3.6-flash",
-      fallbackModel: "gemini-2.5-flash",
+      fallbackModel: "gemini-3.5-flash-lite",
       inCooldown: false,
       cooldownExpiresAt: null,
     });
@@ -708,13 +708,13 @@ describe("analyzeSubmission", () => {
       .mockRejectedValueOnce(quotaError)
       .mockResolvedValueOnce({
         rawText: validOutputJson,
-        modelName: "gemini-2.5-flash",
+        modelName: "gemini-3.5-flash-lite",
       });
 
     analysisUpdateMock.mockResolvedValue({
       id: "analysis-quota-retry",
       status: "DRAFT_READY",
-      modelName: "gemini-2.5-flash",
+      modelName: "gemini-3.5-flash-lite",
     });
 
     const result = await analyzeSubmission("user-1", "sub-quota-fallback");
@@ -725,7 +725,7 @@ describe("analyzeSubmission", () => {
       expect.objectContaining({ modelName: "gemini-3.6-flash" })
     );
     expect(callGeminiMock.mock.calls[1][1]).toEqual(
-      expect.objectContaining({ modelName: "gemini-2.5-flash" })
+      expect.objectContaining({ modelName: "gemini-3.5-flash-lite" })
     );
 
     // Confirms switch event was created
@@ -737,7 +737,7 @@ describe("analyzeSubmission", () => {
       expect.objectContaining({
         data: expect.objectContaining({
           status: "DRAFT_READY",
-          modelName: "gemini-2.5-flash",
+          modelName: "gemini-3.5-flash-lite",
         }),
       })
     );

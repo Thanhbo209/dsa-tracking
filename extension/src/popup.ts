@@ -27,7 +27,8 @@ async function getServerOrigin(): Promise<string> {
 async function updateServerOrigin(newOrigin: string) {
   let formatted = newOrigin.trim().replace(/\/+$/, "");
   if (!formatted.startsWith("http://") && !formatted.startsWith("https://")) {
-    formatted = `https://${formatted}`;
+    const isLocal = formatted.startsWith("localhost") || formatted.startsWith("127.0.0.1");
+    formatted = `${isLocal ? "http://" : "https://"}${formatted}`;
   }
   await sendMessage({ type: "SET_SERVER_ORIGIN", origin: formatted });
   await updateServerBar();
@@ -70,7 +71,8 @@ const viewSubmissions = document.getElementById("view-submissions") as HTMLEleme
 
 // Login elements
 const formLogin = document.getElementById("login-form") as HTMLFormElement;
-const inputEmail = document.getElementById("login-email") as HTMLInputElement;
+const inputIdentifier = (document.getElementById("login-identifier") ||
+  document.getElementById("login-email")) as HTMLInputElement;
 const inputPassword = document.getElementById("login-password") as HTMLInputElement;
 const btnLoginSubmit = document.getElementById("btn-login-submit") as HTMLButtonElement;
 const elLoginError = document.getElementById("login-error") as HTMLElement;
@@ -424,12 +426,12 @@ formLogin.onsubmit = async (e) => {
   btnLoginSubmit.disabled = true;
   btnLoginSubmit.innerHTML = `<span class="spinner" style="width: 14px; height: 14px; border-width: 2px; margin: 0 6px 0 0; display: inline-block; vertical-align: middle;"></span> Signing in...`;
 
-  const email = inputEmail.value.trim();
+  const identifier = inputIdentifier.value.trim();
   const password = inputPassword.value;
 
   const result = await sendMessage({
     type: "LOGIN",
-    payload: { email, password },
+    payload: { identifier, password },
   });
 
   btnLoginSubmit.disabled = false;
@@ -438,7 +440,7 @@ formLogin.onsubmit = async (e) => {
   if (result && result.success) {
     await init();
   } else {
-    elLoginError.textContent = result?.error || "Failed to sign in. Please verify email and password.";
+    elLoginError.textContent = result?.error || "Failed to sign in. Please verify credentials.";
     elLoginError.style.display = "block";
   }
 };

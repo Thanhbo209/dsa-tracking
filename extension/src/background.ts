@@ -5,6 +5,7 @@ import type {
 } from "./types";
 import { fetchLeetCodeSyncData } from "./leetcode";
 import { getSubmissionDetails } from "./submission-details";
+import { resolveAuthSignInRequest } from "./auth";
 
 const DEFAULT_SERVER_ORIGIN = "https://dsa-tracking-six.vercel.app";
 const MAX_STORED_SUBMISSIONS = 20;
@@ -73,16 +74,17 @@ async function checkAuth(): Promise<AuthState> {
   }
 }
 
-// Handle login from popup
-async function handleLogin(email: string, password: string) {
+// Handle login from popup (supports both email and username)
+async function handleLogin(identifier: string, password: string) {
   try {
     const origin = await getServerOrigin();
-    const res = await fetch(`${origin}/api/auth/sign-in/email`, {
+    const { endpoint, body } = resolveAuthSignInRequest(identifier, password);
+    const res = await fetch(`${origin}${endpoint}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify(body),
     });
 
     const data = await res.json();
@@ -312,7 +314,11 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendRe
   }
 
   if (message.type === "LOGIN") {
-    handleLogin(message.payload.email, message.payload.password).then((result) => {
+    const identifier =
+      ("identifier" in message.payload && message.payload.identifier) ||
+      ("email" in message.payload && message.payload.email) ||
+      "";
+    handleLogin(identifier, message.payload.password).then((result) => {
       sendResponse(result);
     });
     return true;
@@ -351,11 +357,12 @@ chrome.runtime.onMessage.addListener((message: ExtensionMessage, _sender, sendRe
   }
 
   if (message.type === "REGISTER_WEB_APP_ORIGIN" || message.type === "SET_SERVER_ORIGIN") {
-    if (
-      message.origin &&
-      (message.origin.startsWith("http://") || message.origin.startsWith("https://"))
-    ) {
-      const origin = message.origin.replace(/\/+$/, "");
+    let origin = message.origin ? message.origin.trim().replace(/\/+$/, "") : "";
+    if (origin && !origin.startsWith("http://") && !origin.startsWith("https://")) {
+      const isLocal = origin.startsWith("localhost") || origin.startsWith("127.0.0.1");
+      origin = `${isLocal ? "http://" : "https://"}${origin}`;
+    }
+    if (origin && (origin.startsWith("http://") || origin.startsWith("https://"))) {
       chrome.storage.local.set({ serverOrigin: origin }).then(() => {
         sendResponse({ success: true, origin });
       });

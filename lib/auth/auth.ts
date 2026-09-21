@@ -11,7 +11,13 @@ export const auth = betterAuth({
   trustedOrigins: [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "http://localhost:*",
+    "http://127.0.0.1:*",
     "https://leetcode.com",
+    "https://dsa-tracking-six.vercel.app",
+    "https://*.vercel.app",
+    "chrome-extension://*",
+    ...(process.env.BETTER_AUTH_URL ? [process.env.BETTER_AUTH_URL.replace(/\/+$/, "")] : []),
     ...(process.env.VERCEL_URL ? [`https://${process.env.VERCEL_URL}`] : []),
   ],
   database: prismaAdapter(prisma, {

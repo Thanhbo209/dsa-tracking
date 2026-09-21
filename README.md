@@ -17,9 +17,9 @@
   <img src="https://img.shields.io/badge/Next.js-16.3-black?style=flat-square&logo=next.js" alt="Next.js" />
   <img src="https://img.shields.io/badge/Prisma-7.10-5a67d8?style=flat-square&logo=prisma" alt="Prisma" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-v4-38bdf8?style=flat-square&logo=tailwindcss" alt="Tailwind CSS v4" />
-  <img src="https://img.shields.io/badge/Gemini-3.6%20%2F%202.5%20Dual--Model-d946ef?style=flat-square&logo=google" alt="Gemini Dual-Model" />
+  <img src="https://img.shields.io/badge/Gemini-3.6%20%2F%203.5--Lite%20Dual--Model-d946ef?style=flat-square&logo=google" alt="Gemini Dual-Model" />
   <img src="https://img.shields.io/badge/Manifest-V3-4285f4?style=flat-square&logo=googlechrome" alt="Chrome Extension Manifest V3" />
-  <img src="https://img.shields.io/badge/Tests-32%20suites%20%7C%20274%20passed-22c55e?style=flat-square&logo=vitest" alt="Vitest 274 Passed" />
+  <img src="https://img.shields.io/badge/Tests-34%20suites%20%7C%20284%20passed-22c55e?style=flat-square&logo=vitest" alt="Vitest 284 Passed" />
   <img src="https://img.shields.io/badge/License-MIT-blue?style=flat-square" alt="License: MIT" />
 </p>
 
@@ -43,7 +43,7 @@ Grinding algorithms often creates diminishing returns due to three core friction
 
 ### 1. Resilient Dual-Model AI Failover Engine
 Production LLM integrations face aggressive rate limits and sudden quota exhaustions. DSA Tracker implements a self-healing model routing and circuit-breaker architecture:
-* **Dual-Model Pairing**: Uses **`gemini-3.6-flash`** as the high-intelligence primary model and dynamically fails over to **`gemini-2.5-flash`** upon quota exhaustion.
+* **Dual-Model Pairing**: Uses **`gemini-3.6-flash`** as the high-intelligence primary model and dynamically fails over to **`gemini-3.5-flash-lite`** upon quota exhaustion.
 * **Concurrency-Safe Atomic State**: Active model state is persisted in a database singleton (`AiModelState`). Model failover transitions execute via atomic SQL conditional updates (`updateMany ... WHERE activeModel = expected`), ensuring concurrent serverless requests never trigger duplicate switch events.
 * **Categorized Cooldown Derivation**:
   * *Daily Quota Exceeded (`PerDay`)*: Sets a conservative cooldown until the next UTC midnight boundary (minimum 6–12 hours), avoiding premature retry loops.
@@ -136,7 +136,7 @@ subgraph AI_ROUTER["🤖 AI Resilient Routing & Quota Fallback"]
     direction TB
     CIRCUIT["Circuit Breaker & Cooldown Manager<br/>Daily quota vs short-window classification"]
     PRIMARY["Primary Engine<br/>gemini-3.6-flash"]
-    FALLBACK["Fallback Engine<br/>gemini-2.5-flash"]
+    FALLBACK["Fallback Engine<br/>gemini-3.5-flash-lite"]
 end
 
 subgraph DB_LAYER["🗄️ PostgreSQL Database (Prisma ORM 7)"]
@@ -194,9 +194,9 @@ For testing the deployed application, you can use the following demo account:
 | **Frontend** | [Next.js 16.3](https://nextjs.org/) (App Router, Turbopack), [React 19](https://react.dev/), [Tailwind CSS v4](https://tailwindcss.com/), [Base UI](https://base-ui.com/), [Lucide React](https://lucide.dev/) | Modern styling with Tailwind CSS v4, dark-theme first design |
 | **Backend** | Next.js Route Handlers, [Better Auth](https://better-auth.com/) | Secure cookie session authentication, middleware protection |
 | **Database & ORM** | [PostgreSQL](https://www.postgresql.org/) (Supabase / Neon), [Prisma ORM 7.10](https://www.prisma.io/) (`@prisma/client`, `@prisma/adapter-pg`) | Typed SQL adapter, Prisma 7 client generation |
-| **AI Failover Engine** | [Google Gemini](https://ai.google.dev/) (`@google/genai`) | `gemini-3.6-flash` (primary) with automated fallback to `gemini-2.5-flash` |
+| **AI Failover Engine** | [Google Gemini](https://ai.google.dev/) (`@google/genai`) | `gemini-3.6-flash` (primary) with automated fallback to `gemini-3.5-flash-lite` |
 | **Browser Extension** | Chrome Manifest V3, TypeScript, [esbuild](https://esbuild.github.io/) | GraphQL submission polling, cookie authentication, DOM HUD injection |
-| **Tooling & Tests** | [Vitest 5.0](https://vitest.dev/), ESLint 9, TypeScript 5, [pnpm 11.5](https://pnpm.io/) | 32 test suites, 274 unit/integration tests |
+| **Tooling & Tests** | [Vitest 5.0](https://vitest.dev/), ESLint 9, TypeScript 5, [pnpm 11.5](https://pnpm.io/) | 32 test suites, 276 unit/integration tests |
 
 ---
 
@@ -225,7 +225,7 @@ GEMINI_API_KEY="your-gemini-api-key"
 
 # AI Model Configuration (Optional overrides)
 GEMINI_PRIMARY_MODEL="gemini-3.6-flash"    # Primary analysis model (default: gemini-3.6-flash)
-GEMINI_FALLBACK_MODEL="gemini-2.5-flash"   # Fallback model used on quota error (default: gemini-2.5-flash)
+GEMINI_FALLBACK_MODEL="gemini-3.5-flash-lite"   # Fallback model used on quota error (default: gemini-3.5-flash-lite)
 
 # Admin Access Control (Optional)
 ADMIN_EMAILS="admin@example.com"           # Comma-separated list for /admin/ai-usage access (open to auth users if empty)
@@ -285,7 +285,7 @@ Open [http://localhost:3000](http://localhost:3000). Create an account via `/sig
 The codebase enforces strict test coverage across model switching, quota detection, schema validation, and UI components:
 
 ```bash
-# Run the complete test suite (32 test files, 274 tests)
+# Run the complete test suite (34 test files, 284 tests)
 pnpm exec vitest run
 
 # Run tests in interactive watch mode
@@ -304,6 +304,8 @@ pnpm build
 **Test Suite Coverage**:
 * `tests/analysis/model-switching.test.ts`: Quota error categorization (`PerDay` vs short-window), minimum 30s floor, atomic concurrency failover, and display formatting.
 * `tests/analysis/service.test.ts`: Gemini analysis integration, immediate retry on failover, and dual-model cooldown circuit breaking.
+* `tests/auth/trusted-origins.test.ts`: Better Auth CORS and origin verification for Chrome extension and Vercel environments.
+* `tests/extension/auth.test.ts`: Email vs username credentials resolution, case normalization, and Better Auth routing.
 * `tests/validation/`: Zod schemas for submission imports, approaches, solutions, and code links.
 * `tests/components/`: Learning workspace, analysis cards, model indicator badges, and button styling.
 * `tests/profile/`: Playbook search, difficulty filters, and topic tag aggregations.
@@ -325,8 +327,8 @@ pnpm build
    - `BETTER_AUTH_SECRET`: Secure 32-byte production secret.
    - `BETTER_AUTH_URL`: Canonical production domain (e.g. `https://dsa-tracking-six.vercel.app`).
    - `GEMINI_API_KEY`: Production Google Gemini API key.
-   - `GEMINI_PRIMARY_MODEL`: `gemini-3.6-flash` *(do not force 2.5 in production)*.
-   - `GEMINI_FALLBACK_MODEL`: `gemini-2.5-flash`.
+   - `GEMINI_PRIMARY_MODEL`: `gemini-3.6-flash` *(do not force fallback model in production)*.
+   - `GEMINI_FALLBACK_MODEL`: `gemini-3.5-flash-lite`.
    - `ADMIN_EMAILS`: Authorized admin emails for `/admin/ai-usage`.
 5. Run migrations against your production database:
    ```bash

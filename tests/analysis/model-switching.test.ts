@@ -228,6 +228,69 @@ describe("Model Switching & Quota Architecture", () => {
         },
       });
     });
+
+    it("syncs drifted primaryModel or fallbackModel on read without altering activeModel", async () => {
+      aiModelStateFindUniqueMock.mockResolvedValue({
+        id: "default",
+        activeModel: DEFAULT_PRIMARY_MODEL,
+        primaryModel: DEFAULT_PRIMARY_MODEL,
+        fallbackModel: "gemini-3.7-flash", // Stale value in DB!
+        inCooldown: false,
+        cooldownExpiresAt: null,
+      });
+
+      aiModelStateUpdateMock.mockResolvedValue({
+        id: "default",
+        activeModel: DEFAULT_PRIMARY_MODEL,
+        primaryModel: DEFAULT_PRIMARY_MODEL,
+        fallbackModel: DEFAULT_FALLBACK_MODEL,
+        inCooldown: false,
+        cooldownExpiresAt: null,
+      });
+
+      const active = await getActiveModel();
+
+      expect(active).toBe(DEFAULT_PRIMARY_MODEL);
+      expect(aiModelStateUpdateMock).toHaveBeenCalledWith({
+        where: { id: "default" },
+        data: {
+          primaryModel: DEFAULT_PRIMARY_MODEL,
+          fallbackModel: DEFAULT_FALLBACK_MODEL,
+        },
+      });
+    });
+
+    it("syncs drifted models during an active cooldown without touching cooldown state or activeModel", async () => {
+      const futureDate = new Date(Date.now() + 60000); // 1 minute in future
+      aiModelStateFindUniqueMock.mockResolvedValue({
+        id: "default",
+        activeModel: DEFAULT_FALLBACK_MODEL,
+        primaryModel: "old-primary-model", // Drifted
+        fallbackModel: DEFAULT_FALLBACK_MODEL,
+        inCooldown: true,
+        cooldownExpiresAt: futureDate,
+      });
+
+      aiModelStateUpdateMock.mockResolvedValue({
+        id: "default",
+        activeModel: DEFAULT_FALLBACK_MODEL,
+        primaryModel: DEFAULT_PRIMARY_MODEL,
+        fallbackModel: DEFAULT_FALLBACK_MODEL,
+        inCooldown: true,
+        cooldownExpiresAt: futureDate,
+      });
+
+      const active = await getActiveModel();
+
+      expect(active).toBe(DEFAULT_FALLBACK_MODEL);
+      expect(aiModelStateUpdateMock).toHaveBeenCalledWith({
+        where: { id: "default" },
+        data: {
+          primaryModel: DEFAULT_PRIMARY_MODEL,
+          fallbackModel: DEFAULT_FALLBACK_MODEL,
+        },
+      });
+    });
   });
 
   describe("4. Concurrency-Safe Model Switching", () => {
@@ -276,8 +339,10 @@ describe("Model Switching & Quota Architecture", () => {
   describe("5. Model Name Formatting (formatModelDisplayName)", () => {
     it("formats known model identifiers into clean display names", () => {
       expect(formatModelDisplayName("gemini-2.5-flash")).toBe("Gemini 2.5 Flash");
+      expect(formatModelDisplayName("gemini-3.5-flash-lite")).toBe("Gemini 3.5 Flash-Lite");
       expect(formatModelDisplayName("gemini-3.6-flash")).toBe("Gemini 3.6 Flash");
       expect(formatModelDisplayName("models/gemini-2.5-flash")).toBe("Gemini 2.5 Flash");
+      expect(formatModelDisplayName("models/gemini-3.5-flash-lite")).toBe("Gemini 3.5 Flash-Lite");
       expect(formatModelDisplayName("models/gemini-3.6-flash")).toBe("Gemini 3.6 Flash");
     });
 
