@@ -14,7 +14,9 @@ import {
 import { getActiveModel, switchModelOnQuotaError } from "./model-state";
 import { isQuotaError, analyzeQuotaError } from "./quota";
 
-export type AnalyzeSubmissionOptions = GeminiAnalysisOptions;
+export type AnalyzeSubmissionOptions = GeminiAnalysisOptions & {
+  disableAutoFallback?: boolean;
+};
 
 export async function analyzeSubmission(
   userId: string,
@@ -131,6 +133,27 @@ export async function analyzeSubmission(
         modelName: initialModel,
       });
     } catch (firstError) {
+      if (options?.disableAutoFallback) {
+        // User requested explicit model without automatic fallback
+        if (isQuotaError(firstError)) {
+          await switchModelOnQuotaError(initialModel, firstError);
+        }
+
+        const firstMessage =
+          firstError instanceof Error
+            ? firstError.message
+            : "Failed during Gemini analysis";
+
+        return await prisma.submissionAnalysis.update({
+          where: { id: analysis.id },
+          data: {
+            status: "FAILED",
+            modelName: initialModel,
+            errorMessage: firstMessage,
+          },
+        });
+      }
+
       if (isQuotaError(firstError)) {
         // Quota error on initial model -> switch and retry once with opposite model
         const switchResult = await switchModelOnQuotaError(initialModel, firstError);

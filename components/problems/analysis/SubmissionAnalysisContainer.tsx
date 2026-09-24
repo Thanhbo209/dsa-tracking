@@ -11,6 +11,8 @@ import { KnowledgeDraftSection } from "./KnowledgeDraftSection";
 import { AnalysisEmptyState } from "./AnalysisEmptyState";
 import { AnalysisGeneratingState } from "./AnalysisGeneratingState";
 import { AnalysisFailedState } from "./AnalysisFailedState";
+import { ModelSelector } from "./ModelSelector";
+import { DEFAULT_PRIMARY_MODEL } from "@/lib/analysis/models";
 
 interface SubmissionAnalysisContainerProps {
   submissionId: string;
@@ -44,15 +46,17 @@ export function SubmissionAnalysisContainer({
   const [analyses, setAnalyses] =
     useState<SerializedSubmissionAnalysis[]>(initialAnalyses);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
+  const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_PRIMARY_MODEL);
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [isPromoting, setIsPromoting] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string | null>(null);
 
   const activeAnalysis = analyses[selectedIndex] || null;
 
-  async function handleAnalyze() {
+  async function handleAnalyze(modelToUse?: string) {
     if (isAnalyzing) return;
 
+    const modelName = modelToUse || selectedModel;
     setIsAnalyzing(true);
     setActionError(null);
 
@@ -62,6 +66,7 @@ export function SubmissionAnalysisContainer({
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify({ modelName }),
       });
 
       if (!response.ok) {
@@ -191,6 +196,8 @@ export function SubmissionAnalysisContainer({
         <AnalysisEmptyState
           onAnalyze={handleAnalyze}
           isAnalyzing={isAnalyzing}
+          selectedModel={selectedModel}
+          onModelChange={setSelectedModel}
         />
       </div>
     );
@@ -232,7 +239,7 @@ export function SubmissionAnalysisContainer({
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* History selector if multiple analyses exist */}
           {analyses.length > 1 && (
             <div className="flex items-center gap-1 text-xs">
@@ -260,11 +267,21 @@ export function SubmissionAnalysisContainer({
             </div>
           )}
 
+          {/* Model Selector for next/re-analysis run */}
+          <ModelSelector
+            value={selectedModel}
+            onChange={setSelectedModel}
+            disabled={isAnalyzing}
+            size="xs"
+            id="reanalyze-model-select"
+            label="Run with:"
+          />
+
           {/* Re-analyze Action Button */}
           <Button
             type="button"
             size="xs"
-            onClick={handleAnalyze}
+            onClick={() => handleAnalyze(selectedModel)}
             disabled={isAnalyzing}
             className="gap-1.5 text-xs h-7 bg-black hover:bg-zinc-900 active:bg-zinc-950 text-white border border-[#444444] transition-colors"
           >
@@ -286,8 +303,11 @@ export function SubmissionAnalysisContainer({
           {activeAnalysis.status === "FAILED" ? (
             <AnalysisFailedState
               errorMessage={activeAnalysis.errorMessage}
-              onRetry={handleAnalyze}
+              onRetry={(model) => handleAnalyze(model || selectedModel)}
               isRetrying={isAnalyzing}
+              selectedModel={selectedModel}
+              onModelChange={setSelectedModel}
+              failedModel={activeAnalysis.modelName}
             />
           ) : activeAnalysis.review ? (
             <div className="space-y-10 sm:space-y-12">

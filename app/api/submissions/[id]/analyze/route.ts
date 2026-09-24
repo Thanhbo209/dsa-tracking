@@ -4,6 +4,10 @@ import {
   getSubmissionAnalyses,
 } from "@/lib/analysis/service";
 import { getCurrentUser } from "@/lib/auth/session";
+import {
+  AVAILABLE_ANALYSIS_MODELS,
+  isValidAnalysisModel,
+} from "@/lib/analysis/models";
 
 interface AnalyzeRouteProps {
   params: Promise<{
@@ -11,7 +15,7 @@ interface AnalyzeRouteProps {
   }>;
 }
 
-export async function POST(_request: Request, { params }: AnalyzeRouteProps) {
+export async function POST(request: Request, { params }: AnalyzeRouteProps) {
   try {
     const user = await getCurrentUser();
     if (!user) {
@@ -27,7 +31,32 @@ export async function POST(_request: Request, { params }: AnalyzeRouteProps) {
       );
     }
 
-    const analysis = await analyzeSubmission(user.id, id);
+    let modelName: string | undefined;
+    try {
+      const body = await request.json();
+      if (body && typeof body.modelName === "string" && body.modelName.trim() !== "") {
+        const trimmed = body.modelName.trim();
+        if (!isValidAnalysisModel(trimmed)) {
+          return NextResponse.json(
+            {
+              error: `Invalid model '${trimmed}'. Available models: ${AVAILABLE_ANALYSIS_MODELS.map((m) => m.id).join(", ")}`,
+            },
+            { status: 400 },
+          );
+        }
+        modelName = trimmed;
+      }
+    } catch {
+      // Body may be empty on plain POST requests; continue with default active model
+    }
+
+    const analysis = modelName
+      ? await analyzeSubmission(user.id, id, {
+          modelName,
+          disableAutoFallback: true,
+        })
+      : await analyzeSubmission(user.id, id);
+
     return NextResponse.json(analysis, { status: 201 });
   } catch (error) {
     const message =

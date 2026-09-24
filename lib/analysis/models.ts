@@ -1,6 +1,35 @@
 export const DEFAULT_PRIMARY_MODEL = "gemini-3.6-flash";
 export const DEFAULT_FALLBACK_MODEL = "gemini-3.5-flash-lite";
 
+export interface AnalysisModelOption {
+  id: string;
+  name: string;
+  label: string;
+  badge: string;
+  description: string;
+}
+
+export const AVAILABLE_ANALYSIS_MODELS: AnalysisModelOption[] = [
+  {
+    id: "gemini-3.6-flash",
+    name: "Gemini 3.6 Flash",
+    label: "Gemini 3.6 Flash",
+    badge: "3.6 Flash",
+    description: "Default — Comprehensive reasoning & diagnostic depth",
+  },
+  {
+    id: "gemini-3.5-flash-lite",
+    name: "Gemini 3.5 Flash-Lite",
+    label: "Gemini 3.5 Flash-Lite",
+    badge: "3.5 Lite",
+    description: "Fast — Low latency & lightweight",
+  },
+];
+
+export function isValidAnalysisModel(modelName: string): boolean {
+  return AVAILABLE_ANALYSIS_MODELS.some((m) => m.id === modelName);
+}
+
 export function getPrimaryModel(): string {
   return process.env.GEMINI_PRIMARY_MODEL || process.env.GEMINI_MODEL || DEFAULT_PRIMARY_MODEL;
 }

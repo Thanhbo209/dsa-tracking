@@ -1,14 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { DsaLogo } from "@/components/brand/DsaLogo";
+import { ModelSelector } from "./ModelSelector";
+import { DEFAULT_PRIMARY_MODEL } from "@/lib/analysis/models";
 
 interface AnalysisEmptyStateProps {
-  onAnalyze: () => void;
+  onAnalyze: (modelName?: string) => void;
   isAnalyzing: boolean;
+  selectedModel?: string;
+  onModelChange?: (model: string) => void;
 }
 
 export function AnalysisEmptyState({
   onAnalyze,
   isAnalyzing,
+  selectedModel = DEFAULT_PRIMARY_MODEL,
+  onModelChange,
 }: AnalysisEmptyStateProps) {
   return (
     <div className="rounded-lg border border-dashed border-[#4a4a4a] p-6 text-center bg-[#373737] text-white shadow-2xs">
@@ -26,10 +32,20 @@ export function AnalysisEmptyState({
         generate a candidate knowledge draft.
       </p>
 
-      <div className="mt-4">
+      <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+        {onModelChange && (
+          <ModelSelector
+            value={selectedModel}
+            onChange={onModelChange}
+            disabled={isAnalyzing}
+            id="empty-state-model-select"
+            label="Model:"
+          />
+        )}
+
         <Button
           type="button"
-          onClick={onAnalyze}
+          onClick={() => onAnalyze(selectedModel)}
           disabled={isAnalyzing}
           size="sm"
           className="bg-black hover:bg-zinc-900 active:bg-zinc-950 text-white border border-[#444444] transition-colors"

@@ -8,6 +8,7 @@ import { AnalysisGeneratingState } from "@/components/problems/analysis/Analysis
 import { AnalysisFailedState } from "@/components/problems/analysis/AnalysisFailedState";
 import { SubmissionAnalysisContainer } from "@/components/problems/analysis/SubmissionAnalysisContainer";
 import { SubmissionCard } from "@/components/problems/SubmissionCard";
+import { ModelSelector } from "@/components/problems/analysis/ModelSelector";
 import type { AiReview, AiDraft } from "@/lib/validation/analysis";
 import type { SerializedSubmissionAnalysis } from "@/components/problems/analysis/types";
 
@@ -90,15 +91,53 @@ describe("Submission Analysis UI Components", () => {
     },
   };
 
-  describe("AnalysisEmptyState", () => {
-    it("renders empty state information and the Analyze Submission button", () => {
+  describe("ModelSelector", () => {
+    it("renders available models and selects the current model", () => {
       const html = renderToStaticMarkup(
-        <AnalysisEmptyState onAnalyze={() => {}} isAnalyzing={false} />,
+        <ModelSelector
+          value="gemini-3.6-flash"
+          onChange={() => {}}
+          label="Model:"
+        />,
+      );
+
+      expect(html).toContain("Model:");
+      expect(html).toContain("gemini-3.6-flash");
+      expect(html).toContain("Gemini 3.6 Flash");
+      expect(html).toContain("gemini-3.5-flash-lite");
+      expect(html).toContain("Gemini 3.5 Flash-Lite");
+    });
+
+    it("supports disabling when analyzing", () => {
+      const html = renderToStaticMarkup(
+        <ModelSelector
+          value="gemini-3.5-flash-lite"
+          onChange={() => {}}
+          disabled={true}
+        />,
+      );
+
+      expect(html).toContain("disabled");
+      expect(html).toContain("opacity-50");
+    });
+  });
+
+  describe("AnalysisEmptyState", () => {
+    it("renders empty state information and the Analyze Submission button with model selector", () => {
+      const html = renderToStaticMarkup(
+        <AnalysisEmptyState
+          onAnalyze={() => {}}
+          isAnalyzing={false}
+          selectedModel="gemini-3.6-flash"
+          onModelChange={() => {}}
+        />,
       );
 
       expect(html).toContain("No AI Analysis Yet");
       expect(html).toContain("Analyze this submission to evaluate your code");
       expect(html).toContain("Analyze Submission");
+      expect(html).toContain("Model:");
+      expect(html).toContain("Gemini 3.6 Flash");
       expect(html).toContain("bg-black");
       expect(html).toContain("border-[#444444]");
     });
@@ -116,17 +155,21 @@ describe("Submission Analysis UI Components", () => {
   });
 
   describe("AnalysisFailedState", () => {
-    it("renders sanitized failure message and retry button", () => {
+    it("renders sanitized failure message, model selector, and retry button", () => {
       const html = renderToStaticMarkup(
         <AnalysisFailedState
           errorMessage="Model request timed out"
           onRetry={() => {}}
           isRetrying={false}
+          selectedModel="gemini-3.5-flash-lite"
+          onModelChange={() => {}}
         />,
       );
 
       expect(html).toContain("Analysis Failed");
       expect(html).toContain("Model request timed out");
+      expect(html).toContain("Switch Model:");
+      expect(html).toContain("Gemini 3.5 Flash-Lite");
       expect(html).toContain("Retry Analysis");
     });
 
@@ -412,6 +455,7 @@ describe("Submission Analysis UI Components", () => {
       expect(html).toContain("AI Diagnostic Review");
       expect(html).toContain("AI-generated analysis — not saved to your knowledge base");
       expect(html).toContain("Re-analyze");
+      expect(html).toContain("Run with:");
     });
 
     it("renders history selector when multiple analyses exist without overwriting", () => {

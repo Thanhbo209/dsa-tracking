@@ -92,6 +92,58 @@ describe("/api/submissions/[id]/analyze Route Handlers", () => {
       expect(analyzeSubmissionMock).toHaveBeenCalledWith("user-123", "sub-123");
     });
 
+    it("analyzes with specified modelName and disables auto fallback", async () => {
+      const mockAnalysis = {
+        id: "analysis-35",
+        submissionId: "sub-123",
+        status: "DRAFT_READY",
+        modelName: "gemini-3.5-flash-lite",
+      };
+
+      analyzeSubmissionMock.mockResolvedValue(mockAnalysis);
+
+      const request = new Request(
+        "http://localhost/api/submissions/sub-123/analyze",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ modelName: "gemini-3.5-flash-lite" }),
+        },
+      );
+
+      const response = await POST(request, {
+        params: Promise.resolve({ id: "sub-123" }),
+      });
+
+      expect(response.status).toBe(201);
+      const json = await response.json();
+      expect(json.id).toBe("analysis-35");
+      expect(analyzeSubmissionMock).toHaveBeenCalledWith("user-123", "sub-123", {
+        modelName: "gemini-3.5-flash-lite",
+        disableAutoFallback: true,
+      });
+    });
+
+    it("returns 400 when an invalid modelName is provided", async () => {
+      const request = new Request(
+        "http://localhost/api/submissions/sub-123/analyze",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ modelName: "unsupported-model-x" }),
+        },
+      );
+
+      const response = await POST(request, {
+        params: Promise.resolve({ id: "sub-123" }),
+      });
+
+      expect(response.status).toBe(400);
+      const json = await response.json();
+      expect(json.error).toContain("Invalid model 'unsupported-model-x'");
+      expect(analyzeSubmissionMock).not.toHaveBeenCalled();
+    });
+
     it("returns 404 when submission is not found", async () => {
       analyzeSubmissionMock.mockRejectedValue(
         new Error("Submission not found or unauthorized"),
