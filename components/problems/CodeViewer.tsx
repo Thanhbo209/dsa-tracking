@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Check, ChevronDown, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { highlightCodeLine } from "./syntaxHighlighter";
+import { highlightCodeLine, detectLanguageFromCode } from "./syntaxHighlighter";
 
 export interface CodeViewerProps {
   code: string;
@@ -41,6 +41,10 @@ export function CodeViewer({
   }
 
   const lines = code ? code.split("\n") : [];
+  const effectiveLanguage =
+    language && language !== "code" && language !== "text"
+      ? language
+      : detectLanguageFromCode(code) || language;
 
   return (
     <div
@@ -55,7 +59,7 @@ export function CodeViewer({
           {headerLeft ?? (
             <div className="flex items-center gap-2">
               <span className="flex items-center gap-1.5 rounded bg-[#333333] px-2.5 py-1 text-xs font-semibold text-white border border-[#444444]/60">
-                <span>{language.toUpperCase()}</span>
+                <span>{(effectiveLanguage || language).toUpperCase()}</span>
                 <ChevronDown className="size-3.5 text-zinc-400" />
               </span>
               <span className="rounded bg-[#333333]/60 px-2 py-0.5 text-[11px] text-zinc-400 border border-[#444444]/40 font-sans">
@@ -111,7 +115,7 @@ export function CodeViewer({
                   </td>
                   <td className="py-0.5 px-3 text-zinc-100 whitespace-pre font-mono align-top">
                     <span className="sr-only">{line}</span>
-                    <span aria-hidden="true">{highlightCodeLine(line)}</span>
+                    <span aria-hidden="true">{highlightCodeLine(line, effectiveLanguage)}</span>
                   </td>
                 </tr>
               ))}
@@ -123,7 +127,7 @@ export function CodeViewer({
             <div aria-hidden="true">
               {lines.map((line, idx) => (
                 <div key={idx} className="whitespace-pre">
-                  {highlightCodeLine(line)}
+                  {highlightCodeLine(line, effectiveLanguage)}
                 </div>
               ))}
             </div>
