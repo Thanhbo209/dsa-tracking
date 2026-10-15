@@ -23,7 +23,10 @@ function getDifficultyBadge(difficulty: string | null) {
       return <Badge variant="hard">HARD</Badge>;
     default:
       return (
-        <Badge variant="outline" className="text-zinc-400 border-zinc-700 bg-zinc-800/60">
+        <Badge
+          variant="outline"
+          className="text-zinc-400 border-zinc-700 bg-zinc-800/60"
+        >
           UNTIERED
         </Badge>
       );
@@ -75,7 +78,7 @@ export const PublicProblemRow = React.memo(function PublicProblemRow({
                       onTagClick?.(topic);
                     }}
                     className={cn(
-                      "rounded border px-1.5 py-0.5 text-[10px] transition-colors cursor-pointer shrink-0 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40",
+                      "rounded border px-1.5 py-0.5 text-[13px] transition-colors cursor-pointer shrink-0 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40",
                       isSelected
                         ? "bg-white/20 border-white/50 text-white font-medium"
                         : "bg-[#1a1a1a] border-[#444444] text-zinc-300 hover:border-zinc-300 hover:text-white",
@@ -104,7 +107,8 @@ export const PublicProblemRow = React.memo(function PublicProblemRow({
 
         {/* Approach count */}
         <div className="w-24 shrink-0 text-right text-xs text-zinc-400 font-medium">
-          {problem.approachCount} {problem.approachCount === 1 ? "approach" : "approaches"}
+          {problem.approachCount}{" "}
+          {problem.approachCount === 1 ? "approach" : "approaches"}
         </div>
       </div>
     </Link>

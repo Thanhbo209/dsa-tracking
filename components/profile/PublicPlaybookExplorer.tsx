@@ -36,7 +36,9 @@ const PAGE_SIZE = 24;
 
 // Helper to parse query string / URL parameters into filter state
 function parseUrlParams(searchStr: string) {
-  const cleanSearch = searchStr.startsWith("?") ? searchStr.slice(1) : searchStr;
+  const cleanSearch = searchStr.startsWith("?")
+    ? searchStr.slice(1)
+    : searchStr;
   const params = new URLSearchParams(cleanSearch);
   const q = params.get("q") ?? "";
   const diff = (params.get("diff") ?? "")
@@ -87,15 +89,17 @@ export function PublicPlaybookExplorer({
   }, [searchParams]);
 
   const [search, setSearch] = React.useState(initialParams.q);
-  const [selectedDifficulties, setSelectedDifficulties] = React.useState<string[]>(
-    initialParams.diff,
-  );
+  const [selectedDifficulties, setSelectedDifficulties] = React.useState<
+    string[]
+  >(initialParams.diff);
   const [selectedTopics, setSelectedTopics] = React.useState<string[]>(
     initialParams.topic,
   );
   const [sort, setSort] = React.useState<SortOption>(initialParams.sort);
   const [view, setView] = React.useState<ViewMode>(initialParams.view);
-  const [currentPage, setCurrentPage] = React.useState<number>(initialParams.page);
+  const [currentPage, setCurrentPage] = React.useState<number>(
+    initialParams.page,
+  );
   const [showAllTags, setShowAllTags] = React.useState(false);
 
   // Keep a ref of latest filter state so updateUrl can be stable
@@ -134,16 +138,20 @@ export function PublicPlaybookExplorer({
       mode: "push" | "replace" = "push",
     ) => {
       const current = stateRef.current;
-      const q = nextState.search !== undefined ? nextState.search : current.search;
+      const q =
+        nextState.search !== undefined ? nextState.search : current.search;
       const diffs =
         nextState.difficulties !== undefined
           ? nextState.difficulties
           : current.selectedDifficulties;
       const tops =
-        nextState.topics !== undefined ? nextState.topics : current.selectedTopics;
+        nextState.topics !== undefined
+          ? nextState.topics
+          : current.selectedTopics;
       const s = nextState.sort !== undefined ? nextState.sort : current.sort;
       const v = nextState.view !== undefined ? nextState.view : current.view;
-      const p = nextState.page !== undefined ? nextState.page : current.currentPage;
+      const p =
+        nextState.page !== undefined ? nextState.page : current.currentPage;
 
       const params = new URLSearchParams();
       if (q.trim()) params.set("q", q.trim());
@@ -299,7 +307,10 @@ export function PublicPlaybookExplorer({
   // nodes are rendered at any time. Slicing 24 lightweight items provides sub-millisecond
   // layout and render times with zero scroll layout jumping or dynamic height measurement bugs,
   // making virtualization redundant and adding unnecessary bundle overhead.
-  const totalPages = Math.max(1, Math.ceil(filteredProblems.length / PAGE_SIZE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredProblems.length / PAGE_SIZE),
+  );
   const safeCurrentPage = Math.min(currentPage, totalPages);
   const paginatedProblems = React.useMemo(() => {
     const startIndex = (safeCurrentPage - 1) * PAGE_SIZE;
@@ -405,7 +416,9 @@ export function PublicPlaybookExplorer({
         {/* Second row: Difficulty filters + Clear filters */}
         <div className="flex flex-wrap items-center justify-between gap-2.5 pt-1 border-t border-[#333333]">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-medium text-zinc-400">Difficulty:</span>
+            <span className="text-xs font-medium text-zinc-400">
+              Difficulty:
+            </span>
             {AVAILABLE_DIFFICULTIES.map((diff) => {
               const isSelected = selectedDifficulties.includes(diff);
               return (
@@ -419,8 +432,8 @@ export function PublicPlaybookExplorer({
                       ? diff === "EASY"
                         ? "bg-[#46C6C2]/20 border-[#46C6C2] text-[#46C6C2] ring-1 ring-[#46C6C2]/40"
                         : diff === "MEDIUM"
-                        ? "bg-yellow-500/20 border-yellow-500 text-yellow-400 ring-1 ring-yellow-500/40"
-                        : "bg-red-500/20 border-red-500 text-red-400 ring-1 ring-red-500/40"
+                          ? "bg-yellow-500/20 border-yellow-500 text-yellow-400 ring-1 ring-yellow-500/40"
+                          : "bg-red-500/20 border-red-500 text-red-400 ring-1 ring-red-500/40"
                       : "bg-[#1a1a1a] border-[#383838] text-zinc-400 hover:border-zinc-500 hover:text-white",
                   )}
                   aria-pressed={isSelected}
@@ -459,7 +472,9 @@ export function PublicPlaybookExplorer({
                   onClick={() => setShowAllTags((prev) => !prev)}
                   className="text-[11px] text-zinc-400 hover:text-white transition-colors cursor-pointer"
                 >
-                  {showAllTags ? "Show less" : `+${topicCounts.length - TOPIC_PREVIEW_LIMIT} more`}
+                  {showAllTags
+                    ? "Show less"
+                    : `+${topicCounts.length - TOPIC_PREVIEW_LIMIT} more`}
                 </button>
               )}
             </div>
@@ -473,7 +488,7 @@ export function PublicPlaybookExplorer({
                     type="button"
                     onClick={() => toggleTopic(name)}
                     className={cn(
-                      "rounded border px-2 py-0.5 text-xs transition-colors cursor-pointer focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40 flex items-center gap-1.5",
+                      "rounded border px-2 py-0.5 text-md transition-colors cursor-pointer focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40 flex items-center gap-1.5",
                       isSelected
                         ? "bg-white/20 border-white/50 text-white font-medium"
                         : "bg-[#1a1a1a] border-[#383838] text-zinc-300 hover:border-zinc-400 hover:text-white",

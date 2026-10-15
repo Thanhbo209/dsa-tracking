@@ -23,7 +23,10 @@ function getDifficultyBadge(difficulty: string | null) {
       return <Badge variant="hard">HARD</Badge>;
     default:
       return (
-        <Badge variant="outline" className="text-zinc-400 border-zinc-700 bg-zinc-800/60">
+        <Badge
+          variant="outline"
+          className="text-zinc-400 border-zinc-700 bg-zinc-800/60"
+        >
           UNTIERED
         </Badge>
       );
@@ -59,7 +62,9 @@ export const PublicProblemCard = React.memo(function PublicProblemCard({
               {problem.title}
             </h3>
           </div>
-          <div className="shrink-0">{getDifficultyBadge(problem.difficulty)}</div>
+          <div className="shrink-0">
+            {getDifficultyBadge(problem.difficulty)}
+          </div>
         </div>
 
         {/* Tag row (capped at single line with uniform overflow) */}
@@ -81,7 +86,7 @@ export const PublicProblemCard = React.memo(function PublicProblemCard({
                       onTagClick?.(topic);
                     }}
                     className={cn(
-                      "rounded border px-1.5 py-0.5 text-[10px] transition-colors cursor-pointer shrink-0 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40",
+                      "rounded border px-1.5 py-0.5 text-[13px] transition-colors cursor-pointer shrink-0 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40",
                       isSelected
                         ? "bg-white/20 border-white/50 text-white font-medium"
                         : "bg-[#1a1a1a] border-[#444444] text-zinc-300 hover:border-zinc-300 hover:text-white",
@@ -107,7 +112,8 @@ export const PublicProblemCard = React.memo(function PublicProblemCard({
       {/* Footer without redundant View affordance */}
       <div className="flex items-center justify-between pt-2.5 mt-3 border-t border-[#333333]">
         <span className="text-[11px] text-zinc-400 font-medium">
-          {problem.approachCount} {problem.approachCount === 1 ? "approach" : "approaches"}
+          {problem.approachCount}{" "}
+          {problem.approachCount === 1 ? "approach" : "approaches"}
         </span>
       </div>
     </Link>
