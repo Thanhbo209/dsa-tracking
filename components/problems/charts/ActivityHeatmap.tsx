@@ -164,10 +164,11 @@ export function ActivityHeatmap({
   // Heatmap Cell Color
   const getCellColor = (count: number, isFuture: boolean) => {
     if (isFuture) return "transparent";
-    if (count === 0) return "#222224"; // subtle background
-    if (count === 1) return "rgba(70, 198, 194, 0.35)"; // 30-35% opacity
-    if (count === 2) return "rgba(70, 198, 194, 0.70)"; // 70% opacity
-    return "#46C6C2"; // full opacity 3+
+    if (count === 0) return "#222423"; // subtle background
+    if (count <= 2) return "#016620"; // 30-35% opacity
+    if (count <= 3) return "#109932"; // 30-35% opacity
+    if (count <= 10) return "#28C244"; // 70% opacity
+    return "#7fe18b"; // full opacity 3+
   };
 
   const getCellBorder = (count: number, isFuture: boolean) => {
@@ -199,7 +200,8 @@ export function ActivityHeatmap({
                   className="text-[11px] text-[#46C6C2] font-medium"
                   title={new Date(lastSyncedAt).toLocaleString()}
                 >
-                  Synced {leetcodeUsername ? `@${leetcodeUsername} ` : ""}{formatRelativeTime(lastSyncedAt)}
+                  Synced {leetcodeUsername ? `@${leetcodeUsername} ` : ""}
+                  {formatRelativeTime(lastSyncedAt)}
                 </span>
               </>
             ) : null}
@@ -231,33 +233,33 @@ export function ActivityHeatmap({
 
           {/* Tab Toggle: Solves vs Knowledge Notes */}
           <div className="flex items-center bg-[#1a1a1a] border border-[#383838] rounded-lg p-0.5 text-xs">
-          <button
-            type="button"
-            onClick={() => setActiveTab("SOLVES")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
-              activeTab === "SOLVES"
-                ? "bg-[#2b2b2b] text-white shadow-xs"
-                : "text-zinc-400 hover:text-white"
-            }`}
-          >
-            <CheckCircle className="size-3 text-[#46C6C2]" />
-            <span>Solves</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveTab("KNOWLEDGE")}
-            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
-              activeTab === "KNOWLEDGE"
-                ? "bg-[#2b2b2b] text-white shadow-xs"
-                : "text-zinc-400 hover:text-white"
-            }`}
-          >
-            <BookOpen className="size-3 text-amber-400" />
-            <span>Vault Notes</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("SOLVES")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
+                activeTab === "SOLVES"
+                  ? "bg-[#2b2b2b] text-white shadow-xs"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              <CheckCircle className="size-3 text-[#46C6C2]" />
+              <span>Solves</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("KNOWLEDGE")}
+              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
+                activeTab === "KNOWLEDGE"
+                  ? "bg-[#2b2b2b] text-white shadow-xs"
+                  : "text-zinc-400 hover:text-white"
+              }`}
+            >
+              <BookOpen className="size-3 text-amber-400" />
+              <span>Vault Notes</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
       {/* Heatmap Grid Container (Scrollable on Mobile) */}
       <div
@@ -265,14 +267,14 @@ export function ActivityHeatmap({
         className="overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-zinc-700 scrollbar-track-transparent"
         style={{ scrollBehavior: "smooth" }}
       >
-        <div className="inline-block min-w-[700px]">
+        <div className="inline-block min-w-200">
           <svg
             width={53 * (cellSize + cellGap) + 32}
             height={7 * (cellSize + cellGap) + 24}
             className="overflow-visible"
           >
             {/* Month Labels */}
-            <g className="text-[9px] fill-zinc-400 font-sans select-none">
+            <g className="text-[9px] fill-muted-foreground font-sans select-none">
               {monthLabels.map((m, idx) => (
                 <text
                   key={`${m.label}-${idx}`}
@@ -285,7 +287,7 @@ export function ActivityHeatmap({
             </g>
 
             {/* Day Labels (Mon, Wed, Fri) */}
-            <g className="text-[9px] fill-zinc-500 font-sans select-none">
+            <g className="text-[9px] fill-muted-foreground font-sans select-none">
               <text x={10} y={24 + 1 * (cellSize + cellGap) + 8}>
                 Mon
               </text>
@@ -301,7 +303,14 @@ export function ActivityHeatmap({
             <g transform="translate(32, 22)">
               {weeks.map((week, wIdx) =>
                 week.map((day, dIdx) => {
-                  const x = wIdx * (cellSize + cellGap);
+                  const monthGap = 8;
+
+                  const monthGapCount =
+                    monthLabels.filter((month) => month.weekIndex <= wIdx)
+                      .length - 1;
+
+                  const x =
+                    wIdx * (cellSize + cellGap) + monthGapCount * monthGap;
                   const y = dIdx * (cellSize + cellGap);
 
                   return (
@@ -317,7 +326,7 @@ export function ActivityHeatmap({
                       strokeWidth={1}
                       className={
                         !day.isFuture
-                          ? "transition-colors duration-150 cursor-pointer hover:stroke-white"
+                          ? "transition-colors duration-150 cursor-pointer"
                           : ""
                       }
                       onMouseEnter={(e) => {
@@ -366,20 +375,24 @@ export function ActivityHeatmap({
         <div className="flex items-center gap-1.5 text-[11px] select-none">
           <span>Less</span>
           <span
-            className="size-2.5 rounded-xs border border-[#2f2f32]"
+            className="size-2.5 rounded-xs"
             style={{ backgroundColor: "#222224" }}
           />
           <span
             className="size-2.5 rounded-xs"
-            style={{ backgroundColor: "rgba(70, 198, 194, 0.35)" }}
+            style={{ backgroundColor: "#016620" }}
           />
           <span
             className="size-2.5 rounded-xs"
-            style={{ backgroundColor: "rgba(70, 198, 194, 0.70)" }}
+            style={{ backgroundColor: "#109932" }}
           />
           <span
             className="size-2.5 rounded-xs"
-            style={{ backgroundColor: "#46C6C2" }}
+            style={{ backgroundColor: "#28C244" }}
+          />
+          <span
+            className="size-2.5 rounded-xs"
+            style={{ backgroundColor: "#7FE18B" }}
           />
           <span>More</span>
         </div>

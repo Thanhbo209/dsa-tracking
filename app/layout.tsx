@@ -3,7 +3,7 @@ import { Manrope, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 const manrope = Manrope({
-  variable: "--font-sans",
+  variable: "--font-geist-sans",
   subsets: ["latin"],
 });
 
@@ -17,7 +17,8 @@ export const metadata: Metadata = {
     default: "DSA Master",
     template: "%s | DSA Master",
   },
-  description: "Track, analyze, and master DSA problems with your personal playbook and AI analysis.",
+  description:
+    "Track, analyze, and master DSA problems with your personal playbook and AI analysis.",
   icons: {
     icon: "/icon.png",
     shortcut: "/icon.png",
