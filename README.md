@@ -24,6 +24,18 @@
 </p>
 
 ---
+## 🧪 Testing Account
+
+For testing the deployed application, you can use the following demo account:
+
+| Field | Value |
+|---|---|
+| **Username** | `thanhcow` |
+| **Password** | `123123123` |
+
+> **Note:** This account is intended for demonstration and testing purposes only. Do not use these credentials for sensitive data or production accounts.
+
+---
 
 ## 💡 Overview & Problem Statement
 
@@ -176,16 +188,7 @@ ADMIN_PAGE -->|"Read switch metrics"| DB_EVENTS
 
 ---
 
-### 🧪 Testing Account
 
-For testing the deployed application, you can use the following demo account:
-
-| Field | Value |
-|---|---|
-| **Username** | `thanhcow` |
-| **Password** | `123123123` |
-
-> **Note:** This account is intended for demonstration and testing purposes only. Do not use these credentials for sensitive data or production accounts.
 
 ## 🛠️ Tech Stack
 
