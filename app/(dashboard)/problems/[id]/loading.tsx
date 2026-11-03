@@ -18,14 +18,14 @@ export default function ProblemDetailLoading() {
           <SkeletonCard className="space-y-4 h-full">
             {/* Problem number + title */}
             <div className="space-y-2">
-              <Skeleton className="h-3.5 w-12 rounded" />
-              <Skeleton className="h-7 w-4/5 rounded" />
+              <Skeleton className="h-3.5 w-12 " />
+              <Skeleton className="h-7 w-4/5 " />
             </div>
 
             {/* Difficulty badge + URL link */}
             <div className="flex items-center gap-2">
               <SkeletonBadge width="w-16" />
-              <Skeleton className="h-4 w-28 rounded" />
+              <Skeleton className="h-4 w-28 " />
             </div>
 
             {/* Topic chips */}
@@ -38,18 +38,18 @@ export default function ProblemDetailLoading() {
             {/* Description body — this section may load slowly due to syncProblem backfill */}
             <div className="space-y-3 pt-2">
               <SkeletonText lines={6} />
-              <Skeleton className="h-20 w-full rounded-lg" />
+              <Skeleton className="h-20 w-full" />
               <SkeletonText lines={4} />
             </div>
           </SkeletonCard>
         </div>
 
         {/* ── RIGHT: Learning Workspace ── */}
-        <div className="lg:col-span-7 rounded-xl border border-[#383838] bg-[#262626] p-5 sm:p-6">
+        <div className="lg:col-span-7 border border-[#383838] bg-[#262626] p-5 sm:p-6">
           {/* Tabs row */}
           <div className="flex items-center gap-2 border-b border-[#383838] pb-3 mb-4">
             {["Submissions", "Knowledge"].map((_, i) => (
-              <Skeleton key={i} className="h-8 w-28 rounded-md" />
+              <Skeleton key={i} className="h-8 w-28 " />
             ))}
           </div>
 
@@ -58,18 +58,18 @@ export default function ProblemDetailLoading() {
             {Array.from({ length: 3 }).map((_, i) => (
               <div
                 key={i}
-                className="rounded-lg border border-[#383838] bg-[#1e1e1e] p-4 space-y-2"
+                className=" border border-[#383838] bg-[#1e1e1e] p-4 space-y-2"
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <SkeletonBadge width="w-16" />
-                    <Skeleton className="h-3.5 w-20 rounded" />
+                    <Skeleton className="h-3.5 w-20 " />
                   </div>
-                  <Skeleton className="h-3.5 w-24 rounded" />
+                  <Skeleton className="h-3.5 w-24 " />
                 </div>
                 <div className="flex gap-3">
-                  <Skeleton className="h-3.5 w-20 rounded" />
-                  <Skeleton className="h-3.5 w-24 rounded" />
+                  <Skeleton className="h-3.5 w-20 " />
+                  <Skeleton className="h-3.5 w-24 " />
                 </div>
               </div>
             ))}
