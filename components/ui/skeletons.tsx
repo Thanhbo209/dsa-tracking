@@ -16,7 +16,7 @@ export function SkeletonCard({
 }) {
   return (
     <div
-      className={`rounded-xl border border-[#383838] bg-[#262626] p-5 sm:p-6 ${className ?? ""}`}
+      className={` border border-[#383838] bg-[#262626] p-5 sm:p-6 ${className ?? ""}`}
     >
       {children}
     </div>
@@ -35,10 +35,7 @@ export function SkeletonText({
   return (
     <div className={`space-y-2 ${className ?? ""}`}>
       {Array.from({ length: lines }).map((_, i) => (
-        <Skeleton
-          key={i}
-          className={`h-3.5 ${widths[i % widths.length]}`}
-        />
+        <Skeleton key={i} className={`h-3.5 ${widths[i % widths.length]}`} />
       ))}
     </div>
   );
@@ -49,12 +46,12 @@ export function SkeletonCircle({ size = 12 }: { size?: number }) {
   return (
     <Skeleton
       style={{ width: size * 4, height: size * 4 }}
-      className="rounded-full shrink-0"
+      className=" shrink-0"
     />
   );
 }
 
 /** Pill/chip shaped placeholder — for topic badges, difficulty badges, status pills */
 export function SkeletonBadge({ width = "w-16" }: { width?: string }) {
-  return <Skeleton className={`h-5 ${width} rounded-full`} />;
+  return <Skeleton className={`h-5 ${width} `} />;
 }
