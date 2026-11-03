@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { History, BookOpen, AlertCircle, X, Bot } from "lucide-react";
 import { cn } from "@/utils/utils";
-import { SubmissionCard } from "./SubmissionCard";
-import { SubmissionAnalysisContainer } from "./analysis/SubmissionAnalysisContainer";
-import { KnowledgeWorkspace } from "./knowledge/KnowledgeWorkspace";
-import type { KnowledgeApproach } from "./knowledge/types";
-import type { SerializedSubmissionAnalysis } from "./analysis/types";
+import { SubmissionCard } from "../../code/SubmissionCard";
+import { SubmissionAnalysisContainer } from "../../analysis/SubmissionAnalysisContainer";
+import { KnowledgeWorkspace } from "../../knowledge/KnowledgeWorkspace";
+import type { KnowledgeApproach } from "../../knowledge/types";
 import type { FetchedSubmissionDetails } from "@/lib/extension/fetchCode";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
+import { SerializedSubmissionAnalysis } from "@/types/analysis";
 
 export interface WorkspaceSubmission {
   id: string;

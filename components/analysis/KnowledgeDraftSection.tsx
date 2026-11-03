@@ -7,10 +7,9 @@ import type {
   AiReview,
   AiRecommendation,
 } from "@/lib/validation/analysis";
-import type { AnalysisStatus } from "./types";
-import { DraftEditForm } from "./DraftEditForm";
+import { DraftEditForm } from "../form/DraftEditForm";
 import { Button } from "@/components/ui/button";
-import { DsaLogo } from "@/components/brand/DsaLogo";
+import { DsaLogo } from "@/components/ui/logo";
 import {
   CheckCircle2,
   XCircle,
@@ -23,7 +22,8 @@ import {
   ListOrdered,
   Info,
 } from "lucide-react";
-import { CodeViewer } from "../CodeViewer";
+import { CodeViewer } from "../code/CodeViewer";
+import { AnalysisStatus } from "@/types/analysis";
 
 /**
  * Formats inline backticked code identifiers into styled code chips.

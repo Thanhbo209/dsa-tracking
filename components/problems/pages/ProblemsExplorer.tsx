@@ -13,12 +13,12 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DsaLogo } from "@/components/brand/DsaLogo";
-import { ProblemStatsDonut } from "./charts/ProblemStatsDonut";
-import { ActivityHeatmap } from "./charts/ActivityHeatmap";
-import { ProgressRing } from "./ProgressRing";
-import { TopicsSolvedBar, type SolvedTopicItem } from "./TopicsSolvedBar";
-import { Input } from "../ui/input";
+import { DsaLogo } from "@/components/ui/logo";
+import { ProblemStatsDonut } from "../../charts/ProblemStatsDonut";
+import { ActivityHeatmap } from "../../charts/ActivityHeatmap";
+import { ProgressRing } from "../components/ProgressRing";
+import { TopicsSolvedBar } from "../components/TopicsSolvedBar";
+import { Input } from "../../ui/input";
 import {
   DifficultyFilter,
   ProblemExplorerItem,
@@ -28,7 +28,8 @@ import {
 import { PAGE_SIZE } from "@/utils/problems/constants";
 import { difficultyOrder } from "@/utils/problems/sorting";
 import { difficultyCardStripe, difficultyClass } from "@/utils/problems/style";
-import { Pagination } from "../ui/pagination";
+import { Pagination } from "../../ui/pagination";
+import { SolvedTopicItem } from "@/types/topic";
 
 export interface ProblemsExplorerProps {
   problems: ProblemExplorerItem[];

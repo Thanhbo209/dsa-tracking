@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import { ProblemDetailPanel } from "@/components/problems/ProblemDetailPanel";
+import { ProblemDetailPanel } from "@/components/problems/components/ProblemDetailPanel";
 import {
   ProblemLearningWorkspace,
   type WorkspaceSubmission,
-} from "@/components/problems/ProblemLearningWorkspace";
-import type { KnowledgeApproach } from "@/components/problems/knowledge/types";
+} from "@/components/problems/pages/ProblemLearningWorkspace";
+import type { KnowledgeApproach } from "@/components/knowledge/types";
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/session";
 import { syncProblem } from "@/lib/leetcode/sync";

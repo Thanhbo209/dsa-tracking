@@ -8,15 +8,15 @@ import {
   Code,
   CheckCircle2,
 } from "lucide-react";
-import { DsaLogo } from "@/components/brand/DsaLogo";
-import { SubmissionAnalysisContainer } from "./analysis/SubmissionAnalysisContainer";
-import type { SerializedSubmissionAnalysis } from "./analysis/types";
+import { DsaLogo } from "@/components/ui/logo";
+import { SubmissionAnalysisContainer } from "../analysis/SubmissionAnalysisContainer";
 import { cn } from "@/utils/utils";
 import { CodeViewer } from "./CodeViewer";
 import {
   fetchSubmissionCodeViaExtension,
   type FetchedSubmissionDetails,
 } from "@/lib/extension/fetchCode";
+import { SerializedSubmissionAnalysis } from "@/types/analysis";
 
 export interface SubmissionCardProps {
   id: string;
@@ -178,12 +178,12 @@ export function SubmissionCard({
                     isSelected ? "Selected for AI review" : "Click to select"
                   }
                 >
-                  {isSelected && <CheckCircle2 className="size-3 stroke-[3]" />}
+                  {isSelected && <CheckCircle2 className="size-3 stroke-3" />}
                 </span>
               )}
 
               <span
-                className={`inline-block rounded-full px-2.5 py-0.5 text-xs sm:text-sm font-medium ${statusBadgeClass(
+                className={`inline-block px-2.5 py-0.5 text-xs sm:text-sm font-medium ${statusBadgeClass(
                   status,
                 )}`}
               >
@@ -191,13 +191,13 @@ export function SubmissionCard({
               </span>
 
               <span className="text-sm sm:text-base font-semibold text-white">
-                {language}
+                {language.toUpperCase()}
               </span>
 
               {/* Analysis status indicator on card header */}
               {latestAnalysis && (
                 <span
-                  className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 text-xs font-medium ${
                     latestAnalysis.status === "DRAFT_READY"
                       ? "bg-primary/20 text-white border border-primary/40"
                       : latestAnalysis.status === "FAILED"

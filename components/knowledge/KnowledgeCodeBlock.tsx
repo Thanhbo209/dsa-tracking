@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import type { KnowledgeSolution } from "./types";
-import { CodeDialog } from "@/components/problems/dialogs/CodeDialog";
+import { CodeDialog } from "@/components/dialogs/CodeDialog";
 import { Copy, Check, Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CodeViewer } from "../CodeViewer";
+import { CodeViewer } from "../code/CodeViewer";
 
 interface KnowledgeCodeBlockProps {
   solution: KnowledgeSolution;

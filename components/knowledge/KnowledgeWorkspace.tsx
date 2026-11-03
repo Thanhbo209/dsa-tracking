@@ -5,7 +5,7 @@ import type { KnowledgeApproach } from "./types";
 import { ApproachTabs } from "./ApproachTabs";
 import { ApproachOverview } from "./ApproachOverview";
 import { SolutionTechniqueView } from "./SolutionTechniqueView";
-import { ApproachDialog } from "@/components/problems/dialogs/ApproachDialog";
+import { ApproachDialog } from "@/components/dialogs/ApproachDialog";
 import { BookOpen } from "lucide-react";
 
 interface KnowledgeWorkspaceProps {

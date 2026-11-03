@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { AiReviewSection } from "@/components/problems/analysis/AiReviewSection";
-import { KnowledgeDraftSection } from "@/components/problems/analysis/KnowledgeDraftSection";
-import { DraftEditForm } from "@/components/problems/analysis/DraftEditForm";
-import { AnalysisEmptyState } from "@/components/problems/analysis/AnalysisEmptyState";
-import { AnalysisGeneratingState } from "@/components/problems/analysis/AnalysisGeneratingState";
-import { AnalysisFailedState } from "@/components/problems/analysis/AnalysisFailedState";
-import { SubmissionAnalysisContainer } from "@/components/problems/analysis/SubmissionAnalysisContainer";
-import { SubmissionCard } from "@/components/problems/SubmissionCard";
-import { ModelSelector } from "@/components/problems/analysis/ModelSelector";
+import { AiReviewSection } from "@/components/analysis/AiReviewSection";
+import { KnowledgeDraftSection } from "@/components/analysis/KnowledgeDraftSection";
+import { DraftEditForm } from "@/components/form/DraftEditForm";
+import { AnalysisEmptyState } from "@/components/analysis/AnalysisEmptyState";
+import { AnalysisGeneratingState } from "@/components/analysis/AnalysisGeneratingState";
+import { AnalysisFailedState } from "@/components/analysis/AnalysisFailedState";
+import { SubmissionAnalysisContainer } from "@/components/analysis/SubmissionAnalysisContainer";
+import { SubmissionCard } from "@/components/code/SubmissionCard";
+import { ModelSelector } from "@/components/analysis/ModelSelector";
 import type { AiReview, AiDraft } from "@/lib/validation/analysis";
 import type { SerializedSubmissionAnalysis } from "@/components/problems/analysis/types";
 
@@ -24,12 +24,14 @@ describe("Submission Analysis UI Components", () => {
     actualApproach: {
       name: "One-Pass Hash Map",
       coreIdea: "Store visited numbers to find complement in single iteration",
-      explanation: "Iterates through array while checking if complement exists in Map.",
+      explanation:
+        "Iterates through array while checking if complement exists in Map.",
     },
     actualSolution: {
       name: "One-Pass Hash Map Solution",
       description: "Tracks seen values and their indices using Map.",
-      algorithm: "1. Initialize Map\n2. Loop nums\n3. Check target - nums[i]\n4. Return indices",
+      algorithm:
+        "1. Initialize Map\n2. Loop nums\n3. Check target - nums[i]\n4. Return indices",
     },
     summary: "High performance one-pass hash map solution.",
     isCorrect: true,
@@ -81,7 +83,8 @@ describe("Submission Analysis UI Components", () => {
     solution: {
       name: "One-Pass Complement Search",
       description: "Iterates through array once while maintaining map.",
-      algorithm: "1. Create Map\n2. Loop through nums\n3. Check complement\n4. Return indices",
+      algorithm:
+        "1. Create Map\n2. Loop through nums\n3. Check complement\n4. Return indices",
       notes: "Safe access pattern.",
     },
     code: {
@@ -191,7 +194,9 @@ describe("Submission Analysis UI Components", () => {
 
   describe("AiReviewSection", () => {
     it("renders full review with in-depth complexity reasoning", () => {
-      const html = renderToStaticMarkup(<AiReviewSection review={mockReview} />);
+      const html = renderToStaticMarkup(
+        <AiReviewSection review={mockReview} />,
+      );
 
       // Summary & correctness
       expect(html).toContain("AI Diagnostic Review");
@@ -205,14 +210,18 @@ describe("Submission Analysis UI Components", () => {
 
       // In-depth complexity reasoning points
       expect(html).toContain("The single for-loop iterates up to n times.");
-      expect(html).toContain("Map.has and Map.get operations take O(1) average time.");
+      expect(html).toContain(
+        "Map.has and Map.get operations take O(1) average time.",
+      );
       expect(html).toContain("A Map stores seen values and indices.");
 
       // Strengths, mistakes, edge cases, takeaways
       expect(html).toContain("Optimal linear time complexity.");
       expect(html).toContain("Uses non-null assertion operator.");
       expect(html).toContain("None; handles duplicates and negative numbers.");
-      expect(html).toContain("Trading O(n) memory for hash table lookups eliminates quadratic search costs.");
+      expect(html).toContain(
+        "Trading O(n) memory for hash table lookups eliminates quadratic search costs.",
+      );
     });
 
     it("renders clean model indicator badge when modelName is provided", () => {
@@ -253,7 +262,9 @@ describe("Submission Analysis UI Components", () => {
       );
 
       // Draft disclaimer banner
-      expect(html).toContain("AI-generated analysis — not saved to your knowledge base");
+      expect(html).toContain(
+        "AI-generated analysis — not saved to your knowledge base",
+      );
 
       // Action buttons
       expect(html).toContain("Save Recommendation to Vault");
@@ -263,7 +274,9 @@ describe("Submission Analysis UI Components", () => {
       // Approach details
       expect(html).toContain("AI Recommendation");
       expect(html).toContain("Hash Map Lookup");
-      expect(html).toContain("Store visited numbers to find complement in O(1) time.");
+      expect(html).toContain(
+        "Store visited numbers to find complement in O(1) time.",
+      );
 
       // Solution details
       expect(html).toContain("Method: One-Pass Complement Search");
@@ -335,7 +348,9 @@ describe("Submission Analysis UI Components", () => {
         />,
       );
 
-      expect(html).toContain("Draft Rejected — This draft was rejected and not saved to your knowledge base.");
+      expect(html).toContain(
+        "Draft Rejected — This draft was rejected and not saved to your knowledge base.",
+      );
       expect(html).not.toContain("Save Recommendation to Vault");
       expect(html).not.toContain("Save My Approach to Vault");
       expect(html).not.toContain("Edit Draft");
@@ -421,7 +436,10 @@ describe("Submission Analysis UI Components", () => {
   describe("SubmissionAnalysisContainer", () => {
     it("renders empty state when no analysis exists without auto-triggering analysis", () => {
       const html = renderToStaticMarkup(
-        <SubmissionAnalysisContainer submissionId="sub-empty" initialAnalyses={[]} />,
+        <SubmissionAnalysisContainer
+          submissionId="sub-empty"
+          initialAnalyses={[]}
+        />,
       );
 
       expect(html).toContain("No AI Analysis Yet");
@@ -453,7 +471,9 @@ describe("Submission Analysis UI Components", () => {
       expect(html).toContain("Latest Analysis");
       expect(html).toContain("gemini-2.5-flash");
       expect(html).toContain("AI Diagnostic Review");
-      expect(html).toContain("AI-generated analysis — not saved to your knowledge base");
+      expect(html).toContain(
+        "AI-generated analysis — not saved to your knowledge base",
+      );
       expect(html).toContain("Re-analyze");
       expect(html).toContain("Run with:");
     });

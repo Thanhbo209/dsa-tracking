@@ -16,8 +16,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { PublicProblemCard } from "./PublicProblemCard";
-import { PublicProblemRow } from "./PublicProblemRow";
+import { PublicProblemCard } from "../components/PublicProblemCard";
+import { PublicProblemRow } from "../components/PublicProblemRow";
 import type { PublicVaultProblem } from "@/lib/profile/service";
 import {
   filterAndSortProblems,

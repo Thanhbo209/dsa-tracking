@@ -4,9 +4,9 @@ import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/session";
 import { aggregateDailyActivities } from "@/lib/activity/streak";
 
-import { ExtensionDialog } from "@/components/extension/ExtensionDialog";
+import { ExtensionDialog } from "@/components/dialogs/ExtensionDialog";
 import { ProblemExplorerItem, ProblemStatus } from "@/types/problem";
-import { ProblemsExplorer } from "@/components/problems/ProblemsExplorer";
+import { ProblemsExplorer } from "@/components/problems/pages/ProblemsExplorer";
 
 export const metadata: Metadata = {
   title: "Problems",

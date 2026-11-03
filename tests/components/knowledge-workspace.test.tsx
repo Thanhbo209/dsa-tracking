@@ -1,13 +1,13 @@
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { KnowledgeWorkspace } from "@/components/problems/knowledge/KnowledgeWorkspace";
-import { ApproachOverview } from "@/components/problems/knowledge/ApproachOverview";
-import { SolutionTechniqueView } from "@/components/problems/knowledge/SolutionTechniqueView";
-import { KnowledgeCodeBlock } from "@/components/problems/knowledge/KnowledgeCodeBlock";
+import { KnowledgeWorkspace } from "@/components/knowledge/KnowledgeWorkspace";
+import { ApproachOverview } from "@/components/knowledge/ApproachOverview";
+import { SolutionTechniqueView } from "@/components/knowledge/SolutionTechniqueView";
+import { KnowledgeCodeBlock } from "@/components/knowledge/KnowledgeCodeBlock";
 import type {
   KnowledgeApproach,
   KnowledgeSolution,
-} from "@/components/problems/knowledge/types";
+} from "@/components/knowledge/types";
 
 // Mock next/navigation
 vi.mock("next/navigation", () => ({
@@ -28,15 +28,18 @@ describe("KnowledgeWorkspace Components (Phase 5A)", () => {
     whenToUse: "When searching for pair sums in unsorted arrays.",
     pros: "Fast O(n) linear execution in a single pass.",
     cons: "Allocates O(n) memory proportional to the input array.",
-    mistakes: "Inserting elements before checking complement can cause self-matching bugs.",
+    mistakes:
+      "Inserting elements before checking complement can cause self-matching bugs.",
     notes: "Works for negative numbers and zero.",
     solutions: [
       {
         id: "sol-1",
         approachId: "app-1",
         name: "One-Pass Complement Lookup",
-        description: "Iterates through array once while dynamically populating map.",
-        algorithm: "1. Initialize empty map\n2. Loop through nums\n3. Check complement\n4. Return indices",
+        description:
+          "Iterates through array once while dynamically populating map.",
+        algorithm:
+          "1. Initialize empty map\n2. Loop through nums\n3. Check complement\n4. Return indices",
         notes: "Best practical performance.",
         codes: [
           {
@@ -74,7 +77,8 @@ describe("KnowledgeWorkspace Components (Phase 5A)", () => {
     timeComplexity: "O(n log n)",
     spaceComplexity: "O(1)",
     coreIdea: "Sort array and pinch pointers from both ends.",
-    whyItWorks: "Monotonicity of sorted numbers ensures pointer steps are sound.",
+    whyItWorks:
+      "Monotonicity of sorted numbers ensures pointer steps are sound.",
     whenToUse: "When array can be sorted or indices are not required.",
     pros: "Zero auxiliary memory.",
     cons: "Modifies original order.",
@@ -108,22 +112,23 @@ describe("KnowledgeWorkspace Components (Phase 5A)", () => {
       expect(html).toContain("O(n)");
 
       // Active approach 1 content is rendered
-      expect(html).toContain("Trade auxiliary space for constant time lookups of complements.");
+      expect(html).toContain(
+        "Trade auxiliary space for constant time lookups of complements.",
+      );
       expect(html).toContain("One-Pass Complement Lookup");
     });
 
     it("renders plain header without approach tabs when only one approach exists", () => {
       const html = renderToStaticMarkup(
-        <KnowledgeWorkspace
-          problemId="prob-1"
-          approaches={[mockApproach1]}
-        />,
+        <KnowledgeWorkspace problemId="prob-1" approaches={[mockApproach1]} />,
       );
 
       expect(html).toContain("Hash Map Strategy");
       expect(html).not.toContain('aria-label="Problem approaches"');
       expect(html).toContain("O(n)");
-      expect(html).toContain("Trade auxiliary space for constant time lookups of complements.");
+      expect(html).toContain(
+        "Trade auxiliary space for constant time lookups of complements.",
+      );
     });
   });
 
@@ -139,23 +144,33 @@ describe("KnowledgeWorkspace Components (Phase 5A)", () => {
 
       // Core idea prominently displayed
       expect(html).toContain("Core Idea");
-      expect(html).toContain("Trade auxiliary space for constant time lookups of complements.");
+      expect(html).toContain(
+        "Trade auxiliary space for constant time lookups of complements.",
+      );
 
       // Why it works & When to use
       expect(html).toContain("Why It Works");
-      expect(html).toContain("For any element x, complement target - x is uniquely defined.");
+      expect(html).toContain(
+        "For any element x, complement target - x is uniquely defined.",
+      );
       expect(html).toContain("When To Use");
-      expect(html).toContain("When searching for pair sums in unsorted arrays.");
+      expect(html).toContain(
+        "When searching for pair sums in unsorted arrays.",
+      );
 
       // Pros & Cons
       expect(html).toContain("Pros &amp; Advantages");
       expect(html).toContain("Fast O(n) linear execution in a single pass.");
       expect(html).toContain("Cons &amp; Limitations");
-      expect(html).toContain("Allocates O(n) memory proportional to the input array.");
+      expect(html).toContain(
+        "Allocates O(n) memory proportional to the input array.",
+      );
 
       // Common pitfalls / mistakes
       expect(html).toContain("Common Mistakes to Avoid");
-      expect(html).toContain("Inserting elements before checking complement can cause self-matching bugs.");
+      expect(html).toContain(
+        "Inserting elements before checking complement can cause self-matching bugs.",
+      );
 
       // Additional notes
       expect(html).toContain("Additional Notes");

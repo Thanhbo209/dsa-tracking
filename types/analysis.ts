@@ -1,4 +1,8 @@
-import type { AiReview, AiDraft, AiRecommendation } from "@/lib/validation/analysis";
+import type {
+  AiReview,
+  AiDraft,
+  AiRecommendation,
+} from "@/lib/validation/analysis";
 
 export type AnalysisStatus =
   | "GENERATING"

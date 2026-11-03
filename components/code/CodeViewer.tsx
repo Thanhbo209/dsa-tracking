@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Check, ChevronDown, Copy } from "lucide-react";
+import { Check, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/utils/utils";
-import { highlightCodeLine, detectLanguageFromCode } from "./syntaxHighlighter";
+import { detectLanguageFromCode, highlightCodeLine } from "./SyntaxHighlighter";
 
 export interface CodeViewerProps {
   code: string;
@@ -60,7 +60,6 @@ export function CodeViewer({
             <div className="flex items-center gap-2">
               <span className="flex items-center gap-1.5 bg-[#333333] px-2.5 py-1 text-xs font-semibold text-white border border-[#444444]/60">
                 <span>{(effectiveLanguage || language).toUpperCase()}</span>
-                <ChevronDown className="size-3.5 text-zinc-400" />
               </span>
               <span className=" bg-[#333333]/60 px-2 py-0.5 text-[11px] text-zinc-400 border border-[#444444]/40 font-sans">
                 Auto
@@ -106,11 +105,8 @@ export function CodeViewer({
           <table className="w-full border-collapse font-mono text-[13.5px] sm:text-sm leading-relaxed">
             <tbody>
               {lines.map((line, idx) => (
-                <tr
-                  key={idx}
-                  className="hover:bg-white/[0.04] transition-colors"
-                >
-                  <td className="w-11 min-w-[2.75rem] select-none py-0.5 pr-4 pl-3.5 text-right text-[13px] sm:text-sm text-[#707070] font-mono align-top">
+                <tr key={idx} className="hover:bg-white/4 transition-colors">
+                  <td className="w-11 min-w-11 select-none py-0.5 pr-4 pl-3.5 text-right text-[13px] sm:text-sm text-[#707070] font-mono align-top">
                     {idx + 1}
                   </td>
                   <td className="py-0.5 px-3 text-zinc-100 whitespace-pre font-mono align-top">

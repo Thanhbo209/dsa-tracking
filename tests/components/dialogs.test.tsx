@@ -1,16 +1,16 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { ApproachDialog } from "@/components/problems/dialogs/ApproachDialog";
-import { SolutionDialog } from "@/components/problems/dialogs/SolutionDialog";
-import { CodeDialog } from "@/components/problems/dialogs/CodeDialog";
-import { KnowledgeWorkspace } from "@/components/problems/knowledge/KnowledgeWorkspace";
-import { SolutionTechniqueView } from "@/components/problems/knowledge/SolutionTechniqueView";
-import { KnowledgeCodeBlock } from "@/components/problems/knowledge/KnowledgeCodeBlock";
+import { ApproachDialog } from "@/components/dialogs/ApproachDialog";
+import { SolutionDialog } from "@/components/dialogs/SolutionDialog";
+import { CodeDialog } from "@/components/dialogs/CodeDialog";
+import { KnowledgeWorkspace } from "@/components/knowledge/KnowledgeWorkspace";
+import { SolutionTechniqueView } from "@/components/knowledge/SolutionTechniqueView";
+import { KnowledgeCodeBlock } from "@/components/knowledge/KnowledgeCodeBlock";
 import type {
   KnowledgeApproach,
   KnowledgeSolution,
   KnowledgeCode,
-} from "@/components/problems/knowledge/types";
+} from "@/components/knowledge/types";
 
 import * as React from "react";
 
@@ -23,7 +23,9 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Mock @base-ui/react/dialog for static server-side markup testing in node
-const DialogTestContext = React.createContext<{ open: boolean }>({ open: false });
+const DialogTestContext = React.createContext<{ open: boolean }>({
+  open: false,
+});
 
 interface MockRootProps {
   children?: React.ReactNode;
@@ -112,7 +114,9 @@ vi.mock("@base-ui/react/dialog", () => {
       Title,
       Description,
       Close,
-      Viewport: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+      Viewport: ({ children }: { children?: React.ReactNode }) => (
+        <div>{children}</div>
+      ),
     },
   };
 });
@@ -130,8 +134,10 @@ describe("Phase 5B Dialog Components", () => {
     id: "sol-1",
     approachId: "app-1",
     name: "One-Pass Complement Lookup",
-    description: "Iterates through array once while dynamically populating map.",
-    algorithm: "1. Initialize empty map\n2. Loop through nums\n3. Check complement\n4. Return indices",
+    description:
+      "Iterates through array once while dynamically populating map.",
+    algorithm:
+      "1. Initialize empty map\n2. Loop through nums\n3. Check complement\n4. Return indices",
     notes: "Best practical performance.",
     codes: [mockCode],
   };
@@ -147,7 +153,8 @@ describe("Phase 5B Dialog Components", () => {
     whenToUse: "When searching for pair sums in unsorted arrays.",
     pros: "Fast linear execution in a single pass.",
     cons: "Allocates O(n) auxiliary memory.",
-    mistakes: "Inserting elements before checking complement can cause self-matching bugs.",
+    mistakes:
+      "Inserting elements before checking complement can cause self-matching bugs.",
     notes: "Works for negative numbers and zero.",
     solutions: [mockSolution],
   };
@@ -209,7 +216,11 @@ describe("Phase 5B Dialog Components", () => {
 
     it("populates existing values in edit mode", () => {
       const html = renderToStaticMarkup(
-        <ApproachDialog mode="edit" approach={mockApproach} defaultOpen={true} />,
+        <ApproachDialog
+          mode="edit"
+          approach={mockApproach}
+          defaultOpen={true}
+        />,
       );
 
       expect(html).toContain("Edit Approach");
@@ -234,7 +245,11 @@ describe("Phase 5B Dialog Components", () => {
   describe("SolutionDialog", () => {
     it("renders trigger in create mode and displays approach context", () => {
       const html = renderToStaticMarkup(
-        <SolutionDialog mode="create" approach={mockApproach} defaultOpen={true} />,
+        <SolutionDialog
+          mode="create"
+          approach={mockApproach}
+          defaultOpen={true}
+        />,
       );
 
       expect(html).toContain("+ Add Solution");
@@ -365,7 +380,11 @@ describe("Phase 5B Dialog Components", () => {
 
     it("approach dialog requires explicit confirmation and warns of cascade deletion", () => {
       const html = renderToStaticMarkup(
-        <ApproachDialog mode="edit" approach={mockApproach} defaultOpen={true} />,
+        <ApproachDialog
+          mode="edit"
+          approach={mockApproach}
+          defaultOpen={true}
+        />,
       );
 
       expect(html).toContain("Delete");
@@ -374,11 +393,17 @@ describe("Phase 5B Dialog Components", () => {
 
     it("solution dialog explicitly anchors to parent approach context", () => {
       const html = renderToStaticMarkup(
-        <SolutionDialog mode="create" approach={mockApproach} defaultOpen={true} />,
+        <SolutionDialog
+          mode="create"
+          approach={mockApproach}
+          defaultOpen={true}
+        />,
       );
 
       expect(html).toContain(`Approach: ${mockApproach.name}`);
-      expect(html).toContain(`Record an algorithmic technique under ${mockApproach.name}.`);
+      expect(html).toContain(
+        `Record an algorithmic technique under ${mockApproach.name}.`,
+      );
     });
 
     it("solution dialog uses normal readable textarea for algorithm steps (not code monospace)", () => {
@@ -394,7 +419,9 @@ describe("Phase 5B Dialog Components", () => {
       expect(html).toContain("Step-by-Step Procedure");
       expect(html).toContain("Algorithm Steps");
       // Verify algorithm input does not force font-mono
-      expect(html).not.toContain('id="solution-algorithm" name="algorithm" class="w-full rounded-md border bg-background px-3 py-1.5 text-xs font-mono');
+      expect(html).not.toContain(
+        'id="solution-algorithm" name="algorithm" class="w-full rounded-md border bg-background px-3 py-1.5 text-xs font-mono',
+      );
     });
 
     it("code dialog explicitly anchors to parent solution context", () => {
@@ -403,7 +430,9 @@ describe("Phase 5B Dialog Components", () => {
       );
 
       expect(html).toContain(`Solution: ${mockSolution.name}`);
-      expect(html).toContain(`Record a canonical code implementation for &quot;${mockSolution.name}&quot;`);
+      expect(html).toContain(
+        `Record a canonical code implementation for &quot;${mockSolution.name}&quot;`,
+      );
     });
 
     it("code dialog applies monospace styling and dedicated code editor container", () => {

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { signOut } from "@/lib/auth/auth-client";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DsaLogo } from "@/components/brand/DsaLogo";
+import { DsaLogo } from "@/components/ui/logo";
 
 interface DashboardHeaderProps {
   user: {

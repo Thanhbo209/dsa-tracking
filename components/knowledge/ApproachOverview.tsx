@@ -1,6 +1,6 @@
 import React from "react";
 import type { KnowledgeApproach } from "./types";
-import { ApproachDialog } from "@/components/problems/dialogs/ApproachDialog";
+import { ApproachDialog } from "@/components/dialogs/ApproachDialog";
 import {
   Lightbulb,
   Clock,

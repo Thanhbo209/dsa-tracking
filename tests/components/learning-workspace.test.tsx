@@ -1,18 +1,18 @@
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import * as React from "react";
-import { ProblemDetailPanel } from "@/components/problems/ProblemDetailPanel";
+import { ProblemDetailPanel } from "@/components/problems/components/ProblemDetailPanel";
 import {
   ProblemLearningWorkspace,
   type WorkspaceSubmission,
-} from "@/components/problems/ProblemLearningWorkspace";
-import { SubmissionCard } from "@/components/problems/SubmissionCard";
-import { CodeViewer } from "@/components/problems/CodeViewer";
+} from "@/components/problems/pages/ProblemLearningWorkspace";
+import { SubmissionCard } from "@/components/code/SubmissionCard";
+import { CodeViewer } from "@/components/code/CodeViewer";
 import type {
   KnowledgeApproach,
   KnowledgeSolution,
   KnowledgeCode,
-} from "@/components/problems/knowledge/types";
+} from "@/components/knowledge/types";
 import type { SerializedSubmissionAnalysis } from "@/components/problems/analysis/types";
 import type { AiReview, AiDraft } from "@/lib/validation/analysis";
 
@@ -25,7 +25,9 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Mock @base-ui/react/dialog for static server-side markup testing in node
-const DialogTestContext = React.createContext<{ open: boolean }>({ open: false });
+const DialogTestContext = React.createContext<{ open: boolean }>({
+  open: false,
+});
 
 interface MockRootProps {
   children?: React.ReactNode;
@@ -114,7 +116,9 @@ vi.mock("@base-ui/react/dialog", () => {
       Title,
       Description,
       Close,
-      Viewport: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+      Viewport: ({ children }: { children?: React.ReactNode }) => (
+        <div>{children}</div>
+      ),
     },
   };
 });
@@ -123,7 +127,8 @@ describe("Phase 5C: Two-Column Learning Workspace Components", () => {
   const mockReview: AiReview = {
     actualApproach: {
       name: "Hash Map",
-      coreIdea: "Store seen numbers to verify target complement in constant time.",
+      coreIdea:
+        "Store seen numbers to verify target complement in constant time.",
       explanation: "Iterates through array once with O(1) map operations.",
     },
     actualSolution: {
@@ -154,7 +159,8 @@ describe("Phase 5C: Two-Column Learning Workspace Components", () => {
   const mockDraft: AiDraft = {
     approach: {
       name: "Hash Map Complement Lookup",
-      coreIdea: "Store seen numbers to verify target complement in constant time.",
+      coreIdea:
+        "Store seen numbers to verify target complement in constant time.",
       whyItWorks: "Complement target - x is uniquely determined.",
       whenToUse: "Finding pair sums in unsorted arrays.",
       timeComplexity: "O(n)",
@@ -167,7 +173,8 @@ describe("Phase 5C: Two-Column Learning Workspace Components", () => {
     solution: {
       name: "Single-Pass Map",
       description: "Traverse nums while building map.",
-      algorithm: "1. Init map\n2. For each num, calculate complement\n3. Return pair",
+      algorithm:
+        "1. Init map\n2. For each num, calculate complement\n3. Return pair",
       notes: "Optimal approach.",
     },
     code: {
@@ -470,7 +477,7 @@ describe("Phase 5C: Two-Column Learning Workspace Components", () => {
 
     it("handles single-line code without breaking line numbering", () => {
       const html = renderToStaticMarkup(
-        <CodeViewer code="return true;" language="python" />
+        <CodeViewer code="return true;" language="python" />,
       );
 
       expect(html).toContain("PYTHON");
@@ -572,4 +579,3 @@ describe("Phase 5C: Two-Column Learning Workspace Components", () => {
     });
   });
 });
-

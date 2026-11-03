@@ -4,7 +4,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { RotateCcw, History, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import type { SerializedSubmissionAnalysis } from "./types";
 import type { AiDraft } from "@/lib/validation/analysis";
 import { AiReviewSection } from "./AiReviewSection";
 import { KnowledgeDraftSection } from "./KnowledgeDraftSection";
@@ -14,6 +13,7 @@ import { AnalysisFailedState } from "./AnalysisFailedState";
 import { ModelSelector } from "./ModelSelector";
 import { DEFAULT_PRIMARY_MODEL } from "@/lib/analysis/models";
 import { formatDate } from "@/utils/date-format";
+import { SerializedSubmissionAnalysis } from "@/types/analysis";
 
 interface SubmissionAnalysisContainerProps {
   submissionId: string;

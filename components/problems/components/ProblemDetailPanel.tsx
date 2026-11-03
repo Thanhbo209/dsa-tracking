@@ -1,25 +1,14 @@
+import { Difficulty } from "@/lib/generated/prisma/enums";
+import { difficultyBadgeClass } from "@/utils/problems/style";
 import { ExternalLink } from "lucide-react";
 
 interface ProblemDetailPanelProps {
   leetcodeId: number | null;
   title: string;
-  difficulty: string | null;
+  difficulty: Difficulty | null;
   url?: string | null;
   topics: Array<{ id: string; name: string }>;
   description: string | null;
-}
-
-function difficultyBadgeClass(difficulty: string | null): string {
-  switch (difficulty?.toUpperCase()) {
-    case "EASY":
-      return "bg-[#46C6C2]/10 text-[#46C6C2] border-[#46C6C2]/30";
-    case "MEDIUM":
-      return "bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20";
-    case "HARD":
-      return "bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20";
-    default:
-      return "bg-muted text-muted-foreground border-border";
-  }
 }
 
 export function ProblemDetailPanel({

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { DsaLogo } from "@/components/brand/DsaLogo";
+import { DsaLogo } from "@/components/ui/logo";
 import { ModelSelector } from "./ModelSelector";
 import { DEFAULT_PRIMARY_MODEL } from "@/lib/analysis/models";
 

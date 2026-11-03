@@ -5,8 +5,8 @@ import {
   isHashCommentLanguage,
   isPython,
   detectLanguageFromCode,
-} from "@/components/problems/syntaxHighlighter";
-import { CodeViewer } from "@/components/problems/CodeViewer";
+} from "@/components/code/SyntaxHighlighter";
+import { CodeViewer } from "@/components/code/CodeViewer";
 
 describe("syntaxHighlighter - Python Division vs Comments", () => {
   describe("Language Detection & Resolution", () => {
@@ -16,7 +16,9 @@ describe("syntaxHighlighter - Python Division vs Comments", () => {
       expect(isPython("py")).toBe(true);
       expect(isPython("PYTHON")).toBe(true);
       expect(isPython("Python 3")).toBe(true);
-      expect(isPython("Actual accepted submission code (python, 4ms).")).toBe(true);
+      expect(isPython("Actual accepted submission code (python, 4ms).")).toBe(
+        true,
+      );
       expect(isPython("javascript")).toBe(false);
       expect(isPython("typescript")).toBe(false);
       expect(isPython("cpp")).toBe(false);
@@ -32,11 +34,13 @@ describe("syntaxHighlighter - Python Division vs Comments", () => {
 
     it("detects Python from code heuristics when language is omitted or generic", () => {
       expect(
-        detectLanguageFromCode("def twoSum(self, nums, target):\n    return []")
+        detectLanguageFromCode(
+          "def twoSum(self, nums, target):\n    return []",
+        ),
       ).toBe("python");
-      expect(
-        detectLanguageFromCode("class Solution(object):\n    pass")
-      ).toBe("python");
+      expect(detectLanguageFromCode("class Solution(object):\n    pass")).toBe(
+        "python",
+      );
       expect(detectLanguageFromCode("const x = 1;")).toBeUndefined();
     });
   });
@@ -112,7 +116,7 @@ describe("syntaxHighlighter - Python Division vs Comments", () => {
 
       // # integer divide is comment
       expect(html).toContain(
-        '<span class="text-[#6a9955] italic"># integer divide</span>'
+        '<span class="text-[#6a9955] italic"># integer divide</span>',
       );
     });
 
@@ -122,7 +126,9 @@ describe("syntaxHighlighter - Python Division vs Comments", () => {
       const html = renderToStaticMarkup(<>{nodes}</>);
 
       expect(html).not.toContain("text-[#6a9955]");
-      expect(html).toContain('<span class="text-[#ce9178]">&quot;https://leetcode.com&quot;</span>');
+      expect(html).toContain(
+        '<span class="text-[#ce9178]">&quot;https://leetcode.com&quot;</span>',
+      );
     });
   });
 
@@ -136,7 +142,7 @@ describe("syntaxHighlighter - Python Division vs Comments", () => {
       expect(html).toContain('<span class="text-[#d4d4d4]">/</span>');
       // // integer divide is comment
       expect(html).toContain(
-        '<span class="text-[#6a9955] italic">// integer divide</span>'
+        '<span class="text-[#6a9955] italic">// integer divide</span>',
       );
     });
 
@@ -146,7 +152,7 @@ describe("syntaxHighlighter - Python Division vs Comments", () => {
       const html = renderToStaticMarkup(<>{nodes}</>);
 
       expect(html).toContain(
-        '<span class="text-[#6a9955] italic">// divide</span>'
+        '<span class="text-[#6a9955] italic">// divide</span>',
       );
     });
 
@@ -169,7 +175,11 @@ describe("syntaxHighlighter - Python Division vs Comments", () => {
         return [candy, candy + diff]`;
 
       const html = renderToStaticMarkup(
-        <CodeViewer code={pythonCode} language="python" badge="AI Recommended" />
+        <CodeViewer
+          code={pythonCode}
+          language="python"
+          badge="AI Recommended"
+        />,
       );
 
       // Header should show PYTHON
@@ -190,7 +200,7 @@ describe("syntaxHighlighter - Python Division vs Comments", () => {
     return diff`;
 
       const html = renderToStaticMarkup(
-        <CodeViewer code={pythonCode} language="code" />
+        <CodeViewer code={pythonCode} language="code" />,
       );
 
       expect(html).toContain("PYTHON");

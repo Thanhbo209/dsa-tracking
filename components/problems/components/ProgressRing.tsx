@@ -1,4 +1,4 @@
-import type { ProblemStatus } from "./ProblemsExplorer";
+import { ProblemStatus } from "@/types/problem";
 import { Check } from "lucide-react";
 
 interface ProgressRingProps {
@@ -28,7 +28,7 @@ export function ProgressRing({ status, size = 18 }: ProgressRingProps) {
           />
         </svg>
         <div className="absolute inset-0 flex items-center justify-center">
-          <Check className="size-2.5 stroke-[3] text-emerald-400" />
+          <Check className="size-2.5 stroke-3 text-emerald-400" />
         </div>
       </div>
     );

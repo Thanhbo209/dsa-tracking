@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import type { KnowledgeApproach } from "./types";
 import { KnowledgeCodeBlock } from "./KnowledgeCodeBlock";
-import { SolutionDialog } from "@/components/problems/dialogs/SolutionDialog";
+import { SolutionDialog } from "@/components/dialogs/SolutionDialog";
 import { ListOrdered, Layers, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 

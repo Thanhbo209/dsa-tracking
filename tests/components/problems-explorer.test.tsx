@@ -4,7 +4,7 @@ import * as React from "react";
 import {
   ProblemsExplorer,
   type ProblemExplorerItem,
-} from "@/components/problems/ProblemsExplorer";
+} from "@/components/problems/pages/ProblemsExplorer";
 
 describe("ProblemsExplorer Component", () => {
   const mockProblems: ProblemExplorerItem[] = [
@@ -133,7 +133,9 @@ describe("ProblemsExplorer Component", () => {
     const html = renderToStaticMarkup(<ProblemsExplorer problems={[]} />);
 
     expect(html).toContain("No tracked problems yet");
-    expect(html).toContain("Solve problems on LeetCode with the extension enabled");
+    expect(html).toContain(
+      "Solve problems on LeetCode with the extension enabled",
+    );
   });
 
   it("renders search input, filter pills, and sort selector", () => {
@@ -179,7 +181,7 @@ describe("ProblemsExplorer Component", () => {
     expect(html).toContain("1–16");
     expect(html).toContain("of 25 problems");
     expect(html).toContain("16 problems per page");
-    expect(html).toContain("aria-label=\"Problems pagination\"");
+    expect(html).toContain('aria-label="Problems pagination"');
     expect(html).toContain("Prev");
     expect(html).toContain("Next");
   });

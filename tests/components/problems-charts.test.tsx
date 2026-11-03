@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import * as React from "react";
-import { ProblemStatsDonut } from "@/components/problems/charts/ProblemStatsDonut";
-import { ActivityHeatmap } from "@/components/problems/charts/ActivityHeatmap";
-import { ProgressRing } from "@/components/problems/ProgressRing";
+import { ProblemStatsDonut } from "@/components/charts/ProblemStatsDonut";
+import { ActivityHeatmap } from "@/components/charts/ActivityHeatmap";
+import { ProgressRing } from "@/components/problems/components/ProgressRing";
 
 describe("ProblemStatsDonut Component", () => {
   it("renders empty state when solved is 0", () => {

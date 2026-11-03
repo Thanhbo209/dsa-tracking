@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import type { PublicVaultProblem } from "@/lib/profile/service";
 import { cn } from "cn";
-import { Button } from "../ui/button";
+import { Button } from "../../ui/button";
 
 interface PublicProblemRowProps {
   problem: PublicVaultProblem;

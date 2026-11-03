@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import * as React from "react";
-import { PublicPlaybookExplorer } from "@/components/profile/PublicPlaybookExplorer";
+import { PublicPlaybookExplorer } from "@/components/profile/pages/PublicPlaybookExplorer";
 import type { PublicVaultProblem } from "@/lib/profile/service";
 
 // Mock Next.js navigation hooks
@@ -10,15 +10,18 @@ vi.mock("next/navigation", () => ({
   useSearchParams: () => new URLSearchParams(),
 }));
 
-const mockProblems: PublicVaultProblem[] = Array.from({ length: 50 }, (_, i) => ({
-  slug: `problem-${i + 1}`,
-  leetcodeId: i + 1,
-  title: `Problem ${i + 1}`,
-  difficulty: i % 3 === 0 ? "EASY" : i % 3 === 1 ? "MEDIUM" : "HARD",
-  topics: i % 2 === 0 ? ["Array"] : ["Dynamic Programming"],
-  approachCount: 1,
-  latestApproachCreatedAt: new Date(Date.now() - i * 1000 * 60).toISOString(),
-}));
+const mockProblems: PublicVaultProblem[] = Array.from(
+  { length: 50 },
+  (_, i) => ({
+    slug: `problem-${i + 1}`,
+    leetcodeId: i + 1,
+    title: `Problem ${i + 1}`,
+    difficulty: i % 3 === 0 ? "EASY" : i % 3 === 1 ? "MEDIUM" : "HARD",
+    topics: i % 2 === 0 ? ["Array"] : ["Dynamic Programming"],
+    approachCount: 1,
+    latestApproachCreatedAt: new Date(Date.now() - i * 1000 * 60).toISOString(),
+  }),
+);
 
 describe("PublicPlaybookExplorer Component", () => {
   it("renders first page with up to 24 problems and displays correct counts", () => {
@@ -39,7 +42,7 @@ describe("PublicPlaybookExplorer Component", () => {
     expect(html).not.toContain(">Problem 25<");
 
     // Renders pagination navigation controls
-    expect(html).toContain("aria-label=\"Pagination Navigation\"");
+    expect(html).toContain('aria-label="Pagination Navigation"');
     expect(html).toContain("Previous");
     expect(html).toContain("Next");
   });

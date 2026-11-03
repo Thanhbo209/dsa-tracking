@@ -1,11 +1,7 @@
 "use client";
 
-import { Button } from "../ui/button";
-
-export interface SolvedTopicItem {
-  topicName: string;
-  solvedCount: number;
-}
+import { SolvedTopicItem } from "@/types/topic";
+import { Button } from "../../ui/button";
 
 export interface TopicsSolvedBarProps {
   solvedTopics: SolvedTopicItem[];

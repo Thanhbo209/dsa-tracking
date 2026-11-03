@@ -6,7 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, useSession } from "@/lib/auth/auth-client";
 import { ArrowRight, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DsaLogo } from "@/components/brand/DsaLogo";
+import { DsaLogo } from "@/components/ui/logo";
 
 function LoginForm() {
   const router = useRouter();
