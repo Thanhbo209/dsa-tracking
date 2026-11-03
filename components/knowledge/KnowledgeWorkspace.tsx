@@ -6,6 +6,7 @@ import { ApproachOverview } from "./ApproachOverview";
 import { SolutionTechniqueView } from "./SolutionTechniqueView";
 import { ApproachDialog } from "@/components/dialogs/ApproachDialog";
 import { BookOpen } from "lucide-react";
+import { KnowledgeApproach } from "@/types/knowledge";
 
 interface KnowledgeWorkspaceProps {
   problemId: string;

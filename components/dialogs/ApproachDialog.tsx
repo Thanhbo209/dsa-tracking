@@ -12,7 +12,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import type { KnowledgeApproach } from "../knowledge/types";
 import {
   Plus,
   Pencil,
@@ -23,6 +22,7 @@ import {
   Scale,
   FileText,
 } from "lucide-react";
+import { KnowledgeApproach } from "@/types/knowledge";
 
 interface BaseApproachDialogProps {
   open?: boolean;

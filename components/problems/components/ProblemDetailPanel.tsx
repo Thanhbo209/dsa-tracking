@@ -1,6 +1,5 @@
 import { DifficultyBadge } from "@/components/ui/difficulty";
 import { Difficulty } from "@/lib/generated/prisma/enums";
-import { difficultyBadgeClass } from "@/utils/problems/helper";
 import { ExternalLink } from "lucide-react";
 
 interface ProblemDetailPanelProps {

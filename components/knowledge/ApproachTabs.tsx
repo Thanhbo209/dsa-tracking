@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { cn } from "@/utils/utils";
-import type { KnowledgeApproach } from "./types";
 import { Button } from "@/components/ui/button";
+import { KnowledgeApproach } from "@/types/knowledge";
 
 interface ApproachTabsProps {
   problemId: string;

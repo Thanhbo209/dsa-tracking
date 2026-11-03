@@ -12,8 +12,8 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import type { KnowledgeCode, KnowledgeSolution } from "../knowledge/types";
 import { Plus, Pencil, Trash2, AlertTriangle } from "lucide-react";
+import { KnowledgeCode, KnowledgeSolution } from "@/types/knowledge";
 
 interface BaseCodeDialogProps {
   open?: boolean;
