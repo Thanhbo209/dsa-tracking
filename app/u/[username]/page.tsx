@@ -160,7 +160,7 @@ export default async function PublicProfilePage({
           ) : (
             <Suspense
               fallback={
-                <div className="h-48 rounded-2xl border border-[#383838] bg-[#222222] animate-pulse" />
+                <div className="h-48 border border-[#383838] bg-[#222222] animate-pulse" />
               }
             >
               <PublicPlaybookExplorer

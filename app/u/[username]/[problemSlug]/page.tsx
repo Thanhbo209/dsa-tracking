@@ -69,7 +69,7 @@ export default async function PublicProblemDetailPage({
           </div>
 
           {/* RIGHT — Approaches (7 cols) */}
-          <div className="lg:col-span-7 rounded-xl border border-[#383838] bg-[#262626] p-5 sm:p-6 shadow-xs">
+          <div className="lg:col-span-7 border border-[#383838] bg-[#262626] p-5 sm:p-6 shadow-xs">
             <PublicApproachList approaches={approaches} />
           </div>
         </div>
