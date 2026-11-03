@@ -5,6 +5,7 @@ import type { KnowledgeApproach } from "./types";
 import { KnowledgeCodeBlock } from "./KnowledgeCodeBlock";
 import { SolutionDialog } from "@/components/problems/dialogs/SolutionDialog";
 import { ListOrdered, Layers, FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface SolutionTechniqueViewProps {
   approach: KnowledgeApproach;
@@ -31,7 +32,9 @@ function formatText(text: string): React.ReactNode {
   });
 }
 
-export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) {
+export function SolutionTechniqueView({
+  approach,
+}: SolutionTechniqueViewProps) {
   const [selectedSolutionIndex, setSelectedSolutionIndex] = useState(0);
 
   const solutions = approach.solutions || [];
@@ -48,8 +51,8 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
           No Methods Recorded Yet
         </h4>
         <p className="mx-auto mt-1 max-w-md text-xs text-zinc-300 leading-relaxed">
-          This approach does not have any concrete methods
-          recorded yet. Add a method to document how this approach executes.
+          This approach does not have any concrete methods recorded yet. Add a
+          method to document how this approach executes.
         </p>
         <div className="mt-4">
           <SolutionDialog mode="create" approach={approach} />
@@ -59,13 +62,13 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
   }
 
   return (
-    <div className="space-y-6 rounded-xl border border-[#4a4a4a] bg-[#373737] p-5 sm:p-6 shadow-2xs text-white">
+    <div className="space-y-6 border border-border bg-card p-5 sm:p-6 shadow-2xs text-white">
       {/* ── Technique Selector Bar ────────────────────────────── */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#4a4a4a] pb-4">
         <div className="flex items-center gap-2">
           <span className="text-base sm:text-lg font-bold text-zinc-100 flex items-center gap-2">
             <ListOrdered className="size-5 text-sky-400 shrink-0" />
-            <span>Methods & Algorithms</span>
+            <span className="text-md">Methods & Algorithms</span>
           </span>
 
           {/* Solution tab selector if multiple exist */}
@@ -76,7 +79,7 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
               className="flex flex-wrap items-center gap-1.5 ml-2"
             >
               {solutions.map((sol, idx) => (
-                <button
+                <Button
                   key={sol.id || idx}
                   type="button"
                   role="tab"
@@ -89,19 +92,19 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
                   }`}
                 >
                   {sol.name}
-                </button>
+                </Button>
               ))}
             </div>
           )}
 
           {solutions.length === 1 && (
-            <span className="text-sm font-semibold text-zinc-400 ml-1">
+            <span className="text-md font-semibold text-muted-foreground ml-1">
               — {activeSolution.name}
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           {activeSolution && (
             <SolutionDialog
               mode="edit"
@@ -109,7 +112,6 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
               solution={activeSolution}
             />
           )}
-          <SolutionDialog mode="create" approach={approach} />
         </div>
       </div>
 
@@ -118,20 +120,20 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
         <div className="space-y-5">
           {/* Solution Description */}
           {activeSolution.description && (
-            <p className="text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+            <p className="text-xl sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
               {formatText(activeSolution.description)}
             </p>
           )}
 
           {/* Algorithm Steps (Easy to scan) */}
           {activeSolution.algorithm && (
-            <div className="rounded-xl border border-[#4a4a4a] bg-[#2a2a2a] p-5 text-white shadow-2xs">
+            <div className=" border border-[#4a4a4a] bg-[#2a2a2a] p-5 text-white shadow-2xs">
               <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-zinc-100 mb-2.5">
                 <ListOrdered className="size-5 text-amber-400 shrink-0" />
                 <span>Step-by-Step Guide</span>
               </div>
-              <div className="rounded-lg bg-[#222222] border border-[#4a4a4a] p-4 text-zinc-300">
-                <p className="whitespace-pre-wrap font-mono text-xs sm:text-sm text-zinc-300 leading-relaxed">
+              <div className=" bg-card border border-[#4a4a4a] p-4 text-zinc-300">
+                <p className="whitespace-pre-wrap font-mono text-md sm:text-md text-zinc-300 leading-relaxed">
                   {formatText(activeSolution.algorithm)}
                 </p>
               </div>
@@ -140,7 +142,7 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
 
           {/* Solution Notes */}
           {activeSolution.notes && (
-            <div className="rounded-xl border border-[#4a4a4a] bg-[#2a2a2a] p-5 text-zinc-300 shadow-2xs">
+            <div className="border border-[#4a4a4a] bg-[#2a2a2a] p-5 text-zinc-300 shadow-2xs">
               <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2">
                 <FileText className="size-5 text-blue-400 shrink-0" />
                 <span>Method Notes</span>
@@ -152,7 +154,7 @@ export function SolutionTechniqueView({ approach }: SolutionTechniqueViewProps) 
           )}
 
           {/* ── Canonical Code ──────────────────────────────────── */}
-          <div className="border-t border-[#4a4a4a] pt-5">
+          <div className="border-t border-border pt-5">
             <KnowledgeCodeBlock solution={activeSolution} />
           </div>
         </div>

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { History, BookOpen, AlertCircle, X } from "lucide-react";
-import { DsaLogo } from "@/components/brand/DsaLogo";
+import { History, BookOpen, AlertCircle, X, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SubmissionCard } from "./SubmissionCard";
 import { SubmissionAnalysisContainer } from "./analysis/SubmissionAnalysisContainer";
@@ -10,6 +9,7 @@ import { KnowledgeWorkspace } from "./knowledge/KnowledgeWorkspace";
 import type { KnowledgeApproach } from "./knowledge/types";
 import type { SerializedSubmissionAnalysis } from "./analysis/types";
 import type { FetchedSubmissionDetails } from "@/lib/extension/fetchCode";
+import { Button } from "../ui/button";
 
 export interface WorkspaceSubmission {
   id: string;
@@ -51,9 +51,9 @@ export function ProblemLearningWorkspace({
     defaultTab ?? (approaches.length > 0 ? "knowledge" : "submissions"),
   );
 
-  const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(
-    () => submissions[0]?.id ?? null,
-  );
+  const [selectedSubmissionId, setSelectedSubmissionId] = useState<
+    string | null
+  >(() => submissions[0]?.id ?? null);
 
   // Derive the active selected submission (or default to the latest)
   const selectedSubmission =
@@ -87,53 +87,60 @@ export function ProblemLearningWorkspace({
       <div
         role="tablist"
         aria-label="Learning workspace tabs"
-        className="flex flex-wrap items-center gap-2 border-b border-[#383838] pb-3 text-sm sm:text-base font-sans select-none"
+        className="flex flex-wrap items-center gap-2 border-b border-border pb-3 text-sm sm:text-base font-sans select-none"
       >
         {/* Tab 1: Permanent Knowledge (yellow BookOpen like Editorial) */}
-        <button
+        <Button
           type="button"
           role="tab"
+          variant="ghost"
           id="tab-knowledge"
           aria-selected={activeTab === "knowledge"}
           aria-controls="panel-knowledge"
           onClick={() => setActiveTab("knowledge")}
           className={cn(
-            "flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors cursor-pointer text-sm sm:text-base",
+            "flex items-center gap-2 px-3 py-1.5 transition-colors cursor-pointer text-sm sm:text-base",
             activeTab === "knowledge"
-              ? "text-white font-bold bg-white/[0.08]"
-              : "text-zinc-400 hover:text-zinc-200 font-medium hover:bg-white/[0.04]",
+              ? "text-white font-bold bg-white/8"
+              : "text-muted-foreground hover:text-zinc-200 font-medium hover:bg-white/4",
           )}
         >
           <BookOpen className="size-4.5 sm:size-5 text-[#eab308] shrink-0" />
           <span>Permanent Knowledge</span>
           {approaches.length > 0 && (
-            <span className="text-xs sm:text-sm text-zinc-400">({approaches.length})</span>
+            <span className="text-xs sm:text-sm text-zinc-400">
+              ({approaches.length})
+            </span>
           )}
-        </button>
+        </Button>
 
-        <span className="text-zinc-600 select-none px-1 text-base font-light" aria-hidden="true">
+        <span
+          className="text-zinc-600 select-none px-1 text-base font-light"
+          aria-hidden="true"
+        >
           |
         </span>
 
         {/* Tab 2: AI Diagnostic Review (DsaLogo with attempt pill & dismiss) */}
-        <button
+        <Button
           type="button"
+          variant="ghost"
           role="tab"
           id="tab-analysis"
           aria-selected={activeTab === "analysis"}
           aria-controls="panel-analysis"
           onClick={() => setActiveTab("analysis")}
           className={cn(
-            "flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors cursor-pointer group text-sm sm:text-base",
+            "flex items-center gap-2 px-3 py-1.5 transition-colors cursor-pointer group text-sm sm:text-base",
             activeTab === "analysis"
-              ? "text-white font-bold bg-white/[0.08]"
-              : "text-zinc-400 hover:text-zinc-200 font-medium hover:bg-white/[0.04]",
+              ? "text-white font-bold bg-white/8"
+              : "text-zinc-400 hover:text-zinc-200 font-medium hover:bg-white/4",
           )}
         >
-          <DsaLogo size="sm" className="h-5 w-auto shrink-0" />
+          <Bot className="size-4.5 sm:size-5 text-[#f81e0e] shrink-0" />
           <span>AI Diagnostic Review</span>
           {selectedSubmission && (
-            <span className="text-xs sm:text-sm text-zinc-300 font-mono">
+            <span className="text-xs sm:text-sm text-muted-foreground font-mono">
               ({selectedSubmission.status.replaceAll("_", " ")})
             </span>
           )}
@@ -143,38 +150,44 @@ export function ProblemLearningWorkspace({
                 e.stopPropagation();
                 setActiveTab("submissions");
               }}
-              className="ml-1 text-zinc-400 hover:text-white p-0.5 rounded hover:bg-white/10"
+              className="ml-1 text-zinc-400 hover:text-white p-0.5 hover:bg-white/10"
               title="Close review and view submissions"
               aria-label="Close review"
             >
               <X className="size-3.5" />
             </span>
           )}
-        </button>
+        </Button>
 
-        <span className="text-zinc-600 select-none px-1 text-base font-light" aria-hidden="true">
+        <span
+          className="text-zinc-600 select-none px-1 text-base font-light"
+          aria-hidden="true"
+        >
           |
         </span>
 
         {/* Tab 3: Submissions (blue History icon) */}
-        <button
+        <Button
           type="button"
+          variant="ghost"
           role="tab"
           id="tab-submissions"
           aria-selected={activeTab === "submissions"}
           aria-controls="panel-submissions"
           onClick={() => setActiveTab("submissions")}
           className={cn(
-            "flex items-center gap-2 px-3 py-1.5 rounded-md transition-colors cursor-pointer text-sm sm:text-base",
+            "flex items-center gap-2 px-3 py-1.5 transition-colors cursor-pointer text-sm sm:text-base",
             activeTab === "submissions"
-              ? "text-white font-bold bg-white/[0.08]"
-              : "text-zinc-400 hover:text-zinc-200 font-medium hover:bg-white/[0.04]",
+              ? "text-white font-bold bg-white/8"
+              : "text-zinc-400 hover:text-zinc-200 font-medium hover:bg-white/4",
           )}
         >
           <History className="size-4.5 sm:size-5 text-[#3b82f6] shrink-0" />
           <span>Submissions</span>
-          <span className="text-xs sm:text-sm text-zinc-400">({submissions.length})</span>
-        </button>
+          <span className="text-xs sm:text-sm text-zinc-400">
+            ({submissions.length})
+          </span>
+        </Button>
       </div>
 
       {/* ══ 1. SUBMISSIONS SECTION ("What did I try?") ═══════════════ */}
@@ -209,7 +222,8 @@ export function ProblemLearningWorkspace({
               No submissions recorded yet
             </p>
             <p className="mt-1 text-xs text-white">
-              Solve this problem on LeetCode with the extension active to sync your attempts.
+              Solve this problem on LeetCode with the extension active to sync
+              your attempts.
             </p>
           </div>
         ) : (
@@ -239,10 +253,12 @@ export function ProblemLearningWorkspace({
                       setSelectedSubmissionId(submission.id);
                       setActiveTab("analysis");
                     }}
-                    className="inline-flex items-center gap-1.5 text-sm text-[#38bdf8] hover:text-white transition-colors py-1.5 px-3 rounded-md bg-white/[0.04] hover:bg-white/[0.08] border border-[#444444]"
+                    className="inline-flex items-center gap-1.5 text-sm text-[#38bdf8] hover:text-white transition-colors py-1.5 px-3  bg-white/4 hover:bg-white/8 border border-[#444444]"
                   >
-                    <DsaLogo size="xs" className="h-3.5 w-auto shrink-0" />
-                    <span>Open AI Diagnostic Review for this attempt &rarr;</span>
+                    <Bot size="xs" className="h-3.5 w-auto shrink-0" />
+                    <span>
+                      Open AI Diagnostic Review for this attempt &rarr;
+                    </span>
                   </button>
                 </div>
               </div>
@@ -261,7 +277,7 @@ export function ProblemLearningWorkspace({
         <div className="flex items-center justify-between gap-3 border-b border-[#383838] pb-3">
           <div>
             <div className="flex items-center gap-2.5">
-              <DsaLogo size="sm" className="h-6 w-auto shrink-0" />
+              <Bot className="size-4.5 sm:size-5 text-[#f81e0e] shrink-0" />
               <h2
                 id="analysis-section-heading"
                 className="text-xl sm:text-2xl font-bold tracking-tight text-white"
@@ -270,66 +286,31 @@ export function ProblemLearningWorkspace({
               </h2>
             </div>
             <p className="mt-1 text-sm sm:text-base text-zinc-200">
-              Code-specific complexity explanations, mistakes, takeaways, and candidate knowledge drafts.
+              Code-specific complexity explanations, mistakes, takeaways, and
+              candidate knowledge drafts.
             </p>
           </div>
 
-          <button
+          <Button
             type="button"
             onClick={() => setActiveTab("submissions")}
-            className="inline-flex items-center gap-1 text-sm text-zinc-300 hover:text-white transition-colors py-1.5 px-2.5 rounded hover:bg-white/[0.06]"
+            className="inline-flex items-center gap-1 text-sm text-white hover:text-muted-foreground transition-colors py-1.5 px-2.5 rounded cursor-pointer"
           >
             <History className="size-4" />
             <span className="hidden sm:inline">All Submissions</span>
-          </button>
+          </Button>
         </div>
 
         {workspaceSubmissions.length === 0 ? (
           <div className="rounded-xl border border-dashed border-[#4a4a4a] p-8 text-center bg-[#373737] text-white">
             <AlertCircle className="size-7 text-white mx-auto mb-2 opacity-80" />
             <p className="text-sm sm:text-base text-white">
-              No submissions available to analyze. Record or sync an attempt first.
+              No submissions available to analyze. Record or sync an attempt
+              first.
             </p>
           </div>
         ) : selectedSubmission ? (
           <div className="space-y-4">
-            {/* Active attempt context pill & attempt switcher */}
-            <div className="flex flex-wrap items-center justify-between gap-2.5 rounded-md bg-[#373737] border border-[#4a4a4a] px-3.5 py-2.5 text-sm text-white shadow-2xs">
-              <div className="flex items-center gap-2">
-                <span>
-                  Evaluating attempt:{" "}
-                  <strong className="text-white font-bold">
-                    {selectedSubmission.status.replaceAll("_", " ")}
-                  </strong>{" "}
-                  ({selectedSubmission.language}
-                  {selectedSubmission.runtimeMs != null
-                    ? ` · ${selectedSubmission.runtimeMs} ms`
-                    : ""}
-                  )
-                </span>
-                <span className="text-xs font-mono text-zinc-300">
-                  #{selectedSubmission.id.slice(-6)}
-                </span>
-              </div>
-
-              {workspaceSubmissions.length > 1 && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs sm:text-sm text-zinc-300">Switch attempt:</span>
-                  <select
-                    value={selectedSubmission.id}
-                    onChange={(e) => setSelectedSubmissionId(e.target.value)}
-                    className="rounded bg-[#262626] border border-[#4a4a4a] px-2.5 py-1 text-xs sm:text-sm text-white focus:outline-none focus:border-primary"
-                  >
-                    {workspaceSubmissions.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.status.replaceAll("_", " ")} ({s.language}) · #{s.id.slice(-6)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-
             <SubmissionAnalysisContainer
               key={selectedSubmission.id}
               submissionId={selectedSubmission.id}
@@ -365,14 +346,12 @@ export function ProblemLearningWorkspace({
             </h2>
           </div>
           <p className="mt-1 text-sm sm:text-base text-zinc-200">
-            Approaches, step-by-step algorithms, and optimized implementations in your personal playbook.
+            Approaches, step-by-step algorithms, and optimized implementations
+            in your personal playbook.
           </p>
         </div>
 
-        <KnowledgeWorkspace
-          problemId={problemId}
-          approaches={approaches}
-        />
+        <KnowledgeWorkspace problemId={problemId} approaches={approaches} />
       </section>
     </div>
   );

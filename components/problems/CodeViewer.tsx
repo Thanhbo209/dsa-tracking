@@ -58,17 +58,17 @@ export function CodeViewer({
         <div className="flex items-center gap-2.5">
           {headerLeft ?? (
             <div className="flex items-center gap-2">
-              <span className="flex items-center gap-1.5 rounded bg-[#333333] px-2.5 py-1 text-xs font-semibold text-white border border-[#444444]/60">
+              <span className="flex items-center gap-1.5 bg-[#333333] px-2.5 py-1 text-xs font-semibold text-white border border-[#444444]/60">
                 <span>{(effectiveLanguage || language).toUpperCase()}</span>
                 <ChevronDown className="size-3.5 text-zinc-400" />
               </span>
-              <span className="rounded bg-[#333333]/60 px-2 py-0.5 text-[11px] text-zinc-400 border border-[#444444]/40 font-sans">
+              <span className=" bg-[#333333]/60 px-2 py-0.5 text-[11px] text-zinc-400 border border-[#444444]/40 font-sans">
                 Auto
               </span>
             </div>
           )}
           {badge && (
-            <span className="rounded bg-[#333333] px-2.5 py-0.5 text-xs text-zinc-200 border border-[#444444]">
+            <span className=" bg-[#333333] px-2.5 py-0.5 text-xs text-zinc-200 border border-[#444444]">
               {badge}
             </span>
           )}
@@ -115,7 +115,9 @@ export function CodeViewer({
                   </td>
                   <td className="py-0.5 px-3 text-zinc-100 whitespace-pre font-mono align-top">
                     <span className="sr-only">{line}</span>
-                    <span aria-hidden="true">{highlightCodeLine(line, effectiveLanguage)}</span>
+                    <span aria-hidden="true">
+                      {highlightCodeLine(line, effectiveLanguage)}
+                    </span>
                   </td>
                 </tr>
               ))}

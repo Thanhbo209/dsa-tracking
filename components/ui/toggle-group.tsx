@@ -12,7 +12,7 @@ const ToggleGroupContext = React.createContext<{
 }>({});
 
 const toggleVariants = cva(
-  "inline-flex items-center justify-center rounded-md text-xs font-medium transition-colors outline-none cursor-pointer select-none disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center text-xs font-medium transition-colors outline-none cursor-pointer select-none disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
@@ -69,14 +69,12 @@ function ToggleGroup({
   );
 
   return (
-    <ToggleGroupContext.Provider
-      value={{ size, variant, value, onItemClick }}
-    >
+    <ToggleGroupContext.Provider value={{ size, variant, value, onItemClick }}>
       <div
         data-slot="toggle-group"
         role="group"
         className={cn(
-          "inline-flex items-center gap-1 rounded-lg border border-[#383838] bg-[#1e1e1e] p-0.5",
+          "inline-flex items-center gap-1 border border-[#383838] bg-[#1e1e1e] p-0.5",
           className,
         )}
         {...props}
@@ -88,8 +86,7 @@ function ToggleGroup({
 }
 
 interface ToggleGroupItemProps
-  extends React.ComponentProps<"button">,
-    VariantProps<typeof toggleVariants> {
+  extends React.ComponentProps<"button">, VariantProps<typeof toggleVariants> {
   value: string;
 }
 

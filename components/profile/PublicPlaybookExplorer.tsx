@@ -335,7 +335,7 @@ export function PublicPlaybookExplorer({
   return (
     <div className="space-y-6">
       {/* ── Filter Controls Bar ─────────────────────────────────────────── */}
-      <div className="rounded-2xl border border-[#383838] bg-[#222222] p-4 sm:p-5 space-y-4 shadow-sm">
+      <div className="border border-[#383838] bg-[#222222] p-4 sm:p-5 space-y-4 shadow-sm">
         {/* Top row: Search input + View mode toggle */}
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="relative flex-1">
@@ -363,13 +363,13 @@ export function PublicPlaybookExplorer({
 
           <div className="flex items-center gap-2.5 justify-between sm:justify-end">
             {/* Sort Dropdown / Selector */}
-            <div className="flex items-center gap-1.5 text-xs text-zinc-400 bg-[#1e1e1e] border border-[#383838] rounded-lg px-2.5 py-1">
+            <div className="flex items-center gap-1.5 text-xs text-zinc-400 bg-[#1e1e1e] border border-[#383838] px-2.5 py-1">
               <ArrowUpDown className="size-3.5 text-zinc-400 shrink-0" />
               <span className="font-medium hidden md:inline">Sort:</span>
               <select
                 value={sort}
                 onChange={(e) => handleSortChange(e.target.value as SortOption)}
-                className="bg-transparent text-xs text-zinc-200 font-medium outline-none cursor-pointer"
+                className="bg-transparent text-xs text-white font-medium outline-none cursor-pointer"
                 aria-label="Sort problems"
               >
                 <option value="recent" className="bg-[#222222] text-white">
@@ -555,7 +555,7 @@ export function PublicPlaybookExplorer({
       {/* ── Problem Grid or List View ────────────────────────────────────── */}
       {filteredProblems.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-[#444444] bg-[#222222] p-12 text-center space-y-3">
-          <div className="size-10 rounded-full bg-zinc-800 flex items-center justify-center mx-auto text-zinc-400">
+          <div className="size-10 bg-zinc-800 flex items-center justify-center mx-auto text-zinc-400">
             <Search className="size-5" />
           </div>
           <h3 className="text-base font-semibold text-white">
@@ -645,7 +645,7 @@ export function PublicPlaybookExplorer({
                   type="button"
                   onClick={() => handlePageChange(pageNum)}
                   className={cn(
-                    "h-8 min-w-8 px-2 rounded-md text-xs font-medium transition-colors cursor-pointer border",
+                    "h-8 min-w-8 px-2 text-xs font-medium transition-colors cursor-pointer border",
                     isActive
                       ? "bg-white text-black border-white font-semibold shadow-sm"
                       : "bg-[#1e1e1e] border-[#383838] text-zinc-300 hover:bg-[#2a2a2a] hover:text-white hover:border-zinc-500",

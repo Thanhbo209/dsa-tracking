@@ -49,7 +49,9 @@ export function ApproachDialog(props: ApproachDialogProps) {
   const { mode, trigger } = props;
   const router = useRouter();
 
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(props.defaultOpen ?? false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(
+    props.defaultOpen ?? false,
+  );
   const open = props.open !== undefined ? props.open : uncontrolledOpen;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -57,16 +59,40 @@ export function ApproachDialog(props: ApproachDialogProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Form field state
-  const [name, setName] = useState(() => (mode === "edit" && props.approach ? props.approach.name || "" : ""));
-  const [coreIdea, setCoreIdea] = useState(() => (mode === "edit" && props.approach ? props.approach.coreIdea || "" : ""));
-  const [whyItWorks, setWhyItWorks] = useState(() => (mode === "edit" && props.approach ? props.approach.whyItWorks || "" : ""));
-  const [whenToUse, setWhenToUse] = useState(() => (mode === "edit" && props.approach ? props.approach.whenToUse || "" : ""));
-  const [timeComplexity, setTimeComplexity] = useState(() => (mode === "edit" && props.approach ? props.approach.timeComplexity || "" : ""));
-  const [spaceComplexity, setSpaceComplexity] = useState(() => (mode === "edit" && props.approach ? props.approach.spaceComplexity || "" : ""));
-  const [pros, setPros] = useState(() => (mode === "edit" && props.approach ? props.approach.pros || "" : ""));
-  const [cons, setCons] = useState(() => (mode === "edit" && props.approach ? props.approach.cons || "" : ""));
-  const [mistakes, setMistakes] = useState(() => (mode === "edit" && props.approach ? props.approach.mistakes || "" : ""));
-  const [notes, setNotes] = useState(() => (mode === "edit" && props.approach ? props.approach.notes || "" : ""));
+  const [name, setName] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.name || "" : "",
+  );
+  const [coreIdea, setCoreIdea] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.coreIdea || "" : "",
+  );
+  const [whyItWorks, setWhyItWorks] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.whyItWorks || "" : "",
+  );
+  const [whenToUse, setWhenToUse] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.whenToUse || "" : "",
+  );
+  const [timeComplexity, setTimeComplexity] = useState(() =>
+    mode === "edit" && props.approach
+      ? props.approach.timeComplexity || ""
+      : "",
+  );
+  const [spaceComplexity, setSpaceComplexity] = useState(() =>
+    mode === "edit" && props.approach
+      ? props.approach.spaceComplexity || ""
+      : "",
+  );
+  const [pros, setPros] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.pros || "" : "",
+  );
+  const [cons, setCons] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.cons || "" : "",
+  );
+  const [mistakes, setMistakes] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.mistakes || "" : "",
+  );
+  const [notes, setNotes] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.notes || "" : "",
+  );
 
   // Populate/reset fields when dialog opens or approach changes
   function resetForm() {
@@ -174,7 +200,9 @@ export function ApproachDialog(props: ApproachDialogProps) {
       handleOpenChange(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -199,7 +227,9 @@ export function ApproachDialog(props: ApproachDialogProps) {
       handleOpenChange(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete approach");
+      setError(
+        err instanceof Error ? err.message : "Failed to delete approach",
+      );
     } finally {
       setIsDeleting(false);
     }
@@ -214,13 +244,17 @@ export function ApproachDialog(props: ApproachDialogProps) {
           ) : mode === "create" ? (
             <button
               type="button"
-              className="inline-flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#373737] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#454545] shadow-2xs"
+              className="inline-flex items-center gap-1.5 border border-[#4a4a4a] bg-[#373737] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#454545] shadow-2xs"
             >
               <Plus className="size-3.5 text-white" />
               <span>+ Add Approach</span>
             </button>
           ) : (
-            <Button variant="outline" size="xs" className="gap-1 text-xs border-[#555555] bg-[#2a2a2a] text-white hover:bg-[#333333]">
+            <Button
+              variant="outline"
+              size="xs"
+              className="gap-1 text-xs border-[#555555] bg-[#2a2a2a] text-white hover:bg-[#333333]"
+            >
               <Pencil className="size-3 text-white" />
               <span>Edit Approach</span>
             </Button>
@@ -240,47 +274,12 @@ export function ApproachDialog(props: ApproachDialogProps) {
           </DialogDescription>
         </DialogHeader>
 
-        {/* Delete Confirmation Banner */}
-        {showDeleteConfirm && (
-          <div className="my-2 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-xs">
-            <div className="flex items-start gap-2.5">
-              <AlertTriangle className="size-4 text-destructive shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <p className="font-semibold text-destructive">
-                  Delete this approach?
-                </p>
-                <p className="text-muted-foreground leading-relaxed">
-                  This action cannot be undone. Deleting this approach will also
-                  permanently delete all of its associated solutions and code
-                  implementations.
-                </p>
-                <div className="flex items-center gap-2 pt-2">
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    size="xs"
-                    disabled={isDeleting}
-                    onClick={handleDelete}
-                  >
-                    {isDeleting ? "Deleting..." : "Permanently Delete"}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="xs"
-                    disabled={isDeleting}
-                    onClick={() => setShowDeleteConfirm(false)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Form Body */}
-        <form id="approach-form" onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+        <form
+          id="approach-form"
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-hidden flex flex-col"
+        >
           <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-6 py-2">
             {/* 1. Strategy Section */}
             <div className="space-y-3">
@@ -290,7 +289,10 @@ export function ApproachDialog(props: ApproachDialogProps) {
               </div>
 
               <div>
-                <label htmlFor="approach-name" className="mb-1 block text-xs font-medium">
+                <label
+                  htmlFor="approach-name"
+                  className="mb-1 block text-xs font-medium"
+                >
                   Name <span className="text-destructive">*</span>
                 </label>
                 <input
@@ -300,12 +302,15 @@ export function ApproachDialog(props: ApproachDialogProps) {
                   onChange={(e) => setName(e.target.value)}
                   required
                   placeholder="e.g. Hash Map Strategy"
-                  className="w-full rounded-md border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full border bg-background px-3 py-1.5 text-xs outline-none"
                 />
               </div>
 
               <div>
-                <label htmlFor="approach-coreIdea" className="mb-1 block text-xs font-medium">
+                <label
+                  htmlFor="approach-coreIdea"
+                  className="mb-1 block text-xs font-medium"
+                >
                   Core Intuition
                 </label>
                 <textarea
@@ -315,7 +320,7 @@ export function ApproachDialog(props: ApproachDialogProps) {
                   onChange={(e) => setCoreIdea(e.target.value)}
                   rows={2}
                   placeholder="The central insight or high-level strategy..."
-                  className="w-full rounded-md border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary leading-relaxed"
+                  className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
                 />
               </div>
             </div>
@@ -329,7 +334,10 @@ export function ApproachDialog(props: ApproachDialogProps) {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="approach-whyItWorks" className="mb-1 block text-xs font-medium">
+                  <label
+                    htmlFor="approach-whyItWorks"
+                    className="mb-1 block text-xs font-medium"
+                  >
                     Why It Works
                   </label>
                   <textarea
@@ -339,12 +347,15 @@ export function ApproachDialog(props: ApproachDialogProps) {
                     onChange={(e) => setWhyItWorks(e.target.value)}
                     rows={3}
                     placeholder="Explain why this approach works..."
-                    className="w-full rounded-md border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary leading-relaxed"
+                    className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="approach-whenToUse" className="mb-1 block text-xs font-medium">
+                  <label
+                    htmlFor="approach-whenToUse"
+                    className="mb-1 block text-xs font-medium"
+                  >
                     When To Use
                   </label>
                   <textarea
@@ -354,7 +365,7 @@ export function ApproachDialog(props: ApproachDialogProps) {
                     onChange={(e) => setWhenToUse(e.target.value)}
                     rows={3}
                     placeholder="Problem characteristics that trigger this approach..."
-                    className="w-full rounded-md border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary leading-relaxed"
+                    className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
                   />
                 </div>
               </div>
@@ -369,7 +380,10 @@ export function ApproachDialog(props: ApproachDialogProps) {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="approach-timeComplexity" className="mb-1 block text-xs font-medium">
+                  <label
+                    htmlFor="approach-timeComplexity"
+                    className="mb-1 block text-xs font-medium"
+                  >
                     Time Complexity
                   </label>
                   <input
@@ -378,12 +392,15 @@ export function ApproachDialog(props: ApproachDialogProps) {
                     value={timeComplexity}
                     onChange={(e) => setTimeComplexity(e.target.value)}
                     placeholder="e.g. O(n), O(n log n)"
-                    className="w-full rounded-md border bg-background px-3 py-1.5 text-xs font-mono outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full border bg-background px-3 py-1.5 text-xs font-mono outline-none"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="approach-spaceComplexity" className="mb-1 block text-xs font-medium">
+                  <label
+                    htmlFor="approach-spaceComplexity"
+                    className="mb-1 block text-xs font-medium"
+                  >
                     Space Complexity
                   </label>
                   <input
@@ -392,7 +409,7 @@ export function ApproachDialog(props: ApproachDialogProps) {
                     value={spaceComplexity}
                     onChange={(e) => setSpaceComplexity(e.target.value)}
                     placeholder="e.g. O(1), O(n)"
-                    className="w-full rounded-md border bg-background px-3 py-1.5 text-xs font-mono outline-none focus:ring-2 focus:ring-primary"
+                    className="w-full border bg-background px-3 py-1.5 text-xs font-mono outline-none"
                   />
                 </div>
               </div>
@@ -407,7 +424,10 @@ export function ApproachDialog(props: ApproachDialogProps) {
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="approach-pros" className="mb-1 block text-xs font-medium">
+                  <label
+                    htmlFor="approach-pros"
+                    className="mb-1 block text-xs font-medium"
+                  >
                     Pros & Advantages
                   </label>
                   <textarea
@@ -417,12 +437,15 @@ export function ApproachDialog(props: ApproachDialogProps) {
                     onChange={(e) => setPros(e.target.value)}
                     rows={2}
                     placeholder="What makes this strategy strong..."
-                    className="w-full rounded-md border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary leading-relaxed"
+                    className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="approach-cons" className="mb-1 block text-xs font-medium">
+                  <label
+                    htmlFor="approach-cons"
+                    className="mb-1 block text-xs font-medium"
+                  >
                     Cons & Limitations
                   </label>
                   <textarea
@@ -432,7 +455,7 @@ export function ApproachDialog(props: ApproachDialogProps) {
                     onChange={(e) => setCons(e.target.value)}
                     rows={2}
                     placeholder="Memory overhead, sorting constraints..."
-                    className="w-full rounded-md border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary leading-relaxed"
+                    className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
                   />
                 </div>
               </div>
@@ -446,7 +469,10 @@ export function ApproachDialog(props: ApproachDialogProps) {
               </div>
 
               <div>
-                <label htmlFor="approach-mistakes" className="mb-1 block text-xs font-medium">
+                <label
+                  htmlFor="approach-mistakes"
+                  className="mb-1 block text-xs font-medium"
+                >
                   Common Mistakes to Avoid
                 </label>
                 <textarea
@@ -456,12 +482,15 @@ export function ApproachDialog(props: ApproachDialogProps) {
                   onChange={(e) => setMistakes(e.target.value)}
                   rows={2}
                   placeholder="Edge cases, off-by-one errors, common bugs..."
-                  className="w-full rounded-md border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary leading-relaxed"
+                  className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
                 />
               </div>
 
               <div>
-                <label htmlFor="approach-notes" className="mb-1 block text-xs font-medium">
+                <label
+                  htmlFor="approach-notes"
+                  className="mb-1 block text-xs font-medium"
+                >
                   Additional Notes
                 </label>
                 <textarea
@@ -471,16 +500,55 @@ export function ApproachDialog(props: ApproachDialogProps) {
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
                   placeholder="Follow-up variations, interview remarks..."
-                  className="w-full rounded-md border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary leading-relaxed"
+                  className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
                 />
               </div>
             </div>
           </div>
 
           {error && (
-            <p className="mt-3 rounded-md border border-destructive/50 bg-destructive/10 p-2.5 text-xs text-destructive">
+            <p className="mt-3 border border-destructive/50 bg-destructive/10 p-2.5 text-xs text-destructive">
               {error}
             </p>
+          )}
+
+          {/* Delete Confirmation Banner */}
+          {showDeleteConfirm && (
+            <div className="my-2 mt-3 border border-destructive/40 bg-destructive/10 p-4 text-xs">
+              <div className="flex items-start gap-2.5">
+                <AlertTriangle className="size-4 text-destructive shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-semibold text-destructive">
+                    Delete this approach?
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    This action cannot be undone. Deleting this approach will
+                    also permanently delete all of its associated solutions and
+                    code implementations.
+                  </p>
+                  <div className="flex items-center gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="xs"
+                      disabled={isDeleting}
+                      onClick={handleDelete}
+                    >
+                      {isDeleting ? "Deleting..." : "Permanently Delete"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="xs"
+                      disabled={isDeleting}
+                      onClick={() => setShowDeleteConfirm(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
           )}
 
           <DialogFooter>
@@ -514,7 +582,11 @@ export function ApproachDialog(props: ApproachDialogProps) {
               disabled={isSubmitting || isDeleting}
               className="bg-black text-white hover:bg-zinc-900 border border-zinc-700 font-semibold cursor-pointer"
             >
-              {isSubmitting ? "Saving..." : mode === "create" ? "Save Approach" : "Update Approach"}
+              {isSubmitting
+                ? "Saving..."
+                : mode === "create"
+                  ? "Save Approach"
+                  : "Update Approach"}
             </Button>
           </DialogFooter>
         </form>

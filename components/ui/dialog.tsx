@@ -59,7 +59,7 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 flex flex-col w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 max-h-[90vh] rounded-xl border bg-card p-6 text-card-foreground shadow-xl transition-[scale,opacity] duration-150 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 focus:outline-none",
+          "fixed top-1/2 left-1/2 z-50 flex flex-col w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 max-h-[90vh] border bg-card p-6 text-card-foreground shadow-xl transition-[scale,opacity] duration-150 ease-out data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 focus:outline-none",
           className,
         )}
         {...props}
@@ -68,7 +68,7 @@ function DialogContent({
         {showClose && (
           <DialogPrimitive.Close
             data-slot="dialog-close-button"
-            className="absolute top-4 right-4 rounded-xs p-1 text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+            className="absolute top-4 right-4 p-1 text-muted-foreground opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
             aria-label="Close"
           >
             <X className="size-4" />
@@ -86,7 +86,7 @@ function DialogHeader({
   return (
     <div
       data-slot="dialog-header"
-      className={cn("flex flex-col gap-1.5 text-left border-b pb-4 shrink-0", className)}
+      className={cn("flex flex-col gap-1.5 text-left pb-4 shrink-0", className)}
       {...props}
     />
   );
@@ -100,7 +100,7 @@ function DialogFooter({
     <div
       data-slot="dialog-footer"
       className={cn(
-        "flex flex-col-reverse sm:flex-row sm:justify-end sm:gap-3 gap-2 border-t pt-4 mt-4 shrink-0",
+        "flex sm:flex-row sm:justify-end sm:gap-3 gap-2 pt-4 mt-4 shrink-0",
         className,
       )}
       {...props}

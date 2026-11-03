@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { ArrowLeft, BookOpen, Square } from "lucide-react";
 import type { Metadata } from "next";
 import { getPublicUserProfile } from "@/lib/profile/service";
 import { DsaLogo } from "@/components/brand/DsaLogo";
@@ -71,16 +71,14 @@ export default async function PublicProfilePage({
             <span>DSA Explorer</span>
           </Link>
         </div>
-        <span className="text-xs font-mono text-zinc-400">
-          Public Knowledge Profile
-        </span>
+        <span className="text-xs font-mono text-zinc-400">Public Profile</span>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* ── Profile Header Card ─────────────────────────────────── */}
         <section
           aria-label="User Profile"
-          className="rounded-2xl border border-[#383838] bg-[#262626] p-6 sm:p-8 shadow-sm"
+          className="border border-[#383838] bg-[#262626] p-6 sm:p-8 shadow-sm"
         >
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 justify-between">
             <div className="flex items-center gap-4">
@@ -109,20 +107,13 @@ export default async function PublicProfilePage({
                     {user.bio}
                   </p>
                 )}
-                <p className="text-xs text-zinc-400 pt-1">
-                  Joined{" "}
-                  {new Date(user.createdAt).toLocaleDateString("en-US", {
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </p>
               </div>
             </div>
 
             {/* Informative Stats Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 w-full sm:w-auto pt-4 sm:pt-0 border-t sm:border-t-0 border-[#383838]">
               {/* Total Solved */}
-              <div className="rounded-xl border border-[#383838] bg-[#1e1e1e] p-3 text-center min-w-[105px]">
+              <div className="border border-[#383838] bg-[#1e1e1e] p-3 text-center min-w-26.25">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
                   Total Solved
                 </span>
@@ -132,21 +123,27 @@ export default async function PublicProfilePage({
               </div>
 
               {/* Difficulty Breakdown */}
-              <div className="rounded-xl border border-[#383838] bg-[#1e1e1e] p-3 text-center min-w-[130px]">
+              <div className="border border-[#383838] bg-[#1e1e1e] p-3 text-center min-w-32.6">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block mb-1">
                   Difficulty
                 </span>
-                <div className="flex items-center justify-center gap-1.5 text-xs font-semibold">
-                  <span className="text-[#46C6C2]" title="Easy">{easyCount}E</span>
+                <div className="flex items-center justify-center gap-1.5 text-md font-semibold">
+                  <span className="text-[#46C6C2]" title="Easy">
+                    {easyCount}
+                  </span>
                   <span className="text-zinc-600">/</span>
-                  <span className="text-yellow-400" title="Medium">{mediumCount}M</span>
+                  <span className="text-yellow-400" title="Medium">
+                    {mediumCount}
+                  </span>
                   <span className="text-zinc-600">/</span>
-                  <span className="text-red-400" title="Hard">{hardCount}H</span>
+                  <span className="text-red-400" title="Hard">
+                    {hardCount}
+                  </span>
                 </div>
               </div>
 
               {/* Topics Covered */}
-              <div className="rounded-xl border border-[#383838] bg-[#1e1e1e] p-3 text-center min-w-[105px]">
+              <div className="border border-[#383838] bg-[#1e1e1e] p-3 text-center min-w-26.25">
                 <span className="text-[10px] font-bold uppercase tracking-wider text-zinc-400 block">
                   Topics
                 </span>
@@ -168,14 +165,16 @@ export default async function PublicProfilePage({
               </h2>
             </div>
             <span className="text-xs text-zinc-400">
-              {problems.length}{" "}
-              {problems.length === 1 ? "problem" : "problems"}
+              {problems.length} {problems.length === 1 ? "problem" : "problems"}
             </span>
           </div>
 
           {problems.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-[#444444] bg-[#262626] p-12 text-center space-y-3">
-              <DsaLogo size="lg" className="mx-auto h-12 w-auto opacity-40 mb-1" />
+              <DsaLogo
+                size="lg"
+                className="mx-auto h-12 w-auto opacity-40 mb-1"
+              />
               <h3 className="text-base font-semibold text-white">
                 No public knowledge published yet
               </h3>
@@ -201,4 +200,3 @@ export default async function PublicProfilePage({
     </div>
   );
 }
-

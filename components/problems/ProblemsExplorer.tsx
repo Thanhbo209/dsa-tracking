@@ -19,14 +19,15 @@ import type { Difficulty } from "@/lib/generated/prisma/client";
 import { ProblemStatsDonut } from "./charts/ProblemStatsDonut";
 import { ActivityHeatmap } from "./charts/ActivityHeatmap";
 import { ProgressRing } from "./ProgressRing";
-import {
-  TopicsSolvedBar,
-  type SolvedTopicItem,
-} from "./TopicsSolvedBar";
+import { TopicsSolvedBar, type SolvedTopicItem } from "./TopicsSolvedBar";
+import { Input } from "../ui/input";
 
 const PAGE_SIZE = 16;
 
-function getPageNumbers(currentPage: number, totalPages: number): (number | "...")[] {
+function getPageNumbers(
+  currentPage: number,
+  totalPages: number,
+): (number | "...")[] {
   if (totalPages <= 7) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
   }
@@ -165,9 +166,7 @@ export function ProblemsExplorer({
 
   const handleToggleTopic = (topic: string) => {
     setSelectedTopics((prev) =>
-      prev.includes(topic)
-        ? prev.filter((t) => t !== topic)
-        : [...prev, topic],
+      prev.includes(topic) ? prev.filter((t) => t !== topic) : [...prev, topic],
     );
     setCurrentPage(1);
   };
@@ -185,7 +184,9 @@ export function ProblemsExplorer({
     const easySolved = problems.filter(
       (p) => p.difficulty === "EASY" && p.status === "SOLVED",
     ).length;
-    const mediumTotal = problems.filter((p) => p.difficulty === "MEDIUM").length;
+    const mediumTotal = problems.filter(
+      (p) => p.difficulty === "MEDIUM",
+    ).length;
     const mediumSolved = problems.filter(
       (p) => p.difficulty === "MEDIUM" && p.status === "SOLVED",
     ).length;
@@ -216,7 +217,9 @@ export function ProblemsExplorer({
       .filter((problem) => {
         // Search filter
         if (rawQuery.length > 0) {
-          const matchTitle = problem.title.toLowerCase().includes(normalizedQuery);
+          const matchTitle = problem.title
+            .toLowerCase()
+            .includes(normalizedQuery);
           const matchId =
             normalizedIdQuery.length > 0 &&
             problem.leetcodeId !== null &&
@@ -323,7 +326,10 @@ export function ProblemsExplorer({
   }
 
   // Pagination calculation: strictly 16 items per page
-  const totalPages = Math.max(1, Math.ceil(filteredProblems.length / PAGE_SIZE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredProblems.length / PAGE_SIZE),
+  );
   const safeCurrentPage = Math.min(Math.max(1, currentPage), totalPages);
   const startIndex = (safeCurrentPage - 1) * PAGE_SIZE;
   const endIndex = Math.min(startIndex + PAGE_SIZE, filteredProblems.length);
@@ -335,21 +341,23 @@ export function ProblemsExplorer({
   const renderPaginationButtons = (isCompact = false) => {
     return (
       <div className="flex items-center gap-1 sm:gap-1.5">
-        <button
+        <Button
           type="button"
           onClick={() => {
             setCurrentPage((p) => Math.max(1, p - 1));
-            document.getElementById("problems-list-header")?.scrollIntoView({ behavior: "smooth" });
+            document
+              .getElementById("problems-list-header")
+              ?.scrollIntoView({ behavior: "smooth" });
           }}
           disabled={safeCurrentPage === 1}
-          className={`flex items-center gap-1 rounded-lg border border-[#383838] bg-[#262626] ${
+          className={`flex items-center gap-1 border border-[#383838] bg-[#262626] ${
             isCompact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-xs"
-          } font-medium text-zinc-300 hover:bg-[#333333] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors`}
+          } font-medium text-muted-foreground hover:bg-[#333333] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors`}
           aria-label="Previous page"
         >
           <ChevronLeft className="size-3.5" />
           <span className={isCompact ? "hidden sm:inline" : ""}>Prev</span>
-        </button>
+        </Button>
 
         {/* Page numbers */}
         <div className="flex items-center gap-1">
@@ -362,42 +370,46 @@ export function ProblemsExplorer({
                 …
               </span>
             ) : (
-              <button
+              <Button
                 key={p}
                 type="button"
                 onClick={() => {
                   setCurrentPage(p as number);
-                  document.getElementById("problems-list-header")?.scrollIntoView({ behavior: "smooth" });
+                  document
+                    .getElementById("problems-list-header")
+                    ?.scrollIntoView({ behavior: "smooth" });
                 }}
-                className={`min-w-7 h-7 sm:min-w-8 sm:h-8 rounded-lg text-xs font-semibold transition-colors ${
+                className={`min-w-7 h-7 sm:min-w-8 sm:h-8 text-xs font-semibold transition-colors ${
                   safeCurrentPage === p
-                    ? "border border-white/40 bg-white/20 text-white font-bold shadow-xs"
-                    : "border border-[#383838] bg-[#262626] text-zinc-300 hover:bg-[#333333] hover:text-white"
+                    ? "border border-border bg-white/20 text-white font-bold shadow-xs"
+                    : " bg-[#262626] text-zinc-300 hover:bg-[#333333] hover:text-white"
                 }`}
                 aria-label={`Page ${p}`}
                 aria-current={safeCurrentPage === p ? "page" : undefined}
               >
                 {p}
-              </button>
-            )
+              </Button>
+            ),
           )}
         </div>
 
-        <button
+        <Button
           type="button"
           onClick={() => {
             setCurrentPage((p) => Math.min(totalPages, p + 1));
-            document.getElementById("problems-list-header")?.scrollIntoView({ behavior: "smooth" });
+            document
+              .getElementById("problems-list-header")
+              ?.scrollIntoView({ behavior: "smooth" });
           }}
           disabled={safeCurrentPage === totalPages}
-          className={`flex items-center gap-1 rounded-lg border border-[#383838] bg-[#262626] ${
+          className={`flex items-center gap-1 border border-border bg-[#262626] ${
             isCompact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-xs"
           } font-medium text-zinc-300 hover:bg-[#333333] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors`}
           aria-label="Next page"
         >
           <span className={isCompact ? "hidden sm:inline" : ""}>Next</span>
           <ChevronRight className="size-3.5" />
-        </button>
+        </Button>
       </div>
     );
   };
@@ -456,14 +468,14 @@ export function ProblemsExplorer({
       {/* ── Search & Filter Toolbar ────────────────────────────────── */}
       <section
         aria-label="Search and Filters"
-        className="rounded-xl border border-[#383838] bg-[#262626] p-4 sm:p-5 space-y-4 shadow-xs"
+        className=" border bg-[#262626] p-4 sm:p-5 space-y-4 shadow-xs"
       >
         {/* Row 1: Search input + Sort select */}
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           {/* Search Box */}
           <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-zinc-400 pointer-events-none" />
-            <input
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+            <Input
               type="text"
               aria-label="Search problems"
               value={searchQuery}
@@ -472,27 +484,28 @@ export function ProblemsExplorer({
                 setCurrentPage(1);
               }}
               placeholder="Search by title or #id (e.g. Two Sum, 1, #1)..."
-              className="w-full rounded-lg border border-[#4a4a4a] bg-[#1a1a1a] pl-10 pr-8 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-primary transition-colors"
+              className="pl-10 pr-8 py-2"
             />
             {searchQuery && (
-              <button
+              <Button
                 type="button"
+                variant="ghost"
                 onClick={() => {
                   setSearchQuery("");
                   setCurrentPage(1);
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400 hover:text-white"
+                className="absolute right-0.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground hover:text-white"
                 aria-label="Clear search text"
               >
                 ✕
-              </button>
+              </Button>
             )}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             {/* Sort Selector */}
-            <div className="flex items-center gap-1.5">
-              <ArrowUpDown className="size-3.5 text-zinc-400 shrink-0" />
+            <div className="flex items-center gap-2">
+              <ArrowUpDown className="size-4 text-muted-foreground shrink-0" />
               <select
                 aria-label="Sort problems"
                 value={sortBy}
@@ -500,7 +513,7 @@ export function ProblemsExplorer({
                   setSortBy(e.target.value as SortOption);
                   setCurrentPage(1);
                 }}
-                className="rounded-lg border border-[#4a4a4a] bg-[#1a1a1a] px-3 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors cursor-pointer"
+                className="border border-border bg-[#1a1a1a] px-4 py-2 text-xs sm:text-sm text-white focus:outline-none focus:border-primary transition-colors cursor-pointer"
               >
                 <option value="NUM_ASC">Number: Low to High</option>
                 <option value="NUM_DESC">Number: High to Low</option>
@@ -527,19 +540,21 @@ export function ProblemsExplorer({
         </div>
 
         {/* Row 2: Difficulty & Status Quick Filter Buttons */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-[#383838]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-border">
           {/* Difficulty filter buttons */}
           <div className="flex flex-wrap items-center gap-1.5 text-xs">
-            <span className="text-zinc-400 mr-1 font-medium">Difficulty:</span>
+            <span className="text-muted-foreground mr-1 text-[15px] font-medium">
+              Difficulty:
+            </span>
             {(["ALL", "EASY", "MEDIUM", "HARD"] as const).map((diff) => (
-              <button
+              <Button
                 key={diff}
                 type="button"
                 onClick={() => {
                   setDifficultyFilter(diff);
                   setCurrentPage(1);
                 }}
-                className={`rounded-md px-2.5 py-1 font-medium transition-all ${
+                className={`px-2.5 py-1 font-medium transition-all ${
                   difficultyFilter === diff
                     ? diff === "EASY"
                       ? "bg-[#46C6C2]/20 text-[#46C6C2] border border-[#46C6C2]/40"
@@ -554,13 +569,15 @@ export function ProblemsExplorer({
                 {diff === "ALL"
                   ? "All"
                   : diff.charAt(0) + diff.slice(1).toLowerCase()}
-              </button>
+              </Button>
             ))}
           </div>
 
           {/* Status filter buttons */}
           <div className="flex flex-wrap items-center gap-1.5 text-xs">
-            <span className="text-zinc-400 mr-1 font-medium">Status:</span>
+            <span className="text-muted-foreground text-[15px] mr-1 font-medium">
+              Status:
+            </span>
             {(["ALL", "SOLVED", "ATTEMPTED", "TODO"] as const).map((st) => (
               <button
                 key={st}
@@ -569,7 +586,7 @@ export function ProblemsExplorer({
                   setStatusFilter(st);
                   setCurrentPage(1);
                 }}
-                className={`flex items-center gap-1 rounded-md px-2.5 py-1 font-medium transition-all ${
+                className={`flex items-center gap-1 px-2.5 py-1 text-[13px] font-medium transition-all ${
                   statusFilter === st
                     ? st === "SOLVED"
                       ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
@@ -608,19 +625,24 @@ export function ProblemsExplorer({
           <span>
             Showing{" "}
             <strong className="text-white font-semibold">
-              {filteredProblems.length === 0 ? 0 : `${startIndex + 1}–${endIndex}`}
+              {filteredProblems.length === 0
+                ? 0
+                : `${startIndex + 1}–${endIndex}`}
             </strong>{" "}
             of {filteredProblems.length}{" "}
-            {hasActiveFilters ? `(filtered from ${problems.length})` : "problems"}
+            {hasActiveFilters
+              ? `(filtered from ${problems.length})`
+              : "problems"}
           </span>
           {hasActiveFilters && (
-            <button
+            <Button
               type="button"
+              variant={"ghost"}
               onClick={clearAllFilters}
-              className="text-xs text-white hover:underline font-medium"
+              className="text-md text-white hover:underline cursor-pointer font-medium"
             >
               Clear filters
-            </button>
+            </Button>
           )}
         </div>
 
@@ -631,8 +653,9 @@ export function ProblemsExplorer({
             className="flex items-center gap-2 self-end sm:self-auto"
           >
             <span className="hidden md:inline text-xs text-zinc-400 mr-1">
-              Page <span className="font-semibold text-white">{safeCurrentPage}</span> of{" "}
-              <span className="font-semibold text-white">{totalPages}</span>
+              Page{" "}
+              <span className="font-medium text-white">{safeCurrentPage}</span>{" "}
+              of <span className="font-medium text-white">{totalPages}</span>
             </span>
             {renderPaginationButtons(true)}
           </nav>
@@ -641,7 +664,7 @@ export function ProblemsExplorer({
 
       {/* ── Problems Grid (Cards) ─────────────────────────────────── */}
       {filteredProblems.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[#4a4a4a] bg-[#262626] p-12 text-center space-y-3">
+        <div className="border border-dashed border-[#4a4a4a] bg-[#262626] p-12 text-center space-y-3">
           <DsaLogo size="lg" className="mx-auto h-12 w-auto opacity-40 mb-1" />
           <h3 className="text-base font-semibold text-white">
             No matching problems found
@@ -667,7 +690,7 @@ export function ProblemsExplorer({
               <Link
                 key={problem.id}
                 href={`/problems/${problem.slug}`}
-                className={`group relative flex flex-col justify-between h-full rounded-xl border border-[#383838] bg-[#262626] p-4.5 sm:p-5 shadow-xs transition-all hover:border-zinc-500 hover:bg-[#383838] hover:shadow-lg ${difficultyCardStripe(
+                className={`group relative flex flex-col justify-between h-full border border-border bg-[#262626] p-4.5 sm:p-5 shadow-xs transition-all hover:border-zinc-500 hover:bg-[#383838] hover:shadow-lg ${difficultyCardStripe(
                   problem.difficulty,
                 )}`}
               >
@@ -688,7 +711,7 @@ export function ProblemsExplorer({
 
                       {problem.difficulty ? (
                         <span
-                          className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${difficultyClass(
+                          className={`border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${difficultyClass(
                             problem.difficulty,
                           )}`}
                         >
@@ -700,30 +723,30 @@ export function ProblemsExplorer({
                     {/* LeetCode Number & Title */}
                     <div className="space-y-1.5">
                       {problem.leetcodeId !== null && (
-                        <span className="font-mono text-xs font-medium text-zinc-400">
+                        <span className="font-mono text-md font-thin text-white">
                           #{problem.leetcodeId}
                         </span>
                       )}
-                      <h2 className="text-base font-bold text-white group-hover:text-white transition-colors line-clamp-2">
+                      <h2 className="text-xl font-bold text-white group-hover:text-white transition-colors line-clamp-2">
                         {problem.title}
                       </h2>
                     </div>
                   </div>
 
                   {/* Topics Chips Container - with fixed min-h so 0 chips reserves identical height */}
-                  <div className="min-h-[32px] flex items-center">
+                  <div className="min-h-8 flex items-center">
                     {problem.topics.length > 0 ? (
                       <div className="flex flex-wrap items-center gap-1.5">
                         {problem.topics.slice(0, 2).map((topicName) => (
                           <span
                             key={topicName}
-                            className="rounded bg-[#1a1a1a] border border-[#444444] px-2 py-0.5 text-[11px] text-zinc-300"
+                            className="bg-[#1a1a1a] border border-[#444444] px-2 py-0.5 text-[11px] text-zinc-300"
                           >
                             {topicName}
                           </span>
                         ))}
                         {problem.topics.length > 2 && (
-                          <span className="text-[11px] text-zinc-500 font-medium">
+                          <span className="text-[11px] text-mute-foreground font-medium">
                             +{problem.topics.length - 2} more
                           </span>
                         )}
@@ -733,11 +756,11 @@ export function ProblemsExplorer({
                 </div>
 
                 {/* Card Footer: Knowledge Vault & Open Action */}
-                <div className="mt-5 flex items-center justify-between border-t border-[#383838] pt-4 text-xs">
+                <div className="mt-5 flex items-center justify-between border-t border-border pt-4 text-xs">
                   <div>
                     {problem.approachCount > 0 ? (
                       <span
-                        className="inline-flex items-center gap-1.5 rounded-md border border-[#f59e0b]/30 bg-[#f59e0b]/10 px-2 py-0.5 text-xs font-medium text-[#f59e0b]"
+                        className="inline-flex items-center gap-1.5 border border-[#f59e0b]/30 bg-[#f59e0b]/10 px-2 py-0.5 text-xs font-medium text-[#f59e0b]"
                         title={`${problem.approachCount} approach${problem.approachCount > 1 ? "es" : ""} saved in Knowledge Vault`}
                       >
                         <Bookmark className="size-3.5 fill-[#f59e0b] text-[#f59e0b]" />
@@ -768,9 +791,11 @@ export function ProblemsExplorer({
           aria-label="Problems pagination"
           className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#383838]"
         >
-          <div className="text-xs text-zinc-400">
-            Page <span className="font-semibold text-white">{safeCurrentPage}</span> of{" "}
-            <span className="font-semibold text-white">{totalPages}</span> ({PAGE_SIZE} problems per page)
+          <div className="text-[13px] text-muted-foreground">
+            Page{" "}
+            <span className="font-semibold text-white">{safeCurrentPage}</span>{" "}
+            of <span className="font-semibold text-white">{totalPages}</span> (
+            {PAGE_SIZE} problems per page)
           </div>
 
           {renderPaginationButtons(false)}

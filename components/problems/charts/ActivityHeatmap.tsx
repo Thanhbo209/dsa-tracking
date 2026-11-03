@@ -8,7 +8,7 @@ import {
   useSyncExternalStore,
 } from "react";
 import { createPortal } from "react-dom";
-import { Flame, Calendar, BookOpen, CheckCircle } from "lucide-react";
+import { Flame, Calendar } from "lucide-react";
 import { calculateStreak } from "@/lib/activity/streak";
 
 const emptySubscribe = () => () => {};
@@ -18,21 +18,6 @@ export interface ActivityHeatmapProps {
   approachActivities?: Record<string, number>; // { [YYYY-MM-DD]: count }
   lastSyncedAt?: string | null;
   leetcodeUsername?: string | null;
-}
-
-function formatRelativeTime(dateStr?: string | null): string {
-  if (!dateStr) return "";
-  try {
-    const d = new Date(dateStr);
-    const now = new Date();
-    const diffSec = Math.floor((now.getTime() - d.getTime()) / 1000);
-    if (diffSec < 60) return "just now";
-    if (diffSec < 3600) return `${Math.floor(diffSec / 60)}m ago`;
-    if (diffSec < 86400) return `${Math.floor(diffSec / 3600)}h ago`;
-    return `${Math.floor(diffSec / 86400)}d ago`;
-  } catch {
-    return "";
-  }
 }
 
 const MONTH_NAMES = [
@@ -53,8 +38,6 @@ const MONTH_NAMES = [
 export function ActivityHeatmap({
   submissionActivities,
   approachActivities = {},
-  lastSyncedAt,
-  leetcodeUsername,
 }: ActivityHeatmapProps) {
   const [activeTab, setActiveTab] = useState<"SOLVES" | "KNOWLEDGE">("SOLVES");
   const mounted = useSyncExternalStore(
@@ -181,37 +164,22 @@ export function ActivityHeatmap({
   const cellGap = 3;
 
   return (
-    <div className="rounded-xl border border-[#383838] bg-[#262626] p-6 shadow-xs flex flex-col justify-between h-full gap-6">
+    <div className="border border-border bg-[#262626] p-6 shadow-xs flex flex-col justify-between h-full gap-6">
       {/* Header with Title, Streak Badges, and Mode Switcher */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#383838]">
         <div>
           <div className="flex items-center gap-2">
             <Calendar className="size-4 text-[#46C6C2] shrink-0" />
-            <h2 className="text-base font-bold text-white tracking-tight leading-none">
+            <h2 className="text-base font-boldtracking-tight leading-none">
               Activity &amp; Consistency
             </h2>
-          </div>
-          <div className="flex flex-wrap items-center gap-1.5 text-xs text-zinc-400 mt-1.5 leading-normal">
-            <span>Practice frequency, streaks &amp; contributions</span>
-            {lastSyncedAt ? (
-              <>
-                <span className="text-zinc-600">•</span>
-                <span
-                  className="text-[11px] text-[#46C6C2] font-medium"
-                  title={new Date(lastSyncedAt).toLocaleString()}
-                >
-                  Synced {leetcodeUsername ? `@${leetcodeUsername} ` : ""}
-                  {formatRelativeTime(lastSyncedAt)}
-                </span>
-              </>
-            ) : null}
           </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Current Streak Badge */}
           <div
-            className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-bold border transition-colors ${
+            className={`flex items-center gap-1.5 px-2.5 py-1 text-xs font-bold border transition-colors ${
               streak.currentStreak > 0
                 ? "bg-amber-500/15 border-amber-500/40 text-amber-400"
                 : "bg-zinc-800 border-zinc-700 text-zinc-400"
@@ -226,36 +194,34 @@ export function ActivityHeatmap({
 
           {/* Longest streak pill */}
           {streak.longestStreak > 0 && (
-            <span className="text-[11px] text-zinc-500 font-medium">
+            <span className="text-[13px] text-zinc-500 font-medium">
               Best: {streak.longestStreak}d
             </span>
           )}
 
           {/* Tab Toggle: Solves vs Knowledge Notes */}
-          <div className="flex items-center bg-[#1a1a1a] border border-[#383838] rounded-lg p-0.5 text-xs">
+          <div className="flex items-center border border-border p-0.5 text-xs">
             <button
               type="button"
               onClick={() => setActiveTab("SOLVES")}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 font-medium transition-all ${
                 activeTab === "SOLVES"
                   ? "bg-[#2b2b2b] text-white shadow-xs"
                   : "text-zinc-400 hover:text-white"
               }`}
             >
-              <CheckCircle className="size-3 text-[#46C6C2]" />
               <span>Solves</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab("KNOWLEDGE")}
-              className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium transition-all ${
+              className={`flex items-center gap-1.5 px-2.5 py-1 font-medium transition-all ${
                 activeTab === "KNOWLEDGE"
                   ? "bg-[#2b2b2b] text-white shadow-xs"
                   : "text-zinc-400 hover:text-white"
               }`}
             >
-              <BookOpen className="size-3 text-amber-400" />
-              <span>Vault Notes</span>
+              <span>Vault Activities</span>
             </button>
           </div>
         </div>
@@ -284,19 +250,6 @@ export function ActivityHeatmap({
                   {m.label}
                 </text>
               ))}
-            </g>
-
-            {/* Day Labels (Mon, Wed, Fri) */}
-            <g className="text-[9px] fill-muted-foreground font-sans select-none">
-              <text x={10} y={24 + 1 * (cellSize + cellGap) + 8}>
-                Mon
-              </text>
-              <text x={10} y={24 + 3 * (cellSize + cellGap) + 8}>
-                Wed
-              </text>
-              <text x={10} y={24 + 5 * (cellSize + cellGap) + 8}>
-                Fri
-              </text>
             </g>
 
             {/* Heatmap Cells */}
@@ -374,26 +327,11 @@ export function ActivityHeatmap({
         {/* Legend scale */}
         <div className="flex items-center gap-1.5 text-[11px] select-none">
           <span>Less</span>
-          <span
-            className="size-2.5 rounded-xs"
-            style={{ backgroundColor: "#222224" }}
-          />
-          <span
-            className="size-2.5 rounded-xs"
-            style={{ backgroundColor: "#016620" }}
-          />
-          <span
-            className="size-2.5 rounded-xs"
-            style={{ backgroundColor: "#109932" }}
-          />
-          <span
-            className="size-2.5 rounded-xs"
-            style={{ backgroundColor: "#28C244" }}
-          />
-          <span
-            className="size-2.5 rounded-xs"
-            style={{ backgroundColor: "#7FE18B" }}
-          />
+          <span className="size-2.5" style={{ backgroundColor: "#222224" }} />
+          <span className="size-2.5" style={{ backgroundColor: "#016620" }} />
+          <span className="size-2.5" style={{ backgroundColor: "#109932" }} />
+          <span className="size-2.5" style={{ backgroundColor: "#28C244" }} />
+          <span className="size-2.5" style={{ backgroundColor: "#7FE18B" }} />
           <span>More</span>
         </div>
       </div>

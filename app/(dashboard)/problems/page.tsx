@@ -8,7 +8,7 @@ import {
   type ProblemExplorerItem,
   type ProblemStatus,
 } from "@/components/problems/ProblemsExplorer";
-import { ExtensionDialog } from "@/components/problems/ExtensionDialog";
+import { ExtensionDialog } from "@/components/extension/ExtensionDialog";
 
 export const metadata: Metadata = {
   title: "Problems",
@@ -21,71 +21,76 @@ export default async function ProblemsPage() {
     redirect("/login?callbackUrl=/problems");
   }
 
-  const [rawProblems, userSubmissions, userApproaches, dailyActivities, dbUser] =
-    await Promise.all([
-      prisma.problem.findMany({
-        orderBy: {
-          leetcodeId: "asc",
-        },
-        include: {
-          topics: {
-            include: {
-              topic: true,
-            },
-          },
-          submissions: {
-            where: {
-              userId: user.id,
-            },
-            select: {
-              status: true,
-            },
-          },
-          approaches: {
-            where: {
-              userId: user.id,
-            },
-            select: {
-              id: true,
-            },
+  const [
+    rawProblems,
+    userSubmissions,
+    userApproaches,
+    dailyActivities,
+    dbUser,
+  ] = await Promise.all([
+    prisma.problem.findMany({
+      orderBy: {
+        leetcodeId: "asc",
+      },
+      include: {
+        topics: {
+          include: {
+            topic: true,
           },
         },
-      }),
-      prisma.submission.findMany({
-        where: {
-          userId: user.id,
-          status: "ACCEPTED",
+        submissions: {
+          where: {
+            userId: user.id,
+          },
+          select: {
+            status: true,
+          },
         },
-        select: {
-          submittedAt: true,
-          createdAt: true,
+        approaches: {
+          where: {
+            userId: user.id,
+          },
+          select: {
+            id: true,
+          },
         },
-      }),
-      prisma.approach.findMany({
-        where: {
-          userId: user.id,
-        },
-        select: {
-          createdAt: true,
-        },
-      }),
-      prisma.dailyActivity.findMany({
-        where: {
-          userId: user.id,
-        },
-        select: {
-          date: true,
-          count: true,
-        },
-      }),
-      prisma.user.findUnique({
-        where: { id: user.id },
-        select: {
-          lastSyncedAt: true,
-          leetcodeUsername: true,
-        },
-      }),
-    ]);
+      },
+    }),
+    prisma.submission.findMany({
+      where: {
+        userId: user.id,
+        status: "ACCEPTED",
+      },
+      select: {
+        submittedAt: true,
+        createdAt: true,
+      },
+    }),
+    prisma.approach.findMany({
+      where: {
+        userId: user.id,
+      },
+      select: {
+        createdAt: true,
+      },
+    }),
+    prisma.dailyActivity.findMany({
+      where: {
+        userId: user.id,
+      },
+      select: {
+        date: true,
+        count: true,
+      },
+    }),
+    prisma.user.findUnique({
+      where: { id: user.id },
+      select: {
+        lastSyncedAt: true,
+        leetcodeUsername: true,
+      },
+    }),
+  ]);
 
   const localSubmissionActivities = aggregateDailyActivities(
     userSubmissions.map((s) => s.submittedAt || s.createdAt),
@@ -153,11 +158,12 @@ export default async function ProblemsPage() {
     <main className="w-full px-4 py-6 sm:px-6 lg:px-8 xl:px-10">
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
             Problems
           </h1>
-          <p className="text-sm text-zinc-400">
-            Practice library, historical attempts, and permanent algorithmic knowledge.
+          <p className="text-sm text-muted-foreground">
+            Practice library, historical attempts, and permanent algorithmic
+            knowledge.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -176,4 +182,3 @@ export default async function ProblemsPage() {
     </main>
   );
 }
-

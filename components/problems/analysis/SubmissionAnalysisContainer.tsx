@@ -13,6 +13,7 @@ import { AnalysisGeneratingState } from "./AnalysisGeneratingState";
 import { AnalysisFailedState } from "./AnalysisFailedState";
 import { ModelSelector } from "./ModelSelector";
 import { DEFAULT_PRIMARY_MODEL } from "@/lib/analysis/models";
+import { formatDate } from "@/utils/date-format";
 
 interface SubmissionAnalysisContainerProps {
   submissionId: string;
@@ -21,17 +22,6 @@ interface SubmissionAnalysisContainerProps {
   submissionStatus?: string | null;
   runtimeMs?: number | null;
   initialAnalyses?: SerializedSubmissionAnalysis[];
-}
-
-function formatDate(date: string | Date | null | undefined): string {
-  if (!date) return "";
-  return new Date(date).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  });
 }
 
 export function SubmissionAnalysisContainer({
@@ -46,7 +36,9 @@ export function SubmissionAnalysisContainer({
   const [analyses, setAnalyses] =
     useState<SerializedSubmissionAnalysis[]>(initialAnalyses);
   const [selectedIndex, setSelectedIndex] = useState<number>(0);
-  const [selectedModel, setSelectedModel] = useState<string>(DEFAULT_PRIMARY_MODEL);
+  const [selectedModel, setSelectedModel] = useState<string>(
+    DEFAULT_PRIMARY_MODEL,
+  );
   const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
   const [isPromoting, setIsPromoting] = useState<boolean>(false);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -206,7 +198,7 @@ export function SubmissionAnalysisContainer({
   return (
     <div className="space-y-4 text-white">
       {/* Top Controls: Analysis Switcher / History & Re-analyze */}
-      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[#4a4a4a] bg-[#373737] px-3.5 py-2 text-white shadow-2xs">
+      <div className="flex flex-wrap items-center justify-between gap-2 border border-[#4a4a4a] bg-[#373737] px-3.5 py-2 text-white shadow-2xs">
         <div className="flex items-center gap-2">
           <Bot className="size-4 text-white shrink-0" />
           <div className="flex flex-wrap items-center gap-1.5 text-xs">
@@ -223,19 +215,20 @@ export function SubmissionAnalysisContainer({
                 {activeAnalysis.modelName}
               </span>
             )}
-            {activeAnalysis?.status && activeAnalysis.status !== "DRAFT_READY" && (
-              <span
-                className={`rounded px-1.5 py-0.5 text-[10px] font-medium uppercase ${
-                  activeAnalysis.status === "ACCEPTED"
-                    ? "bg-green-500/20 text-white border border-green-500/40"
-                    : activeAnalysis.status === "REJECTED"
-                      ? "bg-zinc-500/20 text-white border border-zinc-500/40"
-                      : "bg-red-500/20 text-white border border-red-500/40"
-                }`}
-              >
-                {activeAnalysis.status}
-              </span>
-            )}
+            {activeAnalysis?.status &&
+              activeAnalysis.status !== "DRAFT_READY" && (
+                <span
+                  className={`rounded px-1.5 py-0.5 text-[10px] font-medium uppercase ${
+                    activeAnalysis.status === "ACCEPTED"
+                      ? "bg-green-500/20 text-white border border-green-500/40"
+                      : activeAnalysis.status === "REJECTED"
+                        ? "bg-zinc-500/20 text-white border border-zinc-500/40"
+                        : "bg-red-500/20 text-white border border-red-500/40"
+                  }`}
+                >
+                  {activeAnalysis.status}
+                </span>
+              )}
           </div>
         </div>
 
@@ -248,12 +241,14 @@ export function SubmissionAnalysisContainer({
                 aria-label="Select analysis history run"
                 value={selectedIndex}
                 onChange={(e) => setSelectedIndex(Number(e.target.value))}
-                className="rounded border border-[#555555] bg-[#222222] px-2 py-1 text-xs text-white outline-none"
+                className="border border-[#555555] bg-[#222222] px-2 py-1 text-xs text-white outline-none"
               >
                 {analyses.map((item, idx) => (
                   <option key={item.id || idx} value={idx}>
                     {idx === 0 ? "Latest: " : `Run #${analyses.length - idx}: `}
-                    {item.createdAt ? formatDate(item.createdAt) : `Analysis ${idx + 1}`}
+                    {item.createdAt
+                      ? formatDate(item.createdAt)
+                      : `Analysis ${idx + 1}`}
                     {item.status === "ACCEPTED"
                       ? " (Accepted)"
                       : item.status === "REJECTED"

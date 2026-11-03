@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import type { PublicVaultProblem } from "@/lib/profile/service";
 import { cn } from "cn";
+import { Button } from "../ui/button";
 
 interface PublicProblemRowProps {
   problem: PublicVaultProblem;
@@ -47,7 +48,7 @@ export const PublicProblemRow = React.memo(function PublicProblemRow({
   return (
     <Link
       href={`/u/${username}/${problem.slug}`}
-      className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-lg border border-[#383838] bg-[#262626] px-4 py-3 hover:border-zinc-500 hover:bg-[#383838] transition-all shadow-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white/40"
+      className="group flex flex-col sm:flex-row sm:items-center justify-between gap-3 border border-[#383838] bg-[#262626] px-4 py-3 hover:border-zinc-500 hover:bg-[#383838] transition-all shadow-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white/40"
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <span className="font-mono text-xs text-zinc-400 w-12 shrink-0">
@@ -68,7 +69,7 @@ export const PublicProblemRow = React.memo(function PublicProblemRow({
               {visibleTopics.map((topic) => {
                 const isSelected = selectedTopics.includes(topic);
                 return (
-                  <button
+                  <Button
                     key={topic}
                     type="button"
                     title={`Filter by ${topic}`}
@@ -78,14 +79,14 @@ export const PublicProblemRow = React.memo(function PublicProblemRow({
                       onTagClick?.(topic);
                     }}
                     className={cn(
-                      "rounded border px-1.5 py-0.5 text-[13px] transition-colors cursor-pointer shrink-0 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40",
+                      " border px-1.5 py-0.5 text-[13px] transition-colors cursor-pointer shrink-0 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40",
                       isSelected
                         ? "bg-white/20 border-white/50 text-white font-medium"
                         : "bg-[#1a1a1a] border-[#444444] text-zinc-300 hover:border-zinc-300 hover:text-white",
                     )}
                   >
                     {topic}
-                  </button>
+                  </Button>
                 );
               })}
               {overflowCount > 0 && (

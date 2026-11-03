@@ -33,7 +33,7 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
 
   if (codes.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-[#4a4a4a] p-6 text-center bg-[#2a2a2a] text-white shadow-2xs">
+      <div className="rounded-lg border border-dashed border-border p-6 text-center bg-[#2a2a2a] text-white shadow-2xs">
         <div className="mx-auto flex size-8 items-center justify-center rounded-full bg-[#333333] text-white mb-2 border border-[#4a4a4a]">
           <Code2 className="size-4 text-white" />
         </div>
@@ -41,7 +41,8 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
           No Implementation Recorded
         </p>
         <p className="mt-1 text-xs text-white">
-          Add an optimized implementation for this method to complete your knowledge.
+          Add an optimized implementation for this method to complete your
+          knowledge.
         </p>
         <div className="mt-3">
           <CodeDialog mode="create" solution={solution} />
@@ -68,20 +69,20 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
               className="flex items-center gap-1 ml-2"
             >
               {codes.map((item, idx) => (
-                <button
+                <Button
                   key={item.id || idx}
                   type="button"
                   role="tab"
                   aria-selected={idx === selectedCodeIndex}
                   onClick={() => setSelectedCodeIndex(idx)}
-                  className={`rounded px-2 py-0.5 text-[11px] font-medium transition-colors ${
+                  className={` px-2 py-0.5 text-[11px] font-medium transition-colors ${
                     idx === selectedCodeIndex
                       ? "bg-primary text-white font-semibold"
                       : "bg-[#2a2a2a] text-white border border-[#4a4a4a] hover:bg-[#333333]"
                   }`}
                 >
                   {item.language}
-                </button>
+                </Button>
               ))}
             </div>
           )}
@@ -124,9 +125,6 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
               codeRecord={activeCode}
             />
           )}
-
-          {/* Add Code action */}
-          <CodeDialog mode="create" solution={solution} />
         </div>
       </div>
 
@@ -141,7 +139,7 @@ export function KnowledgeCodeBlock({ solution }: KnowledgeCodeBlockProps) {
 
       {/* Code Notes */}
       {activeCode?.notes && (
-        <div className="rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-3 py-2 text-xs text-white shadow-2xs">
+        <div className="border border-[#4a4a4a] bg-[#2a2a2a] px-3 py-2 text-xs text-white shadow-2xs">
           <span className="font-semibold text-white">
             Implementation Notes:{" "}
           </span>

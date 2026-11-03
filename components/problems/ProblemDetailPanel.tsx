@@ -31,12 +31,12 @@ export function ProblemDetailPanel({
   description,
 }: ProblemDetailPanelProps) {
   return (
-    <aside className="space-y-6 rounded-xl border border-[#383838] bg-[#262626] p-5 sm:p-6 shadow-xs lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto text-white">
+    <aside className="space-y-6 border border-border bg-[#262626] p-5 sm:p-6 shadow-xs lg:sticky lg:top-6 lg:max-h-[calc(100vh-3rem)] lg:overflow-y-auto text-white">
       {/* ── Problem Header ─────────────────────────────────────────── */}
       <div className="space-y-3">
         <div className="flex items-center justify-between gap-2">
           {leetcodeId != null && (
-            <span className="font-mono text-sm font-semibold text-white">
+            <span className="text-xl font-semibold text-muted-foreground">
               LeetCode #{leetcodeId}
             </span>
           )}
@@ -62,7 +62,7 @@ export function ProblemDetailPanel({
 
           {difficulty && (
             <span
-              className={`rounded-full border px-2.5 py-0.5 text-xs sm:text-sm font-semibold uppercase tracking-wider ${difficultyBadgeClass(
+              className={`border px-2.5 py-0.5 text-xs sm:text-sm font-semibold uppercase tracking-wider ${difficultyBadgeClass(
                 difficulty,
               )}`}
             >
@@ -77,7 +77,7 @@ export function ProblemDetailPanel({
             {topics.map((topic) => (
               <span
                 key={topic.id}
-                className="rounded-md border border-[#4a4a4a] bg-[#373737] px-2.5 py-1 text-xs sm:text-sm font-medium text-white shadow-2xs"
+                className="border border-border bg-card px-2.5 py-1 text-xs sm:text-sm font-medium text-yellow-200 shadow-2xs"
               >
                 {topic.name}
               </span>
@@ -92,23 +92,23 @@ export function ProblemDetailPanel({
         </h2>
 
         <div
-          className="max-w-none text-sm sm:text-base leading-relaxed break-words text-white space-y-4
+          className="max-w-none text-sm sm:text-base leading-relaxed wrap-break-words text-white space-y-4
             [&_p]:my-4.5 [&_p]:leading-relaxed [&_p]:text-zinc-200
             [&_p:has(strong)]:mt-7 [&_p:has(strong)]:mb-3
             [&_p:has(.example)]:mt-7 [&_p:has(.example)]:mb-3
             [&_strong]:font-bold [&_strong]:text-white
-            [&_pre]:mt-3 [&_pre]:mb-8 [&_pre]:p-4.5 sm:[&_pre]:p-5 [&_pre]:rounded-xl [&_pre]:border [&_pre]:border-[#4a4a4a] [&_pre]:bg-[#333333] [&_pre]:font-mono [&_pre]:text-xs sm:[&_pre]:text-sm [&_pre]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:shadow-xs
-            [&_code]:rounded-md [&_code]:bg-[#373737] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:font-mono [&_code]:text-xs sm:[&_code]:text-[13px] [&_code]:border [&_code]:border-[#4a4a4a] [&_code]:text-zinc-200
+            [&_pre]:mt-3 [&_pre]:mb-8 [&_pre]:p-4.5 sm:[&_pre]:p-3 [&_pre]:border [&_pre]:border-[#4a4a4a] [&_pre]:bg-[#333333] [&_pre]:font-mono [&_pre]:text-xs sm:[&_pre]:text-sm [&_pre]:leading-relaxed [&_pre]:overflow-x-auto [&_pre]:shadow-xs
+            [&_code]:bg-[#373737] [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-xs sm:[&_code]:text-[13px] [&_code]:border [&_code]:border-[#4a4a4a] [&_code]:text-zinc-200
             [&_pre_code]:bg-transparent [&_pre_code]:p-0 [&_pre_code]:border-0 [&_pre_code]:text-zinc-100 [&_pre_code]:text-xs sm:[&_pre_code]:text-sm
             [&_ul]:my-4 [&_ul]:pl-5 [&_ul]:list-disc [&_ul]:space-y-2
             [&_ol]:my-4 [&_ol]:pl-5 [&_ol]:list-decimal [&_ol]:space-y-2
             [&_li]:text-zinc-200 [&_li]:leading-relaxed
-            [&_img]:my-4 [&_img]:rounded-lg [&_img]:border [&_img]:border-[#4a4a4a]"
+            [&_img]:my-4 [&_img]:border [&_img]:border-border"
           dangerouslySetInnerHTML={{
             __html:
               description && description.trim().length > 0
                 ? description
-                : "<p class='text-zinc-400 italic'>No description available.</p>",
+                : "<p class='text-muted-foreground italic'>No description available.</p>",
           }}
         />
       </div>

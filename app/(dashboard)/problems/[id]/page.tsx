@@ -129,8 +129,10 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
       submissionId: a.submissionId,
       status: a.status,
       modelName: a.modelName,
-      review: a.review as unknown as WorkspaceSubmission["analyses"][number]["review"],
-      draft: a.draft as unknown as WorkspaceSubmission["analyses"][number]["draft"],
+      review:
+        a.review as unknown as WorkspaceSubmission["analyses"][number]["review"],
+      draft:
+        a.draft as unknown as WorkspaceSubmission["analyses"][number]["draft"],
       errorMessage: a.errorMessage,
       createdAt: a.createdAt.toISOString(),
       updatedAt: a.updatedAt.toISOString(),
@@ -153,7 +155,7 @@ export default async function ProblemPage({ params }: ProblemPageProps) {
         </div>
 
         {/* ── RIGHT SECTION: Learning Workspace (7 cols on desktop) ──── */}
-        <div className="lg:col-span-7 rounded-xl border border-[#383838] bg-[#262626] p-5 sm:p-6 shadow-xs">
+        <div className="lg:col-span-7  border border-border bg-[#262626] p-5 sm:p-6 shadow-xs">
           <ProblemLearningWorkspace
             problemId={problem.id}
             submissions={serializedSubmissions}

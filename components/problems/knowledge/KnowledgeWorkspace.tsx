@@ -27,7 +27,10 @@ export function KnowledgeWorkspace({
   function handleSelectApproach(index: number) {
     setSelectedApproachIndex(index);
     if (contentAreaRef.current) {
-      contentAreaRef.current.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      contentAreaRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
     }
   }
 
@@ -42,9 +45,9 @@ export function KnowledgeWorkspace({
           No Knowledge Recorded Yet
         </h3>
         <p className="mx-auto mt-2 max-w-md text-xs text-white leading-relaxed">
-          Approaches, algorithms, and optimized implementations organized here become your
-          reusable problem-solving playbook. Record an approach manually or
-          review a submission to generate AI suggested solutions.
+          Approaches, algorithms, and optimized implementations organized here
+          become your reusable problem-solving playbook. Record an approach
+          manually or review a submission to generate AI suggested solutions.
         </p>
         <div className="mt-5">
           <ApproachDialog mode="create" problemId={problemId} />
@@ -66,7 +69,11 @@ export function KnowledgeWorkspace({
       {/* ── Active Approach Content ────────────────────────────── */}
       {activeApproach && (
         <div ref={contentAreaRef} className="space-y-6">
-          <ApproachOverview approach={activeApproach} showHeader={false} />
+          <ApproachOverview
+            approach={activeApproach}
+            showHeader={false}
+            activeApproach={activeApproach}
+          />
 
           {/* ── Solution / Techniques & Code ──────────────────── */}
           <SolutionTechniqueView approach={activeApproach} />

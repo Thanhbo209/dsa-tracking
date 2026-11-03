@@ -17,19 +17,16 @@ export function AnalysisEmptyState({
   onModelChange,
 }: AnalysisEmptyStateProps) {
   return (
-    <div className="rounded-lg border border-dashed border-[#4a4a4a] p-6 text-center bg-[#373737] text-white shadow-2xs">
+    <div className="border border-dashed border-border p-6 text-center bg-[#373737] text-white shadow-2xs">
       <div className="mx-auto mb-3 flex justify-center">
         <DsaLogo size="lg" className="h-10 w-auto" />
       </div>
 
-      <h4 className="text-sm font-semibold text-white">
-        No AI Analysis Yet
-      </h4>
+      <h4 className="text-sm font-semibold text-white">No AI Analysis Yet</h4>
 
       <p className="mx-auto mt-1.5 max-w-md text-xs text-white leading-relaxed">
         Analyze this submission to evaluate your code, dissect Big-O time and
-        space complexity reasoning, diagnose bugs or missed edge cases, and
-        generate a candidate knowledge draft.
+        space complexity reasoning, diagnose bugs or missed edge cases.
       </p>
 
       <div className="mt-5 flex flex-wrap items-center justify-center gap-3">

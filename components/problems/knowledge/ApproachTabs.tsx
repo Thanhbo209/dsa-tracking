@@ -1,10 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Clock, HardDrive } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { KnowledgeApproach } from "./types";
-import { ApproachDialog } from "@/components/problems/dialogs/ApproachDialog";
+import { Button } from "@/components/ui/button";
 
 interface ApproachTabsProps {
   problemId: string;
@@ -14,7 +13,6 @@ interface ApproachTabsProps {
 }
 
 export function ApproachTabs({
-  problemId,
   approaches,
   selectedIndex,
   onSelect,
@@ -27,8 +25,7 @@ export function ApproachTabs({
   const tabListRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
-  const activeApproach =
-    approaches[selectedIndex] || approaches[0] || null;
+  const activeApproach = approaches[selectedIndex] || approaches[0] || null;
 
   // Measure and position the sliding underline indicator on mount, resize, or tab change
   useEffect(() => {
@@ -64,11 +61,12 @@ export function ApproachTabs({
           {approaches.map((approach, index) => {
             const isSelected = index === selectedIndex;
             return (
-              <button
+              <Button
                 key={approach.id || index}
                 ref={(el) => {
                   tabRefs.current[index] = el;
                 }}
+                variant="ghost"
                 role="tab"
                 type="button"
                 aria-selected={isSelected}
@@ -81,13 +79,13 @@ export function ApproachTabs({
                 )}
               >
                 {approach.name}
-              </button>
+              </Button>
             );
           })}
 
           {/* Animated sliding underline indicator */}
           <span
-            className="absolute bottom-0 h-[2.5px] bg-[#46C6C2] rounded-full transition-all duration-300 ease-out pointer-events-none"
+            className="absolute bottom-0 h-[2.5px] bg-[#46C6C2] transition-all duration-300 ease-out pointer-events-none"
             style={{
               left: `${indicatorStyle.left}px`,
               width: `${indicatorStyle.width}px`,
@@ -105,37 +103,6 @@ export function ApproachTabs({
           </h3>
         </div>
       )}
-
-      {/* ── Right Side: Active Approach Complexity Badges & Actions ── */}
-      <div className="flex flex-wrap items-center gap-2 text-xs">
-        {(activeApproach.timeComplexity || activeApproach.spaceComplexity) && (
-          <>
-            {activeApproach.timeComplexity && (
-              <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-2.5 py-1 text-white">
-                <Clock className="size-3.5 text-sky-400" />
-                <span className="text-zinc-300">Time:</span>
-                <span className="font-mono font-semibold text-white">
-                  {activeApproach.timeComplexity}
-                </span>
-              </div>
-            )}
-            {activeApproach.spaceComplexity && (
-              <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-2.5 py-1 text-white">
-                <HardDrive className="size-3.5 text-purple-400" />
-                <span className="text-zinc-300">Space:</span>
-                <span className="font-mono font-semibold text-white">
-                  {activeApproach.spaceComplexity}
-                </span>
-              </div>
-            )}
-          </>
-        )}
-
-        <div className="flex items-center gap-2">
-          <ApproachDialog mode="edit" approach={activeApproach} />
-          <ApproachDialog mode="create" problemId={problemId} />
-        </div>
-      </div>
     </div>
   );
 }

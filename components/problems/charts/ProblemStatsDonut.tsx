@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { BookOpen, Award, CheckCircle2 } from "lucide-react";
+import { Award, CheckCircle2 } from "lucide-react";
 
 export interface ProblemStatsDonutProps {
   total: number;
@@ -55,13 +55,12 @@ export function ProblemStatsDonut({
   const medOffset = -easyLen;
   const hardOffset = -(easyLen + medLen);
 
-  const solvedPercentage =
-    total > 0 ? Math.round((solved / total) * 100) : 0;
+  const solvedPercentage = total > 0 ? Math.round((solved / total) * 100) : 0;
 
   return (
-    <div className="rounded-xl border border-[#383838] bg-[#262626] p-6 shadow-xs flex flex-col justify-between h-full gap-6">
+    <div className="border border-border bg-[#262626] p-6 shadow-xs flex flex-col justify-between h-full gap-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#383838]">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-border">
         <div>
           <div className="flex items-center gap-2">
             <Award className="size-4 text-emerald-400 shrink-0" />
@@ -69,26 +68,25 @@ export function ProblemStatsDonut({
               Practice Mastery
             </h2>
           </div>
-          <p className="text-xs text-zinc-400 mt-1.5 leading-normal">
+          <p className="text-xs text-muted-foreground mt-1.5 leading-normal">
             Historical completion & knowledge progress
           </p>
         </div>
 
         {/* Compact secondary badges */}
-        <div className="flex flex-wrap items-center gap-2 text-xs">
+        <div className="flex-col flex-wrap gap-4 items-center text-xs">
           <div
-            className="flex items-center gap-1.5 rounded-lg border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 text-amber-300 font-medium"
+            className="flex items-center not-even:border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 text-amber-300 font-medium"
             title={`${knowledgeCount} total verified approaches documented`}
           >
-            <BookOpen className="size-3.5" />
             <span>{knowledgeCount} Knowledge</span>
           </div>
 
           <div
-            className="flex items-center gap-1.5 rounded-lg border border-[#444444] bg-[#1e1e1e] px-2.5 py-1 text-zinc-300 font-medium"
+            className="flex items-center gap-1.5  border border-[#444444] bg-[#1e1e1e] px-2.5 py-1 text-zinc-300 font-medium"
             title={`${total} total problems tracked`}
           >
-            <span>{total} Total Tracked</span>
+            <span>{total} Total Problems</span>
           </div>
         </div>
       </div>
@@ -197,7 +195,7 @@ export function ProblemStatsDonut({
               </>
             ) : (
               <>
-                <span className="text-2xl font-black tracking-tight text-white flex items-baseline justify-center">
+                <span className="text-2xl font-thin tracking-tight flex items-baseline justify-center">
                   {solved}
                   <span className="ml-1 text-sm font-normal text-zinc-400">
                     /{total}
@@ -205,7 +203,7 @@ export function ProblemStatsDonut({
                 </span>
 
                 {hoveredSegment === "EASY" ? (
-                  <span className="text-[11px] font-semibold text-[#46C6C2] mt-1.5 leading-normal">
+                  <span className="text-[11px] text-[#46C6C2] mt-1.5 leading-normal">
                     Easy: {easy.solved}/{easy.total} (
                     {easy.total > 0
                       ? Math.round((easy.solved / easy.total) * 100)
@@ -240,10 +238,10 @@ export function ProblemStatsDonut({
         </div>
 
         {/* Breakdown Legend */}
-        <div className="flex flex-col gap-2.5 min-w-[160px]">
+        <div className="flex flex-col gap-2.5 min-w-40">
           {/* Easy Pill */}
           <div
-            className={`flex items-center justify-between gap-3 px-3 py-1.5 rounded-lg border transition-all cursor-default ${
+            className={`flex items-center justify-between gap-3 px-3 py-1.5 border transition-all cursor-default ${
               hoveredSegment === "EASY"
                 ? "border-[#46C6C2] bg-[#46C6C2]/15 shadow-sm"
                 : "border-[#46C6C2]/20 bg-[#46C6C2]/5 hover:bg-[#46C6C2]/10"
@@ -252,20 +250,20 @@ export function ProblemStatsDonut({
             onMouseLeave={() => setHoveredSegment(null)}
           >
             <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-[#46C6C2]" />
-              <span className="text-xs font-semibold text-[#46C6C2]">
-                Easy
-              </span>
+              <span className="size-2.5 rounded-full bg-[#46C6C2]" />
+              <span className="text-xs font-semibold text-[#46C6C2]">Easy</span>
             </div>
             <div className="text-xs font-mono text-white">
-              <span className="font-bold">{easy.solved}</span>
-              <span className="text-zinc-500 text-[11px]">/{easy.total}</span>
+              <span>{easy.solved}</span>
+              <span className="text-muted-foreground text-[11px]">
+                /{easy.total}
+              </span>
             </div>
           </div>
 
           {/* Medium Pill */}
           <div
-            className={`flex items-center justify-between gap-3 px-3 py-1.5 rounded-lg border transition-all cursor-default ${
+            className={`flex items-center justify-between gap-3 px-3 py-1.5 border transition-all cursor-default ${
               hoveredSegment === "MEDIUM"
                 ? "border-yellow-500 bg-yellow-500/15 shadow-sm"
                 : "border-yellow-500/20 bg-yellow-500/5 hover:bg-yellow-500/10"
@@ -274,20 +272,22 @@ export function ProblemStatsDonut({
             onMouseLeave={() => setHoveredSegment(null)}
           >
             <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-yellow-400" />
+              <span className="size-2.5 rounded-full bg-yellow-400" />
               <span className="text-xs font-semibold text-yellow-400">
                 Medium
               </span>
             </div>
             <div className="text-xs font-mono text-white">
-              <span className="font-bold">{medium.solved}</span>
-              <span className="text-zinc-500 text-[11px]">/{medium.total}</span>
+              <span>{medium.solved}</span>
+              <span className="text-muted-foreground text-[11px]">
+                /{medium.total}
+              </span>
             </div>
           </div>
 
           {/* Hard Pill */}
           <div
-            className={`flex items-center justify-between gap-3 px-3 py-1.5 rounded-lg border transition-all cursor-default ${
+            className={`flex items-center justify-between gap-3 px-3 py-1.5 border transition-all cursor-default ${
               hoveredSegment === "HARD"
                 ? "border-red-500 bg-red-500/15 shadow-sm"
                 : "border-red-500/20 bg-red-500/5 hover:bg-red-500/10"
@@ -296,14 +296,14 @@ export function ProblemStatsDonut({
             onMouseLeave={() => setHoveredSegment(null)}
           >
             <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-red-400" />
-              <span className="text-xs font-semibold text-red-400">
-                Hard
-              </span>
+              <span className="size-2.5 rounded-full bg-red-400" />
+              <span className="text-xs font-semibold text-red-400">Hard</span>
             </div>
             <div className="text-xs font-mono text-white">
-              <span className="font-bold">{hard.solved}</span>
-              <span className="text-zinc-500 text-[11px]">/{hard.total}</span>
+              <span>{hard.solved}</span>
+              <span className="text-muted-foreground text-[11px]">
+                /{hard.total}
+              </span>
             </div>
           </div>
         </div>

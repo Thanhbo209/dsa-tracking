@@ -2,7 +2,11 @@
 
 import { useState, useMemo } from "react";
 import * as React from "react";
-import type { AiDraft, AiReview, AiRecommendation } from "@/lib/validation/analysis";
+import type {
+  AiDraft,
+  AiReview,
+  AiRecommendation,
+} from "@/lib/validation/analysis";
 import type { AnalysisStatus } from "./types";
 import { DraftEditForm } from "./DraftEditForm";
 import { Button } from "@/components/ui/button";
@@ -14,11 +18,9 @@ import {
   Check,
   Lightbulb,
   Compass,
-  AlertTriangle,
   Clock,
   HardDrive,
   ListOrdered,
-  Sparkles,
   Info,
 } from "lucide-react";
 import { CodeViewer } from "../CodeViewer";
@@ -68,11 +70,19 @@ export function KnowledgeDraftSection({
   submissionStatus,
   runtimeMs,
 }: KnowledgeDraftSectionProps) {
-  const [editingTarget, setEditingTarget] = useState<"user" | "ai" | null>(null);
-  const [confirmTarget, setConfirmTarget] = useState<"user" | "ai" | null>(null);
-  const [confirmAction, setConfirmAction] = useState<"accept" | "reject" | null>(null);
+  const [editingTarget, setEditingTarget] = useState<"user" | "ai" | null>(
+    null,
+  );
+  const [confirmTarget, setConfirmTarget] = useState<"user" | "ai" | null>(
+    null,
+  );
+  const [confirmAction, setConfirmAction] = useState<
+    "accept" | "reject" | null
+  >(null);
 
-  const hasUserCode = Boolean(submissionCode && submissionCode.trim().length > 0);
+  const hasUserCode = Boolean(
+    submissionCode && submissionCode.trim().length > 0,
+  );
   const isSubmissionAccepted = submissionStatus === "ACCEPTED";
   const hasActualApproach = Boolean(review?.actualApproach?.name);
 
@@ -81,8 +91,12 @@ export function KnowledgeDraftSection({
     if (!hasUserCode || !submissionCode) return null;
 
     // Derived directly from the user's actual approach identified by AI
-    const approachName = review?.actualApproach?.name || "Historical Submission Attempt";
-    const coreIdeaText = review?.actualApproach?.coreIdea || review?.summary || "Implementation analyzed from submission code.";
+    const approachName =
+      review?.actualApproach?.name || "Historical Submission Attempt";
+    const coreIdeaText =
+      review?.actualApproach?.coreIdea ||
+      review?.summary ||
+      "Implementation analyzed from submission code.";
     const whyItWorksText =
       review?.actualApproach?.explanation ||
       review?.timeComplexity?.explanation ||
@@ -126,12 +140,17 @@ export function KnowledgeDraftSection({
       (isSubmissionAccepted ? "My Accepted Solution" : "My Submission Attempt");
 
     const solutionDescription =
-      review?.actualSolution?.description || review?.summary || "Implementation analyzed from submission code.";
+      review?.actualSolution?.description ||
+      review?.summary ||
+      "Implementation analyzed from submission code.";
 
     const algorithmText =
       review?.actualSolution?.algorithm ||
-      (review?.timeComplexity?.reasoning && review.timeComplexity.reasoning.length > 0
-        ? review.timeComplexity.reasoning.map((step, idx) => `${idx + 1}. ${step}`).join("\n")
+      (review?.timeComplexity?.reasoning &&
+      review.timeComplexity.reasoning.length > 0
+        ? review.timeComplexity.reasoning
+            .map((step, idx) => `${idx + 1}. ${step}`)
+            .join("\n")
         : "1. Implemented according to submission logic.");
 
     return {
@@ -151,7 +170,9 @@ export function KnowledgeDraftSection({
         name: solutionName,
         description: solutionDescription,
         algorithm: algorithmText,
-        notes: runtimeMs ? `Executed on LeetCode with runtime ${runtimeMs}ms.` : "",
+        notes: runtimeMs
+          ? `Executed on LeetCode with runtime ${runtimeMs}ms.`
+          : "",
       },
       code: {
         language: submissionLanguage || "code",
@@ -171,51 +192,56 @@ export function KnowledgeDraftSection({
   ]);
 
   // ── 2. Derive AI Recommendation Draft (if available) ────────────────────────
-  const { isRecommendationAvailable, recommendationReason, aiRecommendationDraft } =
-    useMemo(() => {
-      if (!draft || typeof draft !== "object") {
-        return {
-          isRecommendationAvailable: false,
-          recommendationReason: undefined,
-          aiRecommendationDraft: null,
-        };
-      }
-
-      // Check for new schema: { available: boolean, reason?: string, approach?, solution?, code? }
-      if ("available" in draft) {
-        const isAvail = draft.available === true && Boolean(draft.approach?.name);
-        return {
-          isRecommendationAvailable: isAvail,
-          recommendationReason: draft.reason,
-          aiRecommendationDraft: isAvail
-            ? ({
-                approach: draft.approach!,
-                solution: draft.solution!,
-                code: draft.code!,
-              } as AiDraft)
-            : null,
-        };
-      }
-
-      // Legacy fallback: draft is { approach, solution, code }
-      const legacyDraft = draft as AiDraft;
-      if (legacyDraft.approach?.name) {
-        return {
-          isRecommendationAvailable: true,
-          recommendationReason: "Recommended canonical approach from historical analysis.",
-          aiRecommendationDraft: legacyDraft,
-        };
-      }
-
+  const {
+    isRecommendationAvailable,
+    recommendationReason,
+    aiRecommendationDraft,
+  } = useMemo(() => {
+    if (!draft || typeof draft !== "object") {
       return {
         isRecommendationAvailable: false,
         recommendationReason: undefined,
         aiRecommendationDraft: null,
       };
-    }, [draft]);
+    }
+
+    // Check for new schema: { available: boolean, reason?: string, approach?, solution?, code? }
+    if ("available" in draft) {
+      const isAvail = draft.available === true && Boolean(draft.approach?.name);
+      return {
+        isRecommendationAvailable: isAvail,
+        recommendationReason: draft.reason,
+        aiRecommendationDraft: isAvail
+          ? ({
+              approach: draft.approach!,
+              solution: draft.solution!,
+              code: draft.code!,
+            } as AiDraft)
+          : null,
+      };
+    }
+
+    // Legacy fallback: draft is { approach, solution, code }
+    const legacyDraft = draft as AiDraft;
+    if (legacyDraft.approach?.name) {
+      return {
+        isRecommendationAvailable: true,
+        recommendationReason:
+          "Recommended canonical approach from historical analysis.",
+        aiRecommendationDraft: legacyDraft,
+      };
+    }
+
+    return {
+      isRecommendationAvailable: false,
+      recommendationReason: undefined,
+      aiRecommendationDraft: null,
+    };
+  }, [draft]);
 
   async function handleConfirmAccept(target: "user" | "ai") {
-    const targetDraft = target === "user" ? userApproachDraft : aiRecommendationDraft;
+    const targetDraft =
+      target === "user" ? userApproachDraft : aiRecommendationDraft;
     if (!targetDraft) return;
     await onAccept(targetDraft);
     setConfirmTarget(null);
@@ -224,7 +250,8 @@ export function KnowledgeDraftSection({
 
   // ── Render Edit Form if editing ───────────────────────────────────────────
   if (editingTarget !== null) {
-    const draftToEdit = editingTarget === "user" ? userApproachDraft : aiRecommendationDraft;
+    const draftToEdit =
+      editingTarget === "user" ? userApproachDraft : aiRecommendationDraft;
     if (draftToEdit) {
       return (
         <div className="pt-6 border-t border-[#444444]">
@@ -248,21 +275,23 @@ export function KnowledgeDraftSection({
     <div className="space-y-8 text-white">
       {/* ── Status Banner ─────────────────────────────────── */}
       {status === "ACCEPTED" ? (
-        <div className="flex items-center gap-2 rounded-lg border border-green-500/40 bg-green-500/20 px-3.5 py-2.5 text-xs text-white">
+        <div className="flex items-center gap-2 border border-green-500/40 bg-green-500/20 px-3.5 py-2.5 text-xs text-white">
           <CheckCircle2 className="size-4 shrink-0 text-green-400" />
           <span className="font-semibold">
-            Knowledge Vault Active — You can save your approach or the AI recommendation anytime into your knowledge base.
+            You can save your approach or the AI recommendation anytime into
+            your knowledge base.
           </span>
         </div>
       ) : status === "REJECTED" ? (
-        <div className="flex items-center gap-2 rounded-lg border border-zinc-500/40 bg-[#2a2a2a] px-3.5 py-2.5 text-xs text-white">
+        <div className="flex items-center gap-2 border border-zinc-500/40 bg-[#2a2a2a] px-3.5 py-2.5 text-xs text-white">
           <XCircle className="size-4 shrink-0 text-zinc-400" />
           <span>
-            Draft Rejected — This draft was rejected and not saved to your knowledge base.
+            Draft Rejected — This draft was rejected and not saved to your
+            knowledge base.
           </span>
         </div>
       ) : (
-        <div className="flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/20 px-3.5 py-2.5 text-xs text-white">
+        <div className="flex items-center gap-2 border border-amber-500/40 bg-amber-500/20 px-3.5 py-2.5 text-xs text-white">
           <DsaLogo size="xs" className="h-4 w-auto shrink-0" />
           <span className="font-medium">
             AI-generated analysis — not saved to your knowledge base
@@ -274,17 +303,14 @@ export function KnowledgeDraftSection({
           SECTION 1: MY APPROACH (Derived strictly from user's submitted code)
          ═══════════════════════════════════════════════════════════════════════ */}
       {userApproachDraft && (
-        <div className="rounded-xl border border-[#4a4a4a] bg-[#373737] p-5 sm:p-6 space-y-6 shadow-2xs">
+        <div className="l border border-[#4a4a4a] bg-[#373737] p-5 sm:p-6 space-y-6 shadow-2xs">
           {/* Header Bar */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#4a4a4a] pb-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-zinc-400">
-                  My Approach
-                </span>
                 {/* Standalone status badge — isolated peer element, never concatenated! */}
                 <span
-                  className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${
+                  className={`border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${
                     isSubmissionAccepted
                       ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400"
                       : "border-amber-500/30 bg-amber-500/10 text-amber-400"
@@ -304,7 +330,8 @@ export function KnowledgeDraftSection({
                 <div className="flex items-center gap-1.5 mt-1.5 text-xs text-amber-400">
                   <Info className="size-3.5 shrink-0" />
                   <span>
-                    Legacy record: Click &quot;Re-analyze&quot; above to classify your specific algorithmic paradigm.
+                    Legacy record: Click &quot;Re-analyze&quot; above to
+                    classify your specific algorithmic paradigm.
                   </span>
                 </div>
               )}
@@ -344,7 +371,7 @@ export function KnowledgeDraftSection({
 
           {/* Confirmation Banner for Saving My Approach */}
           {confirmTarget === "user" && confirmAction === "accept" && (
-            <div className="rounded-lg border border-primary/40 bg-[#2a2a2a] p-4 space-y-3 text-white">
+            <div className="border border-primary/40 bg-[#2a2a2a] p-4 space-y-3 text-white">
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="size-4 text-emerald-400 shrink-0 mt-0.5" />
                 <div>
@@ -356,7 +383,8 @@ export function KnowledgeDraftSection({
                     <strong className="text-white">
                       &quot;{userApproachDraft.approach.name}&quot;
                     </strong>{" "}
-                    with your actual submitted code into your permanent Knowledge Vault.
+                    with your actual submitted code into your permanent
+                    Knowledge Vault.
                   </p>
                 </div>
               </div>
@@ -392,19 +420,19 @@ export function KnowledgeDraftSection({
           {/* Complexity Chips */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {userApproachDraft.approach.timeComplexity && (
-              <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-2.5 py-1 text-white">
+              <div className="flex items-center gap-1.5 border border-[#4a4a4a] bg-[#2a2a2a] px-4 py-3 text-white">
                 <Clock className="size-4 text-sky-400" />
                 <span className="text-zinc-300">Time:</span>
-                <span className="font-mono font-semibold text-white">
+                <span className="font-semibold text-white">
                   {userApproachDraft.approach.timeComplexity}
                 </span>
               </div>
             )}
             {userApproachDraft.approach.spaceComplexity && (
-              <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-2.5 py-1 text-white">
+              <div className="flex items-center gap-1.5 border border-[#4a4a4a] bg-[#2a2a2a] px-4 py-3 text-white">
                 <HardDrive className="size-4 text-purple-400" />
                 <span className="text-zinc-300">Space:</span>
-                <span className="font-mono font-semibold text-white">
+                <span className="font-semibold text-white">
                   {userApproachDraft.approach.spaceComplexity}
                 </span>
               </div>
@@ -413,38 +441,41 @@ export function KnowledgeDraftSection({
 
           {/* Core Idea Card */}
           {userApproachDraft.approach.coreIdea && (
-            <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
-              <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-amber-400">
-                <Lightbulb className="size-5 text-amber-400 shrink-0" />
+            <div className=" border border-amber-200 bg-amber-200/10 p-5 text-white shadow-2xs">
+              <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-amber-200">
+                <Lightbulb className="size-5 text-amber-200 shrink-0" />
                 <span>Core Idea</span>
               </div>
-              <p className="mt-2 text-sm sm:text-base text-zinc-300 leading-relaxed font-normal">
+              <p className="mt-2 text-sm sm:text-base text-white leading-relaxed font-normal">
                 {formatText(userApproachDraft.approach.coreIdea)}
               </p>
             </div>
           )}
 
           {/* Why It Works & When To Use */}
-          {(userApproachDraft.approach.whyItWorks || userApproachDraft.approach.whenToUse) && (
+          {(userApproachDraft.approach.whyItWorks ||
+            userApproachDraft.approach.whenToUse) && (
             <div className="grid gap-4 sm:grid-cols-2 text-sm">
               {userApproachDraft.approach.whyItWorks && (
-                <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
-                  <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2.5">
-                    <Compass className="size-5 text-sky-400 shrink-0" />
-                    <span>How It Realizes Strategy</span>
+                <div className="border border-sky-200 bg-sky-200/10 p-5 text-white shadow-2xs">
+                  <div className="flex items-center gap-2.5 text-base font-bold  mb-2.5">
+                    <Compass className="size-5 text-sky-200 shrink-0" />
+                    <span className="text-sky-200">
+                      How It Realizes Strategy
+                    </span>
                   </div>
-                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-white leading-relaxed font-normal">
                     {formatText(userApproachDraft.approach.whyItWorks)}
                   </p>
                 </div>
               )}
               {userApproachDraft.approach.whenToUse && (
-                <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
+                <div className="border border-purple-200 bg-purple-200/10 p-5 text-white shadow-2xs">
                   <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2.5">
-                    <Compass className="size-5 text-purple-400 shrink-0" />
-                    <span>When To Use</span>
+                    <Compass className="size-5 text-purple-200 shrink-0" />
+                    <span className="text-purple-200">When To Use</span>
                   </div>
-                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-white leading-relaxed font-normal">
                     {formatText(userApproachDraft.approach.whenToUse)}
                   </p>
                 </div>
@@ -454,46 +485,18 @@ export function KnowledgeDraftSection({
 
           {/* Step-by-Step Algorithm */}
           {userApproachDraft.solution.algorithm && (
-            <div className="rounded-xl border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
+            <div className="border border-[#4a4a4a] bg-[#222222] p-5 text-white shadow-2xs">
               <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-zinc-100 mb-2.5">
                 <ListOrdered className="size-5 text-amber-400 shrink-0" />
-                <span>
+                <span className="text-amber-400">
                   Method: {userApproachDraft.solution.name}
                 </span>
               </div>
-              <div className="rounded-lg bg-[#1a1a1a] border border-[#4a4a4a] p-4 text-zinc-300">
-                <p className="whitespace-pre-wrap font-mono text-xs sm:text-[14px] text-zinc-200 leading-relaxed">
+              <div className=" bg-[#373737] border border-[#4a4a4a] p-4 text-zinc-300">
+                <p className="whitespace-pre-wrap font-mono text-xs sm:text-[14px] text-white leading-relaxed">
                   {formatText(userApproachDraft.solution.algorithm)}
                 </p>
               </div>
-            </div>
-          )}
-
-          {/* Trade-offs (Pros & Cons) */}
-          {(userApproachDraft.approach.pros || userApproachDraft.approach.cons) && (
-            <div className="grid gap-4 sm:grid-cols-2 text-sm">
-              {userApproachDraft.approach.pros && (
-                <div className="rounded-xl border border-emerald-500/30 bg-[#222222] p-5 text-white shadow-2xs">
-                  <div className="flex items-center gap-2.5 text-base font-bold text-emerald-400 mb-2.5">
-                    <CheckCircle2 className="size-5 text-emerald-400 shrink-0" />
-                    <span>Strengths</span>
-                  </div>
-                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                    {formatText(userApproachDraft.approach.pros)}
-                  </p>
-                </div>
-              )}
-              {userApproachDraft.approach.cons && (
-                <div className="rounded-xl border border-rose-500/30 bg-[#222222] p-5 text-white shadow-2xs">
-                  <div className="flex items-center gap-2.5 text-base font-bold text-rose-400 mb-2.5">
-                    <AlertTriangle className="size-5 text-rose-400 shrink-0" />
-                    <span>Bottlenecks & Limitations</span>
-                  </div>
-                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                    {formatText(userApproachDraft.approach.cons)}
-                  </p>
-                </div>
-              )}
             </div>
           )}
 
@@ -523,17 +526,13 @@ export function KnowledgeDraftSection({
           SECTION 2: AI RECOMMENDATION (Rendered when available or optimal note)
          ═══════════════════════════════════════════════════════════════════════ */}
       {isRecommendationAvailable && aiRecommendationDraft ? (
-        <div className="rounded-xl border border-primary/40 bg-[#2a2a2a] p-5 sm:p-6 space-y-6 shadow-2xs">
+        <div className="border border-primary/40 bg-[#2a2a2a] p-5 sm:p-6 space-y-6 shadow-2xs">
           {/* Header Bar */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between border-b border-[#444444] pb-4">
             <div>
-              <div className="flex items-center gap-2">
-                <Sparkles className="size-4 text-white shrink-0" />
-                <span className="text-[11px] font-bold uppercase tracking-wider text-white">
+              <div className="flex items-center">
+                <span className="text-[13px] font-bold uppercase tracking-wider text-red-400">
                   AI Recommendation
-                </span>
-                <span className="rounded-full border border-white/30 bg-white/10 px-2.5 py-0.5 text-[11px] font-medium text-white">
-                  Alternative / Optimization
                 </span>
               </div>
 
@@ -582,9 +581,9 @@ export function KnowledgeDraftSection({
 
           {/* Confirmation Banner for Saving AI Recommendation */}
           {confirmTarget === "ai" && confirmAction === "accept" && (
-            <div className="rounded-lg border border-primary/40 bg-[#1e1e1e] p-4 space-y-3 text-white">
+            <div className=" border border-primary/40 bg-[#1e1e1e] p-4 space-y-3 text-white">
               <div className="flex items-start gap-2">
-                <Sparkles className="size-4 text-white shrink-0 mt-0.5" />
+                <Check className="size-4 text-green-400 shrink-0 mt-0.5" />
                 <div>
                   <p className="text-xs font-semibold text-white">
                     Confirm Saving AI Recommendation
@@ -594,7 +593,8 @@ export function KnowledgeDraftSection({
                     <strong className="text-white">
                       &quot;{aiRecommendationDraft.approach.name}&quot;
                     </strong>{" "}
-                    with its optimized canonical code into your Knowledge Vault as a separate entry.
+                    with its optimized canonical code into your Knowledge Vault
+                    as a separate entry.
                   </p>
                 </div>
               </div>
@@ -630,7 +630,7 @@ export function KnowledgeDraftSection({
           {/* Complexity Chips */}
           <div className="flex flex-wrap items-center gap-2 text-xs">
             {aiRecommendationDraft.approach.timeComplexity && (
-              <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#1e1e1e] px-2.5 py-1 text-white">
+              <div className="flex items-center gap-1.5 border border-[#4a4a4a] bg-[#1e1e1e] px-4 py-3 text-white">
                 <Clock className="size-4 text-sky-400" />
                 <span className="text-zinc-300">Time:</span>
                 <span className="font-mono font-semibold text-white">
@@ -639,7 +639,7 @@ export function KnowledgeDraftSection({
               </div>
             )}
             {aiRecommendationDraft.approach.spaceComplexity && (
-              <div className="flex items-center gap-1.5 rounded-md border border-[#4a4a4a] bg-[#1e1e1e] px-2.5 py-1 text-white">
+              <div className="flex items-center gap-1.5 border border-[#4a4a4a] bg-[#1e1e1e] px-4 py-3 text-white">
                 <HardDrive className="size-4 text-purple-400" />
                 <span className="text-zinc-300">Space:</span>
                 <span className="font-mono font-semibold text-white">
@@ -651,38 +651,39 @@ export function KnowledgeDraftSection({
 
           {/* Core Idea Card */}
           {aiRecommendationDraft.approach.coreIdea && (
-            <div className="rounded-xl border border-[#4a4a4a] bg-[#1e1e1e] p-5 text-white shadow-2xs">
-              <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-amber-400">
-                <Lightbulb className="size-5 text-amber-400 shrink-0" />
+            <div className="border border-amber-200 bg-amber-200/10 p-5 text-white shadow-2xs">
+              <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-amber-200">
+                <Lightbulb className="size-5 text-amber-200 shrink-0" />
                 <span>Core Idea</span>
               </div>
-              <p className="mt-2 text-sm sm:text-base text-zinc-300 leading-relaxed font-normal">
+              <p className="mt-2 text-sm sm:text-base text-white leading-relaxed font-normal">
                 {formatText(aiRecommendationDraft.approach.coreIdea)}
               </p>
             </div>
           )}
 
           {/* Why It Works & When To Use */}
-          {(aiRecommendationDraft.approach.whyItWorks || aiRecommendationDraft.approach.whenToUse) && (
+          {(aiRecommendationDraft.approach.whyItWorks ||
+            aiRecommendationDraft.approach.whenToUse) && (
             <div className="grid gap-4 sm:grid-cols-2 text-sm">
               {aiRecommendationDraft.approach.whyItWorks && (
-                <div className="rounded-xl border border-[#4a4a4a] bg-[#1e1e1e] p-5 text-white shadow-2xs">
-                  <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2.5">
-                    <Compass className="size-5 text-sky-400 shrink-0" />
+                <div className="border border-sky-200  bg-sky-200/10 p-5 text-sky-200 shadow-2xs">
+                  <div className="flex items-center gap-2.5 text-base font-bold mb-2.5">
+                    <Compass className="size-5 text-sky-200 shrink-0" />
                     <span>Why It Works</span>
                   </div>
-                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-white leading-relaxed font-normal">
                     {formatText(aiRecommendationDraft.approach.whyItWorks)}
                   </p>
                 </div>
               )}
               {aiRecommendationDraft.approach.whenToUse && (
-                <div className="rounded-xl border border-[#4a4a4a] bg-[#1e1e1e] p-5 text-white shadow-2xs">
+                <div className="border border-purple-200 bg-purple-200/10 p-5 text-purple-200 shadow-2xs">
                   <div className="flex items-center gap-2.5 text-base font-bold text-zinc-100 mb-2.5">
-                    <Compass className="size-5 text-purple-400 shrink-0" />
+                    <Compass className="size-5 text-purple-200 shrink-0" />
                     <span>When To Use</span>
                   </div>
-                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
+                  <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-white leading-relaxed font-normal">
                     {formatText(aiRecommendationDraft.approach.whenToUse)}
                   </p>
                 </div>
@@ -692,14 +693,14 @@ export function KnowledgeDraftSection({
 
           {/* Algorithm */}
           {aiRecommendationDraft.solution.algorithm && (
-            <div className="rounded-xl border border-[#4a4a4a] bg-[#1e1e1e] p-5 text-white shadow-2xs">
+            <div className="border border-[#4a4a4a] bg-[#1e1e1e] p-5 text-white shadow-2xs">
               <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-zinc-100 mb-2.5">
                 <ListOrdered className="size-5 text-amber-400 shrink-0" />
-                <span>
+                <span className="text-amber-400">
                   Method: {aiRecommendationDraft.solution.name}
                 </span>
               </div>
-              <div className="rounded-lg bg-[#141414] border border-[#4a4a4a] p-4 text-zinc-300">
+              <div className="bg-[#373737] border border-border p-4 text-white">
                 <p className="whitespace-pre-wrap font-mono text-xs sm:text-[14px] text-zinc-200 leading-relaxed">
                   {formatText(aiRecommendationDraft.solution.algorithm)}
                 </p>
@@ -711,7 +712,7 @@ export function KnowledgeDraftSection({
           <div className="border-t border-[#444444] pt-5 space-y-3.5">
             <div className="flex items-center justify-between">
               <div>
-                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-zinc-400">
+                <span className="text-xs sm:text-sm font-bold uppercase tracking-wider text-white">
                   Recommended Canonical Implementation
                 </span>
                 <p className="text-xs text-zinc-400 mt-0.5">
@@ -729,7 +730,7 @@ export function KnowledgeDraftSection({
         </div>
       ) : recommendationReason ? (
         /* Optimal feedback when no recommendation is necessary */
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-white shadow-2xs flex items-start gap-3">
+        <div className=" border border-emerald-500/30 bg-emerald-500/10 p-5 text-white shadow-2xs flex items-start gap-3">
           <CheckCircle2 className="size-5 text-emerald-400 shrink-0 mt-0.5" />
           <div className="space-y-1">
             <h5 className="text-sm font-bold text-emerald-300">

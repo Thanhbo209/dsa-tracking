@@ -1,7 +1,13 @@
 "use client";
 
 import { useState } from "react";
-import { ChevronDown, ChevronUp, AlertCircle, Code, CheckCircle2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  AlertCircle,
+  Code,
+  CheckCircle2,
+} from "lucide-react";
 import { DsaLogo } from "@/components/brand/DsaLogo";
 import { SubmissionAnalysisContainer } from "./analysis/SubmissionAnalysisContainer";
 import type { SerializedSubmissionAnalysis } from "./analysis/types";
@@ -123,7 +129,9 @@ export function SubmissionCard({
       onCodeUpdated?.(details.code, details);
     } catch (err: unknown) {
       setFetchError(
-        err instanceof Error ? err.message : "Failed to fetch code from LeetCode.",
+        err instanceof Error
+          ? err.message
+          : "Failed to fetch code from LeetCode.",
       );
     } finally {
       setIsFetchingCode(false);
@@ -138,7 +146,7 @@ export function SubmissionCard({
   return (
     <div
       className={cn(
-        "rounded-lg border border-[#4a4a4a] bg-[#373737] transition-all text-white shadow-2xs",
+        "border border-[#4a4a4a] bg-[#373737] transition-all text-white shadow-2xs",
         isSelected
           ? "border-primary ring-2 ring-primary/30"
           : "hover:border-zinc-400/60",
@@ -166,7 +174,9 @@ export function SubmissionCard({
                       ? "border-primary bg-primary text-primary-foreground"
                       : "border-white/60 bg-[#2a2a2a]",
                   )}
-                  title={isSelected ? "Selected for AI review" : "Click to select"}
+                  title={
+                    isSelected ? "Selected for AI review" : "Click to select"
+                  }
                 >
                   {isSelected && <CheckCircle2 className="size-3 stroke-[3]" />}
                 </span>
@@ -197,7 +207,10 @@ export function SubmissionCard({
                 >
                   {latestAnalysis.status === "DRAFT_READY" ? (
                     <>
-                      <DsaLogo size="xs" className="h-3.5 w-auto inline-block" />
+                      <DsaLogo
+                        size="xs"
+                        className="h-3.5 w-auto inline-block"
+                      />
                       <span>AI Review Ready</span>
                     </>
                   ) : latestAnalysis.status === "FAILED" ? (
@@ -293,7 +306,9 @@ export function SubmissionCard({
                 )}
               </button>
               {fetchError && (
-                <p className="text-xs text-red-400 max-w-md mx-auto">{fetchError}</p>
+                <p className="text-xs text-red-400 max-w-md mx-auto">
+                  {fetchError}
+                </p>
               )}
             </div>
           ) : (

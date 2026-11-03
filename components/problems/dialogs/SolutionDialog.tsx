@@ -48,7 +48,9 @@ export function SolutionDialog(props: SolutionDialogProps) {
   const { mode, approach, trigger } = props;
   const router = useRouter();
 
-  const [uncontrolledOpen, setUncontrolledOpen] = useState(props.defaultOpen ?? false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(
+    props.defaultOpen ?? false,
+  );
   const open = props.open !== undefined ? props.open : uncontrolledOpen;
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -56,10 +58,18 @@ export function SolutionDialog(props: SolutionDialogProps) {
   const [error, setError] = useState<string | null>(null);
 
   // Form field state
-  const [name, setName] = useState(() => (mode === "edit" && props.solution ? props.solution.name || "" : ""));
-  const [description, setDescription] = useState(() => (mode === "edit" && props.solution ? props.solution.description || "" : ""));
-  const [algorithm, setAlgorithm] = useState(() => (mode === "edit" && props.solution ? props.solution.algorithm || "" : ""));
-  const [notes, setNotes] = useState(() => (mode === "edit" && props.solution ? props.solution.notes || "" : ""));
+  const [name, setName] = useState(() =>
+    mode === "edit" && props.solution ? props.solution.name || "" : "",
+  );
+  const [description, setDescription] = useState(() =>
+    mode === "edit" && props.solution ? props.solution.description || "" : "",
+  );
+  const [algorithm, setAlgorithm] = useState(() =>
+    mode === "edit" && props.solution ? props.solution.algorithm || "" : "",
+  );
+  const [notes, setNotes] = useState(() =>
+    mode === "edit" && props.solution ? props.solution.notes || "" : "",
+  );
 
   function resetForm() {
     if (mode === "edit" && props.solution) {
@@ -148,7 +158,9 @@ export function SolutionDialog(props: SolutionDialogProps) {
       handleOpenChange(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -173,7 +185,9 @@ export function SolutionDialog(props: SolutionDialogProps) {
       handleOpenChange(false);
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to delete solution");
+      setError(
+        err instanceof Error ? err.message : "Failed to delete solution",
+      );
     } finally {
       setIsDeleting(false);
     }
@@ -186,15 +200,19 @@ export function SolutionDialog(props: SolutionDialogProps) {
           trigger ? (
             trigger
           ) : mode === "create" ? (
-            <button
+            <Button
               type="button"
-              className="inline-flex items-center gap-1 rounded-md border border-[#4a4a4a] bg-[#2a2a2a] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#333333]"
+              className="inline-flex items-center gap-1 border border-border bg-card#2a2a2a] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#333333]"
             >
               <Plus className="size-3 text-white" />
-              <span>+ Add Solution</span>
-            </button>
+              <span>Add Solution</span>
+            </Button>
           ) : (
-            <Button variant="outline" size="xs" className="gap-1 text-xs h-7 border-[#555555] bg-[#2a2a2a] text-white hover:bg-[#333333]">
+            <Button
+              variant="outline"
+              size="xs"
+              className="gap-1 text-xs h-7 border-[#555555] bg-[#2a2a2a] text-white hover:bg-[#333333]"
+            >
               <Pencil className="size-3 text-white" />
               <span>Edit Solution</span>
             </Button>
@@ -221,7 +239,7 @@ export function SolutionDialog(props: SolutionDialogProps) {
 
         {/* Delete Confirmation Banner */}
         {showDeleteConfirm && (
-          <div className="my-2 rounded-lg border border-destructive/40 bg-destructive/10 p-4 text-xs">
+          <div className="my-2 border border-destructive/40 bg-destructive/10 p-4 text-xs">
             <div className="flex items-start gap-2.5">
               <AlertTriangle className="size-4 text-destructive shrink-0 mt-0.5" />
               <div className="space-y-1">
@@ -258,7 +276,10 @@ export function SolutionDialog(props: SolutionDialogProps) {
         )}
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-hidden flex flex-col">
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-hidden flex flex-col"
+        >
           <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-5 py-2">
             {/* 1. Technique Section */}
             <div className="space-y-3">
@@ -268,7 +289,10 @@ export function SolutionDialog(props: SolutionDialogProps) {
               </div>
 
               <div>
-                <label htmlFor="solution-name" className="mb-1 block text-xs font-medium">
+                <label
+                  htmlFor="solution-name"
+                  className="mb-1 block text-xs font-medium"
+                >
                   Name <span className="text-destructive">*</span>
                 </label>
                 <input
@@ -278,12 +302,15 @@ export function SolutionDialog(props: SolutionDialogProps) {
                   onChange={(e) => setName(e.target.value)}
                   required
                   placeholder="e.g. One-Pass Complement Lookup"
-                  className="w-full rounded-md border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full border bg-background px-3 py-1.5 text-xs outline-none"
                 />
               </div>
 
               <div>
-                <label htmlFor="solution-description" className="mb-1 block text-xs font-medium">
+                <label
+                  htmlFor="solution-description"
+                  className="mb-1 block text-xs font-medium"
+                >
                   Description
                 </label>
                 <textarea
@@ -293,7 +320,7 @@ export function SolutionDialog(props: SolutionDialogProps) {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={2}
                   placeholder="What does this technique or algorithm do?"
-                  className="w-full rounded-md border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary leading-relaxed"
+                  className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
                 />
               </div>
             </div>
@@ -306,7 +333,10 @@ export function SolutionDialog(props: SolutionDialogProps) {
               </div>
 
               <div>
-                <label htmlFor="solution-algorithm" className="mb-1 block text-xs font-medium">
+                <label
+                  htmlFor="solution-algorithm"
+                  className="mb-1 block text-xs font-medium"
+                >
                   Step-by-Step Procedure
                 </label>
                 <textarea
@@ -316,7 +346,7 @@ export function SolutionDialog(props: SolutionDialogProps) {
                   onChange={(e) => setAlgorithm(e.target.value)}
                   rows={4}
                   placeholder="1. Initialize hash map&#10;2. For each num, calculate complement&#10;3. Check if complement exists in map"
-                  className="w-full rounded-md border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary leading-relaxed"
+                  className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
                 />
               </div>
             </div>
@@ -329,7 +359,10 @@ export function SolutionDialog(props: SolutionDialogProps) {
               </div>
 
               <div>
-                <label htmlFor="solution-notes" className="mb-1 block text-xs font-medium">
+                <label
+                  htmlFor="solution-notes"
+                  className="mb-1 block text-xs font-medium"
+                >
                   Technique Notes
                 </label>
                 <textarea
@@ -339,14 +372,14 @@ export function SolutionDialog(props: SolutionDialogProps) {
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
                   placeholder="Edge cases handled, performance observations..."
-                  className="w-full rounded-md border bg-background px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-primary leading-relaxed"
+                  className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
                 />
               </div>
             </div>
           </div>
 
           {error && (
-            <p className="mt-3 rounded-md border border-destructive/50 bg-destructive/10 p-2.5 text-xs text-destructive">
+            <p className="mt-3 border border-destructive/50 bg-destructive/10 p-2.5 text-xs text-destructive">
               {error}
             </p>
           )}
@@ -378,10 +411,15 @@ export function SolutionDialog(props: SolutionDialogProps) {
 
             <Button
               type="submit"
+              variant="ghost"
               size="sm"
               disabled={isSubmitting || isDeleting}
             >
-              {isSubmitting ? "Saving..." : mode === "create" ? "Save Solution" : "Update Solution"}
+              {isSubmitting
+                ? "Saving..."
+                : mode === "create"
+                  ? "Save Solution"
+                  : "Update Solution"}
             </Button>
           </DialogFooter>
         </form>

@@ -15,14 +15,14 @@ export const AVAILABLE_ANALYSIS_MODELS: AnalysisModelOption[] = [
     name: "Gemini 3.6 Flash",
     label: "Gemini 3.6 Flash",
     badge: "3.6 Flash",
-    description: "Default — Comprehensive reasoning & diagnostic depth",
+    description: "(Comprehensive reasoning & diagnostic depth)",
   },
   {
     id: "gemini-3.5-flash-lite",
     name: "Gemini 3.5 Flash-Lite",
     label: "Gemini 3.5 Flash-Lite",
     badge: "3.5 Lite",
-    description: "Fast — Low latency & lightweight",
+    description: "(Low latency & lightweight)",
   },
 ];
 
@@ -31,7 +31,11 @@ export function isValidAnalysisModel(modelName: string): boolean {
 }
 
 export function getPrimaryModel(): string {
-  return process.env.GEMINI_PRIMARY_MODEL || process.env.GEMINI_MODEL || DEFAULT_PRIMARY_MODEL;
+  return (
+    process.env.GEMINI_PRIMARY_MODEL ||
+    process.env.GEMINI_MODEL ||
+    DEFAULT_PRIMARY_MODEL
+  );
 }
 
 export function getFallbackModel(): string {
@@ -61,7 +65,9 @@ export function getOppositeModel(currentModel: string): string {
  * - Any other model string falls back to word capitalization splitting hyphens.
  * Returns null if modelName is missing or empty.
  */
-export function formatModelDisplayName(modelName: string | null | undefined): string | null {
+export function formatModelDisplayName(
+  modelName: string | null | undefined,
+): string | null {
   if (!modelName || modelName.trim() === "") {
     return null;
   }

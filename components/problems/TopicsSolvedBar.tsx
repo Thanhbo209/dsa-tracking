@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "../ui/button";
+
 export interface SolvedTopicItem {
   topicName: string;
   solvedCount: number;
@@ -29,50 +31,50 @@ export function TopicsSolvedBar({
       aria-label="Topics Solved Filter"
       className="flex flex-wrap items-center gap-2 pt-1"
     >
-      <span className="text-xs font-semibold text-zinc-400 mr-1 select-none">
+      <span className="text-[14px] font-semibold text-muted-foreground mr-1 select-none">
         Topics Solved:
       </span>
 
       {/* All / Reset chip */}
-      <button
+      <Button
         type="button"
         onClick={onClearTopics}
-        className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
+        className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium transition-all cursor-pointer ${
           isAllSelected
-            ? "border border-[#46C6C2] bg-[#46C6C2]/15 text-[#46C6C2] font-semibold shadow-xs"
-            : "border border-[#444444] bg-[#1a1a1a] text-zinc-400 hover:border-zinc-500 hover:text-white"
+            ? "border border-[#46C6C2] bg-[#46C6C2]/15 hover:bg-[#46C6C2]/15 text-[#46C6C2] font-semibold shadow-xs"
+            : "bg-[#1a1a1a] text-white  hover:text-white hover:bg-[#333333]"
         }`}
         aria-pressed={isAllSelected}
       >
         <span>All Topics</span>
-      </button>
+      </Button>
 
       {/* Topic chips */}
       {solvedTopics.map((topic) => {
         const isSelected = selectedTopics.includes(topic.topicName);
         return (
-          <button
+          <Button
             key={topic.topicName}
             type="button"
             onClick={() => onToggleTopic(topic.topicName)}
-            className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs transition-all cursor-pointer ${
+            className={`inline-flex items-center font-thin gap-1.5 px-2.5 py-1 text-[13px] transition-all cursor-pointer ${
               isSelected
-                ? "border border-[#46C6C2] bg-[#46C6C2]/15 text-[#46C6C2] font-semibold shadow-xs"
-                : "border border-[#444444] bg-[#1a1a1a] text-zinc-300 hover:border-zinc-500 hover:text-white"
+                ? "border border-[#46C6C2] hover:bg-[#46C6C2]/15 bg-[#46C6C2]/15 text-[#46C6C2] font-semibold shadow-xs"
+                : "border border-border bg-card text-white hover:bg-[#333333]"
             }`}
             aria-pressed={isSelected}
           >
             <span>{topic.topicName}</span>
             <span
-              className={`rounded-full px-1.5 py-0.2 text-[10px] font-mono font-bold ${
+              className={`px-1 py-0.2 text-[12px] font-medium ${
                 isSelected
-                  ? "bg-[#46C6C2]/30 text-white"
-                  : "bg-zinc-800 text-zinc-400"
+                  ? "bg-[#46C6C2]/30 text-white font-bold"
+                  : "bg-zinc-800 text-muted-foreground"
               }`}
             >
               {topic.solvedCount}
             </span>
-          </button>
+          </Button>
         );
       })}
     </div>

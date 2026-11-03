@@ -47,7 +47,7 @@ export const PublicProblemCard = React.memo(function PublicProblemCard({
   return (
     <Link
       href={`/u/${username}/${problem.slug}`}
-      className="group flex flex-col justify-between rounded-xl border border-[#383838] bg-[#262626] p-4 sm:p-5 hover:border-zinc-500 hover:bg-[#383838] transition-all shadow-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white/40"
+      className="group flex flex-col justify-between border border-[#383838] bg-[#262626] p-4 sm:p-5 hover:border-zinc-500 hover:bg-[#383838] transition-all shadow-xs focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-white/40"
     >
       <div className="space-y-3">
         {/* Title row */}
