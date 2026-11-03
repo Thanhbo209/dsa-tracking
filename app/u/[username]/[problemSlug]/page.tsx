@@ -5,7 +5,7 @@ import { ProblemDetailPanel } from "@/components/problems/components/ProblemDeta
 import { PublicApproachList } from "@/components/profile/components/PublicApproachList";
 
 // ISR caching: serve cached problem detail page for 60 seconds before background regeneration
-export const revalidate = 60;
+export const dynamic = "force-dynamic";
 
 export async function generateStaticParams() {
   return [];
