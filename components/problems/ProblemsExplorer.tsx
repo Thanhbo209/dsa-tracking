@@ -727,7 +727,7 @@ export function ProblemsExplorer({
                           #{problem.leetcodeId}
                         </span>
                       )}
-                      <h2 className="text-xl font-bold text-white group-hover:text-white transition-colors line-clamp-2">
+                      <h2 className="text-md font-bold text-white group-hover:text-white transition-colors line-clamp-2">
                         {problem.title}
                       </h2>
                     </div>
