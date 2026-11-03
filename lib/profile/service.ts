@@ -18,7 +18,7 @@ export interface PublicVaultProblem {
   slug: string;
   title: string;
   leetcodeId: number | null;
-  difficulty: string | null;
+  difficulty: Difficulty | null;
   topics: string[];
   /** Number of approaches this user has for this problem */
   approachCount: number;

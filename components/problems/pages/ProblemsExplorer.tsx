@@ -26,10 +26,10 @@ import {
   StatusFilter,
 } from "@/types/problem";
 import { PAGE_SIZE } from "@/utils/problems/constants";
-import { difficultyOrder } from "@/utils/problems/sorting";
-import { difficultyCardStripe, difficultyClass } from "@/utils/problems/style";
 import { Pagination } from "../../ui/pagination";
 import { SolvedTopicItem } from "@/types/topic";
+import { difficultyCardStripe, difficultyOrder } from "@/utils/problems/helper";
+import { DifficultyBadge } from "@/components/ui/difficulty";
 
 export interface ProblemsExplorerProps {
   problems: ProblemExplorerItem[];
@@ -556,15 +556,7 @@ export function ProblemsExplorer({
                         </span>
                       </div>
 
-                      {problem.difficulty ? (
-                        <span
-                          className={`border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${difficultyClass(
-                            problem.difficulty,
-                          )}`}
-                        >
-                          {problem.difficulty}
-                        </span>
-                      ) : null}
+                      <DifficultyBadge difficulty={problem.difficulty} />
                     </div>
 
                     {/* LeetCode Number & Title */}

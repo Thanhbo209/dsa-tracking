@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import type { KnowledgeSolution } from "./types";
 import { CodeDialog } from "@/components/dialogs/CodeDialog";
 import { Copy, Check, Code2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CodeViewer } from "../code/CodeViewer";
+import { KnowledgeSolution } from "@/types/knowledge";
 
 interface KnowledgeCodeBlockProps {
   solution: KnowledgeSolution;

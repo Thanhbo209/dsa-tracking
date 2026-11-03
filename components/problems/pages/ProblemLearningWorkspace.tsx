@@ -4,26 +4,12 @@ import { useState } from "react";
 import { History, BookOpen, AlertCircle, X, Bot } from "lucide-react";
 import { cn } from "@/utils/utils";
 import { SubmissionCard } from "../../code/SubmissionCard";
-import { SubmissionAnalysisContainer } from "../../analysis/SubmissionAnalysisContainer";
+import { SubmissionAnalysisContainer } from "../../analysis/pages/SubmissionAnalysisContainer";
 import { KnowledgeWorkspace } from "../../knowledge/KnowledgeWorkspace";
-import type { KnowledgeApproach } from "../../knowledge/types";
 import type { FetchedSubmissionDetails } from "@/lib/extension/fetchCode";
 import { Button } from "../../ui/button";
-import { SerializedSubmissionAnalysis } from "@/types/analysis";
-
-export interface WorkspaceSubmission {
-  id: string;
-  externalId?: string | null;
-  status: string;
-  language: string;
-  runtimeMs: number | null;
-  memoryBytes: bigint | number | null;
-  submittedAt: Date | string | null;
-  code: string | null;
-  analyses: SerializedSubmissionAnalysis[];
-}
-
-export type WorkspaceTab = "knowledge" | "analysis" | "submissions";
+import { WorkspaceSubmission, WorkspaceTab } from "@/types/workspace";
+import { KnowledgeApproach } from "@/types/knowledge";
 
 interface ProblemLearningWorkspaceProps {
   problemId: string;

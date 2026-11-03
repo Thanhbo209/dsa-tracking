@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import {
   Lightbulb,
   Clock,
@@ -14,54 +13,15 @@ import {
 } from "lucide-react";
 import { CodeViewer } from "@/components/code/CodeViewer";
 import type { PublicProblemDetail } from "@/lib/profile/service";
+import { FormatText } from "@/components/ui/text";
+import {
+  extractLanguage,
+  getStatusBadge,
+  stripStatusSuffix,
+} from "@/utils/approaches/helper";
 
 type Approach = PublicProblemDetail["approaches"][number];
 type Solution = Approach["solutions"][number];
-
-// ── Status suffix helpers ──────────────────────────────────────────────────
-
-function stripStatusSuffix(name: string): string {
-  return name
-    .replace(/(\s*\((?:My Accepted Implementation|My Attempt)\))+$/g, "")
-    .trim();
-}
-
-function getStatusBadge(name: string): string | null {
-  const match = name.match(/\((My Accepted Implementation|My Attempt)\)\s*$/);
-  return match ? match[1] : null;
-}
-
-/** Extract a plain language slug from storage strings like
- *  "Actual accepted submission code (python, 4ms)." → "python" */
-function extractLanguage(langField: string): string {
-  if (!/[( ]/.test(langField)) return langField.toLowerCase();
-  const m = langField.match(/\(([a-zA-Z0-9_+#]+)/);
-  return m ? m[1].toLowerCase() : langField.toLowerCase();
-}
-
-/**
- * Formats inline backtick identifiers like `len(s)` into styled code chips —
- * matches the styling used in ApproachOverview and SolutionTechniqueView.
- */
-function formatText(text: string): React.ReactNode {
-  if (!text || !text.includes("`")) return text;
-  const parts = text.split(/(`[^`]+`)/g);
-  return parts.map((part, idx) => {
-    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
-      return (
-        <code
-          key={idx}
-          className="mx-0.5 bg-[#262626] px-1.5 py-0.5 font-mono text-[13px] sm:text-sm text-zinc-200 border border-[#4a4a4a]"
-        >
-          {part.slice(1, -1)}
-        </code>
-      );
-    }
-    return part;
-  });
-}
-
-// ── Sub-components ────────────────────────────────────────────────────────────
 
 function SolutionBlock({ solution }: { solution: Solution }) {
   const codes = solution.codes ?? [];
@@ -79,7 +39,7 @@ function SolutionBlock({ solution }: { solution: Solution }) {
       {/* Description */}
       {solution.description && (
         <p className="text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-          {formatText(solution.description)}
+          {FormatText(solution.description)}
         </p>
       )}
 
@@ -92,7 +52,7 @@ function SolutionBlock({ solution }: { solution: Solution }) {
           </div>
           <div className="rounded-lg bg-[#222222] border border-[#4a4a4a] p-4 text-zinc-300">
             <p className="whitespace-pre-wrap text-xs sm:text-sm text-zinc-300 leading-relaxed">
-              {formatText(solution.algorithm)}
+              {FormatText(solution.algorithm)}
             </p>
           </div>
         </div>
@@ -106,7 +66,7 @@ function SolutionBlock({ solution }: { solution: Solution }) {
             <span>Method Notes</span>
           </div>
           <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-            {formatText(solution.notes)}
+            {FormatText(solution.notes)}
           </p>
         </div>
       )}
@@ -211,7 +171,7 @@ function ApproachSection({ approach }: { approach: Approach }) {
             <span>Core Idea</span>
           </div>
           <p className="mt-2 text-sm sm:text-base text-zinc-300 leading-relaxed font-normal">
-            {formatText(approach.coreIdea)}
+            {FormatText(approach.coreIdea)}
           </p>
         </div>
       )}
@@ -226,7 +186,7 @@ function ApproachSection({ approach }: { approach: Approach }) {
                 <span>Why It Works</span>
               </div>
               <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                {formatText(approach.whyItWorks!)}
+                {FormatText(approach.whyItWorks!)}
               </p>
             </div>
           )}
@@ -237,7 +197,7 @@ function ApproachSection({ approach }: { approach: Approach }) {
                 <span>When To Use</span>
               </div>
               <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                {formatText(approach.whenToUse!)}
+                {FormatText(approach.whenToUse!)}
               </p>
             </div>
           )}
@@ -254,7 +214,7 @@ function ApproachSection({ approach }: { approach: Approach }) {
                 <span>Pros &amp; Advantages</span>
               </div>
               <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                {formatText(approach.pros!)}
+                {FormatText(approach.pros!)}
               </p>
             </div>
           )}
@@ -265,7 +225,7 @@ function ApproachSection({ approach }: { approach: Approach }) {
                 <span>Cons &amp; Limitations</span>
               </div>
               <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                {formatText(approach.cons!)}
+                {FormatText(approach.cons!)}
               </p>
             </div>
           )}
@@ -280,7 +240,7 @@ function ApproachSection({ approach }: { approach: Approach }) {
             <span>Common Mistakes to Avoid</span>
           </div>
           <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-            {formatText(approach.mistakes)}
+            {FormatText(approach.mistakes)}
           </p>
         </div>
       )}
@@ -293,7 +253,7 @@ function ApproachSection({ approach }: { approach: Approach }) {
             <span>Additional Notes</span>
           </div>
           <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-            {formatText(approach.notes)}
+            {FormatText(approach.notes)}
           </p>
         </div>
       )}

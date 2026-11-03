@@ -1,5 +1,3 @@
-import React from "react";
-import type { KnowledgeApproach } from "./types";
 import { ApproachDialog } from "@/components/dialogs/ApproachDialog";
 import {
   Lightbulb,
@@ -10,32 +8,13 @@ import {
   FileText,
   Compass,
 } from "lucide-react";
+import { FormatText } from "@/components/ui/text";
+import { KnowledgeApproach } from "@/types/knowledge";
 
 interface ApproachOverviewProps {
   approach: KnowledgeApproach;
   showHeader?: boolean;
   activeApproach: KnowledgeApproach;
-}
-
-/**
- * Formats inline backticked code identifiers like `len(s)` into clean code chips.
- */
-function formatText(text: string): React.ReactNode {
-  if (!text || !text.includes("`")) return text;
-  const parts = text.split(/(`[^`]+`)/g);
-  return parts.map((part, idx) => {
-    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
-      return (
-        <code
-          key={idx}
-          className="mx-0.5 rounded bg-[#262626] px-1.5 py-0.5 font-mono text-[13px] sm:text-sm text-zinc-200 border border-[#4a4a4a]"
-        >
-          {part.slice(1, -1)}
-        </code>
-      );
-    }
-    return part;
-  });
 }
 
 export function ApproachOverview({
@@ -130,7 +109,7 @@ export function ApproachOverview({
               <span>Core Idea</span>
             </div>
             <p className="mt-2 text-sm sm:text-base text-white leading-relaxed font-normal">
-              {formatText(approach.coreIdea)}
+              {FormatText(approach.coreIdea)}
             </p>
           </div>
         )}
@@ -146,7 +125,7 @@ export function ApproachOverview({
                 <span>Why It Works</span>
               </div>
               <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-white leading-relaxed font-normal">
-                {formatText(approach.whyItWorks)}
+                {FormatText(approach.whyItWorks)}
               </p>
             </div>
           )}
@@ -158,7 +137,7 @@ export function ApproachOverview({
                 <span>When To Use</span>
               </div>
               <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-white leading-relaxed font-normal">
-                {formatText(approach.whenToUse)}
+                {FormatText(approach.whenToUse)}
               </p>
             </div>
           )}
@@ -175,7 +154,7 @@ export function ApproachOverview({
                 <span>Pros & Advantages</span>
               </div>
               <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-white leading-relaxed font-normal">
-                {formatText(approach.pros)}
+                {FormatText(approach.pros)}
               </p>
             </div>
           )}
@@ -187,7 +166,7 @@ export function ApproachOverview({
                 <span>Cons & Limitations</span>
               </div>
               <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-white leading-relaxed font-normal">
-                {formatText(approach.cons)}
+                {FormatText(approach.cons)}
               </p>
             </div>
           )}
@@ -202,7 +181,7 @@ export function ApproachOverview({
             <span>Common Mistakes to Avoid</span>
           </div>
           <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-            {formatText(approach.mistakes)}
+            {FormatText(approach.mistakes)}
           </p>
         </div>
       )}
@@ -215,7 +194,7 @@ export function ApproachOverview({
             <span>Additional Notes</span>
           </div>
           <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-            {formatText(approach.notes)}
+            {FormatText(approach.notes)}
           </p>
         </div>
       )}

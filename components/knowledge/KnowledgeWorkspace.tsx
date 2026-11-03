@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import type { KnowledgeApproach } from "./types";
 import { ApproachTabs } from "./ApproachTabs";
 import { ApproachOverview } from "./ApproachOverview";
 import { SolutionTechniqueView } from "./SolutionTechniqueView";

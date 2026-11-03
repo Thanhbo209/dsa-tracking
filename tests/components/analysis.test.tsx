@@ -1,14 +1,14 @@
 import { describe, expect, it, vi } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { AiReviewSection } from "@/components/analysis/AiReviewSection";
-import { KnowledgeDraftSection } from "@/components/analysis/KnowledgeDraftSection";
+import { AiReviewSection } from "@/components/analysis/pages/AiReviewSection";
+import { KnowledgeDraftSection } from "@/components/analysis/pages/KnowledgeDraftSection";
 import { DraftEditForm } from "@/components/form/DraftEditForm";
-import { AnalysisEmptyState } from "@/components/analysis/AnalysisEmptyState";
-import { AnalysisGeneratingState } from "@/components/analysis/AnalysisGeneratingState";
-import { AnalysisFailedState } from "@/components/analysis/AnalysisFailedState";
-import { SubmissionAnalysisContainer } from "@/components/analysis/SubmissionAnalysisContainer";
+import { AnalysisEmptyState } from "@/components/analysis/components/AnalysisEmptyState";
+import { AnalysisGeneratingState } from "@/components/analysis/components/AnalysisGeneratingState";
+import { AnalysisFailedState } from "@/components/analysis/components/AnalysisFailedState";
+import { SubmissionAnalysisContainer } from "@/components/analysis/pages/SubmissionAnalysisContainer";
 import { SubmissionCard } from "@/components/code/SubmissionCard";
-import { ModelSelector } from "@/components/analysis/ModelSelector";
+import { ModelSelector } from "@/components/analysis/components/ModelSelector";
 import type { AiReview, AiDraft } from "@/lib/validation/analysis";
 import type { SerializedSubmissionAnalysis } from "@/components/problems/analysis/types";
 

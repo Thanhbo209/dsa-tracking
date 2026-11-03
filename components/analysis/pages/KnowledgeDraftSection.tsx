@@ -7,7 +7,7 @@ import type {
   AiReview,
   AiRecommendation,
 } from "@/lib/validation/analysis";
-import { DraftEditForm } from "../form/DraftEditForm";
+import { DraftEditForm } from "../../form/DraftEditForm";
 import { Button } from "@/components/ui/button";
 import { DsaLogo } from "@/components/ui/logo";
 import {
@@ -22,29 +22,9 @@ import {
   ListOrdered,
   Info,
 } from "lucide-react";
-import { CodeViewer } from "../code/CodeViewer";
+import { CodeViewer } from "../../code/CodeViewer";
 import { AnalysisStatus } from "@/types/analysis";
-
-/**
- * Formats inline backticked code identifiers into styled code chips.
- */
-function formatText(text: string): React.ReactNode {
-  if (!text || !text.includes("`")) return text;
-  const parts = text.split(/(`[^`]+`)/g);
-  return parts.map((part, idx) => {
-    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
-      return (
-        <code
-          key={idx}
-          className="mx-0.5 rounded bg-[#262626] px-1.5 py-0.5 font-mono text-[13px] sm:text-sm text-zinc-200 border border-[#4a4a4a]"
-        >
-          {part.slice(1, -1)}
-        </code>
-      );
-    }
-    return part;
-  });
-}
+import { FormatText } from "../../ui/text";
 
 interface KnowledgeDraftSectionProps {
   draft: (AiRecommendation & Partial<AiDraft>) | AiDraft | null;
@@ -447,7 +427,7 @@ export function KnowledgeDraftSection({
                 <span>Core Idea</span>
               </div>
               <p className="mt-2 text-sm sm:text-base text-white leading-relaxed font-normal">
-                {formatText(userApproachDraft.approach.coreIdea)}
+                {FormatText(userApproachDraft.approach.coreIdea)}
               </p>
             </div>
           )}
@@ -465,7 +445,7 @@ export function KnowledgeDraftSection({
                     </span>
                   </div>
                   <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-white leading-relaxed font-normal">
-                    {formatText(userApproachDraft.approach.whyItWorks)}
+                    {FormatText(userApproachDraft.approach.whyItWorks)}
                   </p>
                 </div>
               )}
@@ -476,7 +456,7 @@ export function KnowledgeDraftSection({
                     <span className="text-purple-200">When To Use</span>
                   </div>
                   <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-white leading-relaxed font-normal">
-                    {formatText(userApproachDraft.approach.whenToUse)}
+                    {FormatText(userApproachDraft.approach.whenToUse)}
                   </p>
                 </div>
               )}
@@ -494,7 +474,7 @@ export function KnowledgeDraftSection({
               </div>
               <div className=" bg-[#373737] border border-[#4a4a4a] p-4 text-zinc-300">
                 <p className="whitespace-pre-wrap font-mono text-xs sm:text-[14px] text-white leading-relaxed">
-                  {formatText(userApproachDraft.solution.algorithm)}
+                  {FormatText(userApproachDraft.solution.algorithm)}
                 </p>
               </div>
             </div>
@@ -657,7 +637,7 @@ export function KnowledgeDraftSection({
                 <span>Core Idea</span>
               </div>
               <p className="mt-2 text-sm sm:text-base text-white leading-relaxed font-normal">
-                {formatText(aiRecommendationDraft.approach.coreIdea)}
+                {FormatText(aiRecommendationDraft.approach.coreIdea)}
               </p>
             </div>
           )}
@@ -673,7 +653,7 @@ export function KnowledgeDraftSection({
                     <span>Why It Works</span>
                   </div>
                   <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-white leading-relaxed font-normal">
-                    {formatText(aiRecommendationDraft.approach.whyItWorks)}
+                    {FormatText(aiRecommendationDraft.approach.whyItWorks)}
                   </p>
                 </div>
               )}
@@ -684,7 +664,7 @@ export function KnowledgeDraftSection({
                     <span>When To Use</span>
                   </div>
                   <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-white leading-relaxed font-normal">
-                    {formatText(aiRecommendationDraft.approach.whenToUse)}
+                    {FormatText(aiRecommendationDraft.approach.whenToUse)}
                   </p>
                 </div>
               )}
@@ -702,7 +682,7 @@ export function KnowledgeDraftSection({
               </div>
               <div className="bg-[#373737] border border-border p-4 text-white">
                 <p className="whitespace-pre-wrap font-mono text-xs sm:text-[14px] text-zinc-200 leading-relaxed">
-                  {formatText(aiRecommendationDraft.solution.algorithm)}
+                  {FormatText(aiRecommendationDraft.solution.algorithm)}
                 </p>
               </div>
             </div>

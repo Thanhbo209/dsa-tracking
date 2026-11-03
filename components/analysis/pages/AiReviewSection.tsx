@@ -12,31 +12,11 @@ import {
   FileCode2,
 } from "lucide-react";
 import { formatModelDisplayName } from "@/lib/analysis/models";
+import { FormatText } from "../../ui/text";
 
 interface AiReviewSectionProps {
   review: AiReview;
   modelName?: string | null;
-}
-
-/**
- * Formats inline backticked code identifiers like `stack.append()` into clean code chips.
- */
-function formatText(text: string): React.ReactNode {
-  if (!text || !text.includes("`")) return text;
-  const parts = text.split(/(`[^`]+`)/g);
-  return parts.map((part, idx) => {
-    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
-      return (
-        <code
-          key={idx}
-          className="mx-0.5 rounded bg-[#262626] px-1.5 py-0.5 font-mono text-[13px] sm:text-sm text-zinc-200 border border-[#4a4a4a]"
-        >
-          {part.slice(1, -1)}
-        </code>
-      );
-    }
-    return part;
-  });
 }
 
 export function AiReviewSection({ review, modelName }: AiReviewSectionProps) {
@@ -77,7 +57,7 @@ export function AiReviewSection({ review, modelName }: AiReviewSectionProps) {
             </span>
           </div>
           <p className="mt-1.5 text-sm sm:text-base text-zinc-300 leading-relaxed font-normal">
-            {formatText(review.summary)}
+            {FormatText(review.summary)}
           </p>
         </div>
       </div>
@@ -97,7 +77,7 @@ export function AiReviewSection({ review, modelName }: AiReviewSectionProps) {
           </div>
 
           <p className="mt-3 text-sm sm:text-[15px] text-white leading-relaxed">
-            {formatText(review.timeComplexity.explanation)}
+            {FormatText(review.timeComplexity.explanation)}
           </p>
 
           {review.timeComplexity.reasoning &&
@@ -109,7 +89,7 @@ export function AiReviewSection({ review, modelName }: AiReviewSectionProps) {
                 <ul className="mt-2 list-disc space-y-2 pl-5 text-sm sm:text-[15px] text-white">
                   {review.timeComplexity.reasoning.map((point, i) => (
                     <li key={i} className="leading-relaxed font-normal">
-                      {formatText(point)}
+                      {FormatText(point)}
                     </li>
                   ))}
                 </ul>
@@ -130,7 +110,7 @@ export function AiReviewSection({ review, modelName }: AiReviewSectionProps) {
           </div>
 
           <p className="mt-3 text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-            {formatText(review.spaceComplexity.explanation)}
+            {FormatText(review.spaceComplexity.explanation)}
           </p>
 
           {review.spaceComplexity.reasoning &&
@@ -142,7 +122,7 @@ export function AiReviewSection({ review, modelName }: AiReviewSectionProps) {
                 <ul className="mt-2 list-disc space-y-2 pl-5 text-sm sm:text-[15px] text-white">
                   {review.spaceComplexity.reasoning.map((point, i) => (
                     <li key={i} className="leading-relaxed font-normal">
-                      {formatText(point)}
+                      {FormatText(point)}
                     </li>
                   ))}
                 </ul>
@@ -163,7 +143,7 @@ export function AiReviewSection({ review, modelName }: AiReviewSectionProps) {
             <ul className="list-disc space-y-2 pl-5 text-sm sm:text-[15px] text-white">
               {review.strengths.map((str, i) => (
                 <li key={i} className="leading-relaxed font-normal">
-                  {formatText(str)}
+                  {FormatText(str)}
                 </li>
               ))}
             </ul>
@@ -182,7 +162,7 @@ export function AiReviewSection({ review, modelName }: AiReviewSectionProps) {
             <ul className="list-disc space-y-2 pl-5 text-sm sm:text-[15px] text-white">
               {review.mistakes.map((mistake, i) => (
                 <li key={i} className="leading-relaxed font-normal">
-                  {formatText(mistake)}
+                  {FormatText(mistake)}
                 </li>
               ))}
             </ul>
@@ -204,7 +184,7 @@ export function AiReviewSection({ review, modelName }: AiReviewSectionProps) {
             <ul className="list-disc space-y-2 pl-5 text-sm sm:text-[15px]">
               {review.missedEdgeCases.map((edgeCase, i) => (
                 <li key={i} className="leading-relaxed font-normal">
-                  {formatText(edgeCase)}
+                  {FormatText(edgeCase)}
                 </li>
               ))}
             </ul>
@@ -225,7 +205,7 @@ export function AiReviewSection({ review, modelName }: AiReviewSectionProps) {
             <ul className="list-disc space-y-2 pl-5 text-sm sm:text-[15px]">
               {review.conceptGaps.map((gap, i) => (
                 <li key={i} className="leading-relaxed font-normal">
-                  {formatText(gap)}
+                  {FormatText(gap)}
                 </li>
               ))}
             </ul>
@@ -248,7 +228,7 @@ export function AiReviewSection({ review, modelName }: AiReviewSectionProps) {
             <ul className="list-disc space-y-2 pl-5 text-sm sm:text-[15px]">
               {review.improvementSuggestions.map((suggestion, i) => (
                 <li key={i} className="leading-relaxed font-normal">
-                  {formatText(suggestion)}
+                  {FormatText(suggestion)}
                 </li>
               ))}
             </ul>
@@ -265,7 +245,7 @@ export function AiReviewSection({ review, modelName }: AiReviewSectionProps) {
           <ul className="list-disc space-y-2 pl-5 text-sm sm:text-[15px]  font-medium">
             {review.learningTakeaways.map((takeaway, i) => (
               <li key={i} className="leading-relaxed font-normal">
-                {formatText(takeaway)}
+                {FormatText(takeaway)}
               </li>
             ))}
           </ul>

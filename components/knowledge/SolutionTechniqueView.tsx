@@ -1,35 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import type { KnowledgeApproach } from "./types";
 import { KnowledgeCodeBlock } from "./KnowledgeCodeBlock";
 import { SolutionDialog } from "@/components/dialogs/SolutionDialog";
 import { ListOrdered, Layers, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FormatText } from "../ui/text";
+import { KnowledgeApproach } from "@/types/knowledge";
 
 interface SolutionTechniqueViewProps {
   approach: KnowledgeApproach;
-}
-
-/**
- * Formats inline backticked code identifiers like `stack.pop()` into clean code chips.
- */
-function formatText(text: string): React.ReactNode {
-  if (!text || !text.includes("`")) return text;
-  const parts = text.split(/(`[^`]+`)/g);
-  return parts.map((part, idx) => {
-    if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
-      return (
-        <code
-          key={idx}
-          className="mx-0.5 rounded bg-[#262626] px-1.5 py-0.5 font-mono text-[13px] sm:text-sm text-zinc-200 border border-[#4a4a4a]"
-        >
-          {part.slice(1, -1)}
-        </code>
-      );
-    }
-    return part;
-  });
 }
 
 export function SolutionTechniqueView({
@@ -121,7 +101,7 @@ export function SolutionTechniqueView({
           {/* Solution Description */}
           {activeSolution.description && (
             <p className="text-xl sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-              {formatText(activeSolution.description)}
+              {FormatText(activeSolution.description)}
             </p>
           )}
 
@@ -134,7 +114,7 @@ export function SolutionTechniqueView({
               </div>
               <div className=" bg-card border border-[#4a4a4a] p-4 text-zinc-300">
                 <p className="whitespace-pre-wrap font-mono text-md sm:text-md text-zinc-300 leading-relaxed">
-                  {formatText(activeSolution.algorithm)}
+                  {FormatText(activeSolution.algorithm)}
                 </p>
               </div>
             </div>
@@ -148,7 +128,7 @@ export function SolutionTechniqueView({
                 <span>Method Notes</span>
               </div>
               <p className="whitespace-pre-wrap text-sm sm:text-[15px] text-zinc-300 leading-relaxed font-normal">
-                {formatText(activeSolution.notes)}
+                {FormatText(activeSolution.notes)}
               </p>
             </div>
           )}

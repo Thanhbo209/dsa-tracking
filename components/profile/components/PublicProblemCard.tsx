@@ -2,35 +2,15 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import type { PublicVaultProblem } from "@/lib/profile/service";
 import { cn } from "cn";
+import { DifficultyBadge } from "@/components/ui/difficulty";
 
 interface PublicProblemCardProps {
   problem: PublicVaultProblem;
   username: string;
   onTagClick?: (tag: string) => void;
   selectedTopics?: string[];
-}
-
-function getDifficultyBadge(difficulty: string | null) {
-  switch (difficulty) {
-    case "EASY":
-      return <Badge variant="easy">EASY</Badge>;
-    case "MEDIUM":
-      return <Badge variant="medium">MEDIUM</Badge>;
-    case "HARD":
-      return <Badge variant="hard">HARD</Badge>;
-    default:
-      return (
-        <Badge
-          variant="outline"
-          className="text-zinc-400 border-zinc-700 bg-zinc-800/60"
-        >
-          UNTIERED
-        </Badge>
-      );
-  }
 }
 
 const VISIBLE_TAG_LIMIT = 3;
@@ -63,7 +43,7 @@ export const PublicProblemCard = React.memo(function PublicProblemCard({
             </h3>
           </div>
           <div className="shrink-0">
-            {getDifficultyBadge(problem.difficulty)}
+            <DifficultyBadge difficulty={problem.difficulty} />
           </div>
         </div>
 

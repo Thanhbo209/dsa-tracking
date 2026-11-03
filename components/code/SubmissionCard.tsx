@@ -9,7 +9,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { DsaLogo } from "@/components/ui/logo";
-import { SubmissionAnalysisContainer } from "../analysis/SubmissionAnalysisContainer";
+import { SubmissionAnalysisContainer } from "../analysis/pages/SubmissionAnalysisContainer";
 import { cn } from "@/utils/utils";
 import { CodeViewer } from "./CodeViewer";
 import {

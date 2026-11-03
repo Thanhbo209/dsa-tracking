@@ -1,5 +1,6 @@
+import { DifficultyBadge } from "@/components/ui/difficulty";
 import { Difficulty } from "@/lib/generated/prisma/enums";
-import { difficultyBadgeClass } from "@/utils/problems/style";
+import { difficultyBadgeClass } from "@/utils/problems/helper";
 import { ExternalLink } from "lucide-react";
 
 interface ProblemDetailPanelProps {
@@ -49,15 +50,7 @@ export function ProblemDetailPanel({
             {title}
           </h1>
 
-          {difficulty && (
-            <span
-              className={`border px-2.5 py-0.5 text-xs sm:text-sm font-semibold uppercase tracking-wider ${difficultyBadgeClass(
-                difficulty,
-              )}`}
-            >
-              {difficulty}
-            </span>
-          )}
+          <DifficultyBadge difficulty={difficulty} />
         </div>
 
         {/* Topic tags */}

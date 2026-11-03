@@ -2,36 +2,16 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Badge } from "@/components/ui/badge";
 import type { PublicVaultProblem } from "@/lib/profile/service";
 import { cn } from "cn";
 import { Button } from "../../ui/button";
+import { DifficultyBadge } from "@/components/ui/difficulty";
 
 interface PublicProblemRowProps {
   problem: PublicVaultProblem;
   username: string;
   onTagClick?: (tag: string) => void;
   selectedTopics?: string[];
-}
-
-function getDifficultyBadge(difficulty: string | null) {
-  switch (difficulty) {
-    case "EASY":
-      return <Badge variant="easy">EASY</Badge>;
-    case "MEDIUM":
-      return <Badge variant="medium">MEDIUM</Badge>;
-    case "HARD":
-      return <Badge variant="hard">HARD</Badge>;
-    default:
-      return (
-        <Badge
-          variant="outline"
-          className="text-zinc-400 border-zinc-700 bg-zinc-800/60"
-        >
-          UNTIERED
-        </Badge>
-      );
-  }
 }
 
 const VISIBLE_ROW_TAGS = 2;
@@ -103,7 +83,7 @@ export const PublicProblemRow = React.memo(function PublicProblemRow({
 
         {/* Difficulty */}
         <div className="w-20 shrink-0 text-left sm:text-center">
-          {getDifficultyBadge(problem.difficulty)}
+          <DifficultyBadge difficulty={problem.difficulty} />
         </div>
 
         {/* Approach count */}
