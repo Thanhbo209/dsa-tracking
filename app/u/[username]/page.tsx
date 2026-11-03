@@ -1,11 +1,10 @@
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, BookOpen, Square } from "lucide-react";
+import { BookOpen } from "lucide-react";
 import type { Metadata } from "next";
 import { getPublicUserProfile } from "@/lib/profile/service";
-import { DsaLogo } from "@/components/brand/DsaLogo";
-import { PublicPlaybookExplorer } from "@/components/profile/PublicPlaybookExplorer";
+import { DsaLogo } from "@/components/ui/logo";
+import { PublicPlaybookExplorer } from "@/components/profile/pages/PublicPlaybookExplorer";
 
 // ISR caching: serve cached profile page for 60 seconds before background regeneration
 export const revalidate = 60;
@@ -50,30 +49,6 @@ export default async function PublicProfilePage({
 
   return (
     <div className="min-h-screen bg-[#1a1a1a] text-white">
-      {/* ── Top Navigation Bar ────────────────────────────────────── */}
-      <header className="border-b border-[#383838] bg-[#222222]/80 backdrop-blur-md sticky top-0 z-30 px-4 sm:px-8 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link
-            href="/problems"
-            className="flex items-center gap-2 hover:opacity-90 transition-opacity"
-          >
-            <DsaLogo size="sm" priority className="h-6 w-auto" />
-            <span className="font-bold text-sm text-white hidden sm:inline-block">
-              DSA Tracking
-            </span>
-          </Link>
-          <span className="h-4 w-px bg-zinc-700 hidden sm:inline-block" />
-          <Link
-            href="/problems"
-            className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400 hover:text-white transition-colors"
-          >
-            <ArrowLeft className="size-3.5" />
-            <span>DSA Explorer</span>
-          </Link>
-        </div>
-        <span className="text-xs font-mono text-zinc-400">Public Profile</span>
-      </header>
-
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* ── Profile Header Card ─────────────────────────────────── */}
         <section

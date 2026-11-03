@@ -4,7 +4,7 @@ import * as React from "react";
 import {
   ProblemsExplorer,
   type ProblemExplorerItem,
-} from "@/components/problems/ProblemsExplorer";
+} from "@/components/problems/pages/ProblemsExplorer";
 
 describe("Problem Explorer User Scoping Isolation", () => {
   // Scenario: Same global problem ("Two Sum"), but User A has solved it with 2 approaches,

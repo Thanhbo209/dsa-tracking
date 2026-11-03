@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { signUp, useSession } from "@/lib/auth/auth-client";
 import { ArrowRight, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DsaLogo } from "@/components/brand/DsaLogo";
+import { DsaLogo } from "@/components/ui/logo";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -76,10 +76,13 @@ export default function SignupPage() {
 
   return (
     <div className="min-h-screen bg-[#1a1a1a] flex items-center justify-center p-4">
-      <div className="w-full max-w-md rounded-2xl border border-[#383838] bg-[#262626] p-8 shadow-xl space-y-6 text-white">
+      <div className="w-full max-w-md  border border-[#383838] bg-[#262626] p-8 shadow-xl space-y-6 text-white">
         <div className="space-y-3 text-center">
           <div className="mb-2 flex justify-center">
-            <Link href="/problems" className="inline-block hover:opacity-90 transition-opacity">
+            <Link
+              href="/problems"
+              className="inline-block hover:opacity-90 transition-opacity"
+            >
               <DsaLogo size="xl" priority className="h-12 w-auto" />
             </Link>
           </div>
@@ -113,7 +116,7 @@ export default function SignupPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="e.g. Thanh Pham"
-              className="w-full rounded-lg border border-[#444444] bg-[#1a1a1a] px-3.5 py-2 text-sm text-white placeholder-zinc-500 focus:border-primary focus:outline-none transition-colors"
+              className="w-full border border-[#444444] bg-[#1a1a1a] px-3.5 py-2 text-sm text-white placeholder-zinc-500 focus:border-primary focus:outline-none transition-colors"
             />
           </div>
 
@@ -135,7 +138,7 @@ export default function SignupPage() {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 placeholder="thanhcow"
-                className="w-full rounded-lg border border-[#444444] bg-[#1a1a1a] pl-8 pr-3.5 py-2 text-sm text-white placeholder-zinc-500 focus:border-primary focus:outline-none font-mono transition-colors"
+                className="w-full border border-[#444444] bg-[#1a1a1a] pl-8 pr-3.5 py-2 text-sm text-white placeholder-zinc-500 focus:border-primary focus:outline-none font-mono transition-colors"
               />
             </div>
           </div>
@@ -154,7 +157,7 @@ export default function SignupPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full rounded-lg border border-[#444444] bg-[#1a1a1a] px-3.5 py-2 text-sm text-white placeholder-zinc-500 focus:border-primary focus:outline-none transition-colors"
+              className="w-full  border border-[#444444] bg-[#1a1a1a] px-3.5 py-2 text-sm text-white placeholder-zinc-500 focus:border-primary focus:outline-none transition-colors"
             />
           </div>
 
@@ -173,14 +176,14 @@ export default function SignupPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full rounded-lg border border-[#444444] bg-[#1a1a1a] px-3.5 py-2 text-sm text-white placeholder-zinc-500 focus:border-primary focus:outline-none transition-colors"
+              className="w-full  border border-[#444444] bg-[#1a1a1a] px-3.5 py-2 text-sm text-white placeholder-zinc-500 focus:border-primary focus:outline-none transition-colors"
             />
           </div>
 
           <Button
             type="submit"
             disabled={loading}
-            className="w-full mt-2 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground py-2 rounded-lg gap-2 cursor-pointer"
+            className="w-full mt-2 font-semibold bg-primary hover:bg-primary/90 text-primary-foreground py-2 gap-2 cursor-pointer"
           >
             {loading ? (
               <>

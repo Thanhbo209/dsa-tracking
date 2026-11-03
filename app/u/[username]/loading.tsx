@@ -13,16 +13,6 @@ import {
 export default function PublicProfileLoading() {
   return (
     <div className="min-h-screen bg-[#1a1a1a]">
-      {/* ── Top nav bar ── */}
-      <header className="border-b border-[#383838] bg-[#222222]/80 sticky top-0 z-30 px-4 sm:px-8 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Skeleton className="h-6 w-24 rounded" />
-          <Skeleton className="h-4 w-px rounded" />
-          <Skeleton className="h-4 w-20 rounded" />
-        </div>
-        <Skeleton className="h-4 w-36 rounded" />
-      </header>
-
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {/* ── Profile header card ── */}
         <section className="rounded-2xl border border-[#383838] bg-[#262626] p-6 sm:p-8">

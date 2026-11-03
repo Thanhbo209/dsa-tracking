@@ -1,0 +1,596 @@
+"use client";
+
+import { useState, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  AlertTriangle,
+  Lightbulb,
+  Compass,
+  Scale,
+  FileText,
+} from "lucide-react";
+import { KnowledgeApproach } from "@/types/knowledge";
+
+interface BaseApproachDialogProps {
+  open?: boolean;
+  defaultOpen?: boolean;
+  onOpenChange?: (open: boolean) => void;
+  trigger?: React.ReactElement;
+}
+
+interface ApproachDialogCreateProps extends BaseApproachDialogProps {
+  mode: "create";
+  problemId: string;
+  approach?: never;
+}
+
+interface ApproachDialogEditProps extends BaseApproachDialogProps {
+  mode: "edit";
+  problemId?: string;
+  approach: KnowledgeApproach;
+}
+
+type ApproachDialogProps = ApproachDialogCreateProps | ApproachDialogEditProps;
+
+export function ApproachDialog(props: ApproachDialogProps) {
+  const { mode, trigger } = props;
+  const router = useRouter();
+
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(
+    props.defaultOpen ?? false,
+  );
+  const open = props.open !== undefined ? props.open : uncontrolledOpen;
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Form field state
+  const [name, setName] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.name || "" : "",
+  );
+  const [coreIdea, setCoreIdea] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.coreIdea || "" : "",
+  );
+  const [whyItWorks, setWhyItWorks] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.whyItWorks || "" : "",
+  );
+  const [whenToUse, setWhenToUse] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.whenToUse || "" : "",
+  );
+  const [timeComplexity, setTimeComplexity] = useState(() =>
+    mode === "edit" && props.approach
+      ? props.approach.timeComplexity || ""
+      : "",
+  );
+  const [spaceComplexity, setSpaceComplexity] = useState(() =>
+    mode === "edit" && props.approach
+      ? props.approach.spaceComplexity || ""
+      : "",
+  );
+  const [pros, setPros] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.pros || "" : "",
+  );
+  const [cons, setCons] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.cons || "" : "",
+  );
+  const [mistakes, setMistakes] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.mistakes || "" : "",
+  );
+  const [notes, setNotes] = useState(() =>
+    mode === "edit" && props.approach ? props.approach.notes || "" : "",
+  );
+
+  // Populate/reset fields when dialog opens or approach changes
+  function resetForm() {
+    if (mode === "edit" && props.approach) {
+      setName(props.approach.name || "");
+      setCoreIdea(props.approach.coreIdea || "");
+      setWhyItWorks(props.approach.whyItWorks || "");
+      setWhenToUse(props.approach.whenToUse || "");
+      setTimeComplexity(props.approach.timeComplexity || "");
+      setSpaceComplexity(props.approach.spaceComplexity || "");
+      setPros(props.approach.pros || "");
+      setCons(props.approach.cons || "");
+      setMistakes(props.approach.mistakes || "");
+      setNotes(props.approach.notes || "");
+    } else {
+      setName("");
+      setCoreIdea("");
+      setWhyItWorks("");
+      setWhenToUse("");
+      setTimeComplexity("");
+      setSpaceComplexity("");
+      setPros("");
+      setCons("");
+      setMistakes("");
+      setNotes("");
+    }
+    setError(null);
+    setShowDeleteConfirm(false);
+  }
+
+  function handleOpenChange(nextOpen: boolean) {
+    if (isSubmitting || isDeleting) return;
+    if (nextOpen) {
+      resetForm();
+    }
+    if (props.open === undefined) {
+      setUncontrolledOpen(nextOpen);
+    }
+    props.onOpenChange?.(nextOpen);
+  }
+
+  const editingId = mode === "edit" ? props.approach?.id : null;
+  const [prevApproachId, setPrevApproachId] = useState(editingId);
+  const [prevOpen, setPrevOpen] = useState(open);
+
+  if (open !== prevOpen || editingId !== prevApproachId) {
+    setPrevOpen(open);
+    setPrevApproachId(editingId);
+    if (open) {
+      resetForm();
+    }
+  }
+
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!name.trim()) {
+      setError("Approach name is required");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError(null);
+
+    const payload = {
+      name: name.trim(),
+      coreIdea: coreIdea.trim() || undefined,
+      whyItWorks: whyItWorks.trim() || undefined,
+      whenToUse: whenToUse.trim() || undefined,
+      timeComplexity: timeComplexity.trim() || undefined,
+      spaceComplexity: spaceComplexity.trim() || undefined,
+      pros: pros.trim() || undefined,
+      cons: cons.trim() || undefined,
+      mistakes: mistakes.trim() || undefined,
+      notes: notes.trim() || undefined,
+    };
+
+    try {
+      if (mode === "create") {
+        const response = await fetch("/api/approaches", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            problemId: props.problemId,
+            ...payload,
+          }),
+        });
+
+        if (!response.ok) {
+          const result = await response.json().catch(() => null);
+          throw new Error(result?.error ?? "Failed to create approach");
+        }
+      } else {
+        const response = await fetch(`/api/approaches/${props.approach.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!response.ok) {
+          const result = await response.json().catch(() => null);
+          throw new Error(result?.error ?? "Failed to update approach");
+        }
+      }
+
+      handleOpenChange(false);
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An unexpected error occurred",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
+  }
+
+  async function handleDelete() {
+    if (mode !== "edit" || !props.approach) return;
+
+    setIsDeleting(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`/api/approaches/${props.approach.id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const result = await response.json().catch(() => null);
+        throw new Error(result?.error ?? "Failed to delete approach");
+      }
+
+      handleOpenChange(false);
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Failed to delete approach",
+      );
+    } finally {
+      setIsDeleting(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger
+        render={
+          trigger ? (
+            trigger
+          ) : mode === "create" ? (
+            <button
+              type="button"
+              className="inline-flex items-center gap-1.5 border border-[#4a4a4a] bg-[#373737] px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-[#454545] shadow-2xs"
+            >
+              <Plus className="size-3.5 text-white" />
+              <span>+ Add Approach</span>
+            </button>
+          ) : (
+            <Button
+              variant="outline"
+              size="xs"
+              className="gap-1 text-xs border-[#555555] bg-[#2a2a2a] text-white hover:bg-[#333333]"
+            >
+              <Pencil className="size-3 text-white" />
+              <span>Edit Approach</span>
+            </Button>
+          )
+        }
+      />
+
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>
+            {mode === "create" ? "Add Approach" : "Edit Approach"}
+          </DialogTitle>
+          <DialogDescription>
+            {mode === "create"
+              ? "Record an algorithmic strategy and intuition for solving this problem."
+              : `Update "${props.approach?.name}" and its reasoning.`}
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Form Body */}
+        <form
+          id="approach-form"
+          onSubmit={handleSubmit}
+          className="flex-1 overflow-hidden flex flex-col"
+        >
+          <div className="max-h-[60vh] overflow-y-auto pr-2 space-y-6 py-2">
+            {/* 1. Strategy Section */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                <Lightbulb className="size-3.5 text-white" />
+                <span>Strategy</span>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="approach-name"
+                  className="mb-1 block text-xs font-medium"
+                >
+                  Name <span className="text-destructive">*</span>
+                </label>
+                <input
+                  id="approach-name"
+                  name="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  placeholder="e.g. Hash Map Strategy"
+                  className="w-full border bg-background px-3 py-1.5 text-xs outline-none"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="approach-coreIdea"
+                  className="mb-1 block text-xs font-medium"
+                >
+                  Core Intuition
+                </label>
+                <textarea
+                  id="approach-coreIdea"
+                  name="coreIdea"
+                  value={coreIdea}
+                  onChange={(e) => setCoreIdea(e.target.value)}
+                  rows={2}
+                  placeholder="The central insight or high-level strategy..."
+                  className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
+                />
+              </div>
+            </div>
+
+            {/* 2. Reasoning Section */}
+            <div className="space-y-3 border-t pt-4">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                <Compass className="size-3.5 text-white" />
+                <span>Reasoning</span>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="approach-whyItWorks"
+                    className="mb-1 block text-xs font-medium"
+                  >
+                    Why It Works
+                  </label>
+                  <textarea
+                    id="approach-whyItWorks"
+                    name="whyItWorks"
+                    value={whyItWorks}
+                    onChange={(e) => setWhyItWorks(e.target.value)}
+                    rows={3}
+                    placeholder="Explain why this approach works..."
+                    className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="approach-whenToUse"
+                    className="mb-1 block text-xs font-medium"
+                  >
+                    When To Use
+                  </label>
+                  <textarea
+                    id="approach-whenToUse"
+                    name="whenToUse"
+                    value={whenToUse}
+                    onChange={(e) => setWhenToUse(e.target.value)}
+                    rows={3}
+                    placeholder="Problem characteristics that trigger this approach..."
+                    className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 3. Complexity Section */}
+            <div className="space-y-3 border-t pt-4">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                <Scale className="size-3.5 text-white" />
+                <span>Complexity</span>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="approach-timeComplexity"
+                    className="mb-1 block text-xs font-medium"
+                  >
+                    Time Complexity
+                  </label>
+                  <input
+                    id="approach-timeComplexity"
+                    name="timeComplexity"
+                    value={timeComplexity}
+                    onChange={(e) => setTimeComplexity(e.target.value)}
+                    placeholder="e.g. O(n), O(n log n)"
+                    className="w-full border bg-background px-3 py-1.5 text-xs font-mono outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="approach-spaceComplexity"
+                    className="mb-1 block text-xs font-medium"
+                  >
+                    Space Complexity
+                  </label>
+                  <input
+                    id="approach-spaceComplexity"
+                    name="spaceComplexity"
+                    value={spaceComplexity}
+                    onChange={(e) => setSpaceComplexity(e.target.value)}
+                    placeholder="e.g. O(1), O(n)"
+                    className="w-full border bg-background px-3 py-1.5 text-xs font-mono outline-none"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 4. Trade-offs Section */}
+            <div className="space-y-3 border-t pt-4">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                <Scale className="size-3.5 text-white" />
+                <span>Trade-offs</span>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label
+                    htmlFor="approach-pros"
+                    className="mb-1 block text-xs font-medium"
+                  >
+                    Pros & Advantages
+                  </label>
+                  <textarea
+                    id="approach-pros"
+                    name="pros"
+                    value={pros}
+                    onChange={(e) => setPros(e.target.value)}
+                    rows={2}
+                    placeholder="What makes this strategy strong..."
+                    className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
+                  />
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="approach-cons"
+                    className="mb-1 block text-xs font-medium"
+                  >
+                    Cons & Limitations
+                  </label>
+                  <textarea
+                    id="approach-cons"
+                    name="cons"
+                    value={cons}
+                    onChange={(e) => setCons(e.target.value)}
+                    rows={2}
+                    placeholder="Memory overhead, sorting constraints..."
+                    className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* 5. Learning Notes Section */}
+            <div className="space-y-3 border-t pt-4">
+              <div className="flex items-center gap-1.5 text-xs font-semibold text-white uppercase tracking-wider">
+                <FileText className="size-3.5 text-white" />
+                <span>Learning Notes</span>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="approach-mistakes"
+                  className="mb-1 block text-xs font-medium"
+                >
+                  Common Mistakes to Avoid
+                </label>
+                <textarea
+                  id="approach-mistakes"
+                  name="mistakes"
+                  value={mistakes}
+                  onChange={(e) => setMistakes(e.target.value)}
+                  rows={2}
+                  placeholder="Edge cases, off-by-one errors, common bugs..."
+                  className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="approach-notes"
+                  className="mb-1 block text-xs font-medium"
+                >
+                  Additional Notes
+                </label>
+                <textarea
+                  id="approach-notes"
+                  name="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={2}
+                  placeholder="Follow-up variations, interview remarks..."
+                  className="w-full border bg-background px-3 py-1.5 text-xs outline-none leading-relaxed"
+                />
+              </div>
+            </div>
+          </div>
+
+          {error && (
+            <p className="mt-3 border border-destructive/50 bg-destructive/10 p-2.5 text-xs text-destructive">
+              {error}
+            </p>
+          )}
+
+          {/* Delete Confirmation Banner */}
+          {showDeleteConfirm && (
+            <div className="my-2 mt-3 border border-destructive/40 bg-destructive/10 p-4 text-xs">
+              <div className="flex items-start gap-2.5">
+                <AlertTriangle className="size-4 text-destructive shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="font-semibold text-destructive">
+                    Delete this approach?
+                  </p>
+                  <p className="text-muted-foreground leading-relaxed">
+                    This action cannot be undone. Deleting this approach will
+                    also permanently delete all of its associated solutions and
+                    code implementations.
+                  </p>
+                  <div className="flex items-center gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="xs"
+                      disabled={isDeleting}
+                      onClick={handleDelete}
+                    >
+                      {isDeleting ? "Deleting..." : "Permanently Delete"}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="xs"
+                      disabled={isDeleting}
+                      onClick={() => setShowDeleteConfirm(false)}
+                    >
+                      Cancel
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <DialogFooter>
+            {mode === "edit" && !showDeleteConfirm && (
+              <Button
+                type="button"
+                variant="destructive"
+                size="sm"
+                className="sm:mr-auto gap-1"
+                disabled={isSubmitting || isDeleting}
+                onClick={() => setShowDeleteConfirm(true)}
+              >
+                <Trash2 className="size-3.5" />
+                <span>Delete</span>
+              </Button>
+            )}
+
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              disabled={isSubmitting || isDeleting}
+              onClick={() => handleOpenChange(false)}
+            >
+              Cancel
+            </Button>
+
+            <Button
+              type="submit"
+              size="sm"
+              disabled={isSubmitting || isDeleting}
+              className="bg-black text-white hover:bg-zinc-900 border border-zinc-700 font-semibold cursor-pointer"
+            >
+              {isSubmitting
+                ? "Saving..."
+                : mode === "create"
+                  ? "Save Approach"
+                  : "Update Approach"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}

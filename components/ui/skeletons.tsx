@@ -4,9 +4,6 @@
  */
 import { Skeleton } from "@/components/ui/skeleton";
 
-// ── Primitives ────────────────────────────────────────────────────────────────
-
-/** Rounded card shell matching the app's standard card appearance */
 export function SkeletonCard({
   className,
   children,

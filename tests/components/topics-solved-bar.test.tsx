@@ -4,7 +4,7 @@ import * as React from "react";
 import {
   TopicsSolvedBar,
   type SolvedTopicItem,
-} from "@/components/problems/TopicsSolvedBar";
+} from "@/components/problems/components/TopicsSolvedBar";
 
 describe("TopicsSolvedBar Component", () => {
   const mockSolvedTopics: SolvedTopicItem[] = [

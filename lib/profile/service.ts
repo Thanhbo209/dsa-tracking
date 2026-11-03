@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db/prisma";
+import { Difficulty } from "../generated/prisma/enums";
 
 // ── Shared user shape used by both queries ────────────────────────────────────
 
@@ -17,7 +18,7 @@ export interface PublicVaultProblem {
   slug: string;
   title: string;
   leetcodeId: number | null;
-  difficulty: string | null;
+  difficulty: Difficulty | null;
   topics: string[];
   /** Number of approaches this user has for this problem */
   approachCount: number;
@@ -44,7 +45,7 @@ export interface PublicProblemDetail {
     slug: string;
     title: string;
     leetcodeId: number | null;
-    difficulty: string | null;
+    difficulty: Difficulty | null;
     url: string | null;
     description: string | null;
     topics: string[];
@@ -94,10 +95,7 @@ export async function getPublicUserProfile(
 
   const user = await prisma.user.findFirst({
     where: {
-      OR: [
-        { username: normalizedUsername },
-        { username: username.trim() },
-      ],
+      OR: [{ username: normalizedUsername }, { username: username.trim() }],
     },
     select: {
       id: true,
@@ -148,8 +146,7 @@ export async function getPublicUserProfile(
     0,
   );
   const codeCount = approaches.reduce(
-    (acc, a) =>
-      acc + a.solutions.reduce((sub, s) => sub + s.codes.length, 0),
+    (acc, a) => acc + a.solutions.reduce((sub, s) => sub + s.codes.length, 0),
     0,
   );
 
@@ -170,9 +167,9 @@ export async function getPublicUserProfile(
         topics: topics.map((t) => t.topic.name),
         approachCount: 1,
         latestApproachCreatedAt: a.createdAt
-          ? (typeof a.createdAt === "string"
-              ? new Date(a.createdAt).toISOString()
-              : a.createdAt.toISOString())
+          ? typeof a.createdAt === "string"
+            ? new Date(a.createdAt).toISOString()
+            : a.createdAt.toISOString()
           : new Date(0).toISOString(),
       });
     }
@@ -219,10 +216,7 @@ export async function getPublicProblemDetail(
 
   const user = await prisma.user.findFirst({
     where: {
-      OR: [
-        { username: normalizedUsername },
-        { username: username.trim() },
-      ],
+      OR: [{ username: normalizedUsername }, { username: username.trim() }],
     },
     select: {
       id: true,

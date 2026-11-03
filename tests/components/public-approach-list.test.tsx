@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
-import { PublicApproachList } from "@/components/profile/PublicApproachList";
+import { PublicApproachList } from "@/components/profile/components/PublicApproachList";
 import type { PublicProblemDetail } from "@/lib/profile/service";
 
 describe("PublicApproachList Component", () => {
@@ -22,7 +22,8 @@ describe("PublicApproachList Component", () => {
           id: "sol-1",
           name: "Horizontal Scanning Solution",
           description: "Iterates through array updating prefix",
-          algorithm: "1. Check empty array\n2. Iterate through strings\n3. Trim prefix until match",
+          algorithm:
+            "1. Check empty array\n2. Iterate through strings\n3. Trim prefix until match",
           notes: "Optimal O(1) auxiliary space",
           codes: [
             {
@@ -42,10 +43,13 @@ describe("PublicApproachList Component", () => {
 
     // Approach heading must render pure algorithmic name without suffixes
     expect(html).toContain(">Horizontal Scanning<");
-    expect(html).not.toContain(">Horizontal Scanning (My Accepted Implementation)<");
+    expect(html).not.toContain(
+      ">Horizontal Scanning (My Accepted Implementation)<",
+    );
 
     // Status badge must be rendered exactly once
-    const badgeOccurrences = (html.match(/My Accepted Implementation/g) || []).length;
+    const badgeOccurrences = (html.match(/My Accepted Implementation/g) || [])
+      .length;
     expect(badgeOccurrences).toBe(1);
 
     // Implementation code block uses CodeViewer
@@ -62,7 +66,8 @@ describe("PublicApproachList Component", () => {
       id: "approach-2",
       name: "Binary Search",
       coreIdea: "Divide and conquer on prefix length",
-      whyItWorks: "If prefix of length L is valid, prefix of length < L is also valid",
+      whyItWorks:
+        "If prefix of length L is valid, prefix of length < L is also valid",
       whenToUse: "When searching monotonic properties",
       timeComplexity: "O(S log m)",
       spaceComplexity: "O(1)",
