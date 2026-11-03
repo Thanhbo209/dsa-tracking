@@ -10,8 +10,6 @@ import {
   List as ListIcon,
   ArrowUpDown,
   Filter,
-  ChevronLeft,
-  ChevronRight,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -25,6 +23,7 @@ import {
   type ViewMode,
 } from "@/lib/profile/filterProblems";
 import { cn } from "cn";
+import Pagination from "@/components/ui/pagination";
 
 interface PublicPlaybookExplorerProps {
   problems: PublicVaultProblem[];
@@ -60,20 +59,6 @@ function parseUrlParams(searchStr: string) {
   const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
 
   return { q, diff, topic, sort, view, page };
-}
-
-// Generate pagination numbers with ellipsis for large page counts
-function getPageNumbers(current: number, total: number): (number | "...")[] {
-  if (total <= 7) {
-    return Array.from({ length: total }, (_, i) => i + 1);
-  }
-  if (current <= 4) {
-    return [1, 2, 3, 4, 5, "...", total];
-  }
-  if (current >= total - 3) {
-    return [1, "...", total - 4, total - 3, total - 2, total - 1, total];
-  }
-  return [1, "...", current - 1, current, current + 1, "...", total];
 }
 
 export function PublicPlaybookExplorer({
@@ -317,11 +302,6 @@ export function PublicPlaybookExplorer({
     return filteredProblems.slice(startIndex, startIndex + PAGE_SIZE);
   }, [filteredProblems, safeCurrentPage]);
 
-  const pageNumbers = React.useMemo(
-    () => getPageNumbers(safeCurrentPage, totalPages),
-    [safeCurrentPage, totalPages],
-  );
-
   const hasActiveFilters =
     Boolean(search.trim()) ||
     selectedDifficulties.length > 0 ||
@@ -422,12 +402,12 @@ export function PublicPlaybookExplorer({
             {AVAILABLE_DIFFICULTIES.map((diff) => {
               const isSelected = selectedDifficulties.includes(diff);
               return (
-                <button
+                <Button
                   key={diff}
                   type="button"
                   onClick={() => toggleDifficulty(diff)}
                   className={cn(
-                    "rounded-md border px-2.5 py-1 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-primary",
+                    "border px-2.5 py-1 text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-primary",
                     isSelected
                       ? diff === "EASY"
                         ? "bg-[#46C6C2]/20 border-[#46C6C2] text-[#46C6C2] ring-1 ring-[#46C6C2]/40"
@@ -439,7 +419,7 @@ export function PublicPlaybookExplorer({
                   aria-pressed={isSelected}
                 >
                   {diff}
-                </button>
+                </Button>
               );
             })}
           </div>
@@ -483,12 +463,12 @@ export function PublicPlaybookExplorer({
               {displayedTopicCounts.map(({ name, count }) => {
                 const isSelected = selectedTopics.includes(name);
                 return (
-                  <button
+                  <Button
                     key={name}
                     type="button"
                     onClick={() => toggleTopic(name)}
                     className={cn(
-                      "rounded border px-2 py-0.5 text-md transition-colors cursor-pointer focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40 flex items-center gap-1.5",
+                      " border px-2 py-0.5 text-md transition-colors cursor-pointer focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40 flex items-center gap-1.5",
                       isSelected
                         ? "bg-white/20 border-white/50 text-white font-medium"
                         : "bg-[#1a1a1a] border-[#383838] text-zinc-300 hover:border-zinc-400 hover:text-white",
@@ -499,16 +479,16 @@ export function PublicPlaybookExplorer({
                     <span className="text-[10px] text-zinc-400 font-mono">
                       {count}
                     </span>
-                  </button>
+                  </Button>
                 );
               })}
 
               {hasUntagged && (
-                <button
+                <Button
                   type="button"
                   onClick={() => toggleTopic("Untagged")}
                   className={cn(
-                    "rounded border px-2 py-0.5 text-xs transition-colors cursor-pointer italic flex items-center gap-1.5 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40",
+                    " border px-2 py-0.5 text-xs transition-colors cursor-pointer italic flex items-center gap-1.5 focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-white/40",
                     selectedTopics.includes("Untagged")
                       ? "bg-white/20 border-white/50 text-white font-medium not-italic"
                       : "bg-[#1a1a1a] border-[#383838] text-zinc-400 hover:border-zinc-400 hover:text-white",
@@ -516,7 +496,7 @@ export function PublicPlaybookExplorer({
                   aria-pressed={selectedTopics.includes("Untagged")}
                 >
                   <span>Untagged</span>
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -554,7 +534,7 @@ export function PublicPlaybookExplorer({
 
       {/* ── Problem Grid or List View ────────────────────────────────────── */}
       {filteredProblems.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-[#444444] bg-[#222222] p-12 text-center space-y-3">
+        <div className=" border border-dashed border-[#444444] bg-[#222222] p-12 text-center space-y-3">
           <div className="size-10 bg-zinc-800 flex items-center justify-center mx-auto text-zinc-400">
             <Search className="size-5" />
           </div>
@@ -608,69 +588,14 @@ export function PublicPlaybookExplorer({
       {totalPages > 1 && (
         <nav
           aria-label="Pagination Navigation"
-          className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-6 pb-2"
+          className="flex justify-center pt-6 pb-2"
         >
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(safeCurrentPage - 1)}
-            disabled={safeCurrentPage <= 1}
-            className="h-8 px-2.5 sm:px-3 text-xs border-[#383838] bg-[#1e1e1e] text-zinc-300 hover:bg-[#2a2a2a] hover:text-white disabled:opacity-40 disabled:hover:bg-[#1e1e1e] disabled:hover:text-zinc-300 cursor-pointer gap-1"
-            aria-label="Previous page"
-          >
-            <ChevronLeft className="size-3.5" />
-            <span className="hidden sm:inline">Previous</span>
-          </Button>
-
-          <div className="flex items-center gap-1">
-            {pageNumbers.map((p, idx) => {
-              if (p === "...") {
-                return (
-                  <span
-                    key={`ellipsis-${idx}`}
-                    className="px-2 py-1 text-xs text-zinc-500 select-none"
-                  >
-                    ...
-                  </span>
-                );
-              }
-
-              const pageNum = Number(p);
-              const isActive = pageNum === safeCurrentPage;
-
-              return (
-                <button
-                  key={pageNum}
-                  type="button"
-                  onClick={() => handlePageChange(pageNum)}
-                  className={cn(
-                    "h-8 min-w-8 px-2 text-xs font-medium transition-colors cursor-pointer border",
-                    isActive
-                      ? "bg-white text-black border-white font-semibold shadow-sm"
-                      : "bg-[#1e1e1e] border-[#383838] text-zinc-300 hover:bg-[#2a2a2a] hover:text-white hover:border-zinc-500",
-                  )}
-                  aria-current={isActive ? "page" : undefined}
-                  aria-label={`Page ${pageNum}`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
-          </div>
-
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => handlePageChange(safeCurrentPage + 1)}
-            disabled={safeCurrentPage >= totalPages}
-            className="h-8 px-2.5 sm:px-3 text-xs border-[#383838] bg-[#1e1e1e] text-zinc-300 hover:bg-[#2a2a2a] hover:text-white disabled:opacity-40 disabled:hover:bg-[#1e1e1e] disabled:hover:text-zinc-300 cursor-pointer gap-1"
-            aria-label="Next page"
-          >
-            <span className="hidden sm:inline">Next</span>
-            <ChevronRight className="size-3.5" />
-          </Button>
+          <Pagination
+            currentPage={safeCurrentPage}
+            totalPages={totalPages}
+            onPageChange={handlePageChange}
+            isCompact={false}
+          />
         </nav>
       )}
     </div>
