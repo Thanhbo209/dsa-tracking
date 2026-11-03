@@ -84,35 +84,37 @@ Production LLM integrations face aggressive rate limits and sudden quota exhaust
 ## 🖥️ Visual Tour
 
 ### Dashboard & Problem Explorer
-<img width="900" alt="Problems Explorer Catalog" src="https://github.com/user-attachments/assets/db3e1aa3-6935-478d-ab28-ed131b5cd8cf" />
+<img width="1900" height="945" alt="image" src="https://github.com/user-attachments/assets/4d19b97b-12f1-4551-83eb-5ae16e700313" />
+
 <p align="center"><em>Filter problems by text, topic tags, and difficulty status.</em></p>
 
-<img width="900" alt="Practice Analytics and Streaks" src="https://github.com/user-attachments/assets/0002c57d-188f-4f4e-8dfc-1bd72d11a5a9" />
+<img width="1900" height="942" alt="image" src="https://github.com/user-attachments/assets/1f59a7fa-d8e4-4e3c-9312-1a372e274ab1" />
 <p align="center"><em>Practice analytics dashboard showing difficulty breakdown and commit-style activity streak heatmap.</em></p>
 
 ### Problem Learning Workspace
-<img width="900" alt="Problem Learning Workspace" src="https://github.com/user-attachments/assets/5f554f89-fade-4c13-916b-514459e9bf4c" />
+<img width="1900" height="951" alt="image" src="https://github.com/user-attachments/assets/54f58e07-d5b9-4ac1-8aea-1a9812e79051" />
+
 <p align="center"><em>Workspace displaying submission history, decimal MB memory metrics, and side-by-side solution tabs.</em></p>
 
 ### AI Diagnostic Review & Knowledge Generation
-<img width="900" alt="AI Diagnostic Review Overview" src="https://github.com/user-attachments/assets/2398b546-c695-4163-a2f1-165b39a6e4b0" />
+<img width="1900" height="953" alt="image" src="https://github.com/user-attachments/assets/ec57fbd7-2841-4f2f-bfeb-abb3f9a8c99d" />
 <p align="center"><em>AI diagnostic summary with model indicator badge, time/space audit, and architectural assessment.</em></p>
 
-<img width="900" alt="AI Complexity Audit & Anti-patterns" src="https://github.com/user-attachments/assets/ceb59c71-045e-489d-9a1a-92441bef27ab" />
+<img width="1900" height="947" alt="image" src="https://github.com/user-attachments/assets/ac9a1421-c1c3-47f9-8036-351009a5f9c0" />
 <p align="center"><em>Deep algorithmic review highlighting subtle anti-patterns and missing edge cases.</em></p>
 
-<img width="900" alt="Knowledge Draft Generation" src="https://github.com/user-attachments/assets/5ea698e5-c880-4b81-8f2c-87fcb2eb3efc" />
+<img width="1900" height="954" alt="image" src="https://github.com/user-attachments/assets/c384fd40-3132-46c8-ad54-bbc9e136f6f8" />
 <p align="center"><em>Automated knowledge draft creation ready for instant promotion into the 3-tier Knowledge Vault.</em></p>
 
 ### Public Portfolio Playbook
-<img width="900" alt="Public Profile Playbook" src="https://github.com/user-attachments/assets/59f1cade-c034-4608-ba62-f5bf973571b4" />
+<img width="1900" height="949" alt="image" src="https://github.com/user-attachments/assets/6257c261-6981-4a24-a3b8-98772427f7f5" />
 <p align="center"><em>Shareable public profile (<code>/u/[username]</code>) featuring interactive problem search, topic filtering, and grid/table views.</em></p>
 
 ### Chrome Extension (Manifest V3)
-<img width="900" alt="Chrome Extension Popup Interface" src="https://github.com/user-attachments/assets/6d695b4d-7c73-4b7e-a511-ec93324f8c4c" />
+<img width="1900" alt="Chrome Extension Popup Interface" src="https://github.com/user-attachments/assets/6d695b4d-7c73-4b7e-a511-ec93324f8c4c" />
 <p align="center"><em>Extension popup displaying active host endpoint, authenticated user status, and recent submission syncs.</em></p>
 
-<img width="900" alt="LeetCode In-Page HUD Toast" src="https://github.com/user-attachments/assets/6a863e3c-53cf-4307-a748-07ea227a812b" />
+<img width="1900" alt="LeetCode In-Page HUD Toast" src="https://github.com/user-attachments/assets/6a863e3c-53cf-4307-a748-07ea227a812b" />
 <p align="center"><em>In-page notification toast injected into LeetCode immediately after solving a problem.</em></p>
 
 ---
