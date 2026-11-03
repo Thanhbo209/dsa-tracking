@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Check, ChevronDown, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 import { highlightCodeLine, detectLanguageFromCode } from "./syntaxHighlighter";
 
 export interface CodeViewerProps {

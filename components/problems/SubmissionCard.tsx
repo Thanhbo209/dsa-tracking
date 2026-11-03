@@ -11,7 +11,7 @@ import {
 import { DsaLogo } from "@/components/brand/DsaLogo";
 import { SubmissionAnalysisContainer } from "./analysis/SubmissionAnalysisContainer";
 import type { SerializedSubmissionAnalysis } from "./analysis/types";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 import { CodeViewer } from "./CodeViewer";
 import {
   fetchSubmissionCodeViaExtension,

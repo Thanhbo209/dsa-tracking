@@ -3,12 +3,10 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/db/prisma";
 import { getCurrentUser } from "@/lib/auth/session";
 import { aggregateDailyActivities } from "@/lib/activity/streak";
-import {
-  ProblemsExplorer,
-  type ProblemExplorerItem,
-  type ProblemStatus,
-} from "@/components/problems/ProblemsExplorer";
+
 import { ExtensionDialog } from "@/components/extension/ExtensionDialog";
+import { ProblemExplorerItem, ProblemStatus } from "@/types/problem";
+import { ProblemsExplorer } from "@/components/problems/ProblemsExplorer";
 
 export const metadata: Metadata = {
   title: "Problems",

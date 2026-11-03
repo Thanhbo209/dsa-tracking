@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 import type { KnowledgeApproach } from "./types";
 import { Button } from "@/components/ui/button";
 

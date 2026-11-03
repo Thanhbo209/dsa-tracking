@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { History, BookOpen, AlertCircle, X, Bot } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 import { SubmissionCard } from "./SubmissionCard";
 import { SubmissionAnalysisContainer } from "./analysis/SubmissionAnalysisContainer";
 import { KnowledgeWorkspace } from "./knowledge/KnowledgeWorkspace";

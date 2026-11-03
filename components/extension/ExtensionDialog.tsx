@@ -86,7 +86,6 @@ export function ExtensionDialog() {
             aria-label="Browser Extension Status and Setup"
           >
             <span className="hidden sm:inline">Chrome Extension</span>
-            <span className="sm:hidden">Extension</span>
             {isInstalled ? (
               <span
                 className="flex size-2 rounded-full bg-emerald-500"

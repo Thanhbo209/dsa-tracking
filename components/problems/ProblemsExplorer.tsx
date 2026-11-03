@@ -11,64 +11,24 @@ import {
   ArrowUpDown,
   RotateCcw,
   ChevronRight,
-  ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { DsaLogo } from "@/components/brand/DsaLogo";
-import type { Difficulty } from "@/lib/generated/prisma/client";
 import { ProblemStatsDonut } from "./charts/ProblemStatsDonut";
 import { ActivityHeatmap } from "./charts/ActivityHeatmap";
 import { ProgressRing } from "./ProgressRing";
 import { TopicsSolvedBar, type SolvedTopicItem } from "./TopicsSolvedBar";
 import { Input } from "../ui/input";
-
-const PAGE_SIZE = 16;
-
-function getPageNumbers(
-  currentPage: number,
-  totalPages: number,
-): (number | "...")[] {
-  if (totalPages <= 7) {
-    return Array.from({ length: totalPages }, (_, i) => i + 1);
-  }
-  if (currentPage <= 4) {
-    return [1, 2, 3, 4, 5, "...", totalPages];
-  }
-  if (currentPage >= totalPages - 3) {
-    return [
-      1,
-      "...",
-      totalPages - 4,
-      totalPages - 3,
-      totalPages - 2,
-      totalPages - 1,
-      totalPages,
-    ];
-  }
-  return [
-    1,
-    "...",
-    currentPage - 1,
-    currentPage,
-    currentPage + 1,
-    "...",
-    totalPages,
-  ];
-}
-
-export type ProblemStatus = "SOLVED" | "ATTEMPTED" | "TODO";
-
-export interface ProblemExplorerItem {
-  id: string;
-  slug: string;
-  leetcodeId: number | null;
-  title: string;
-  difficulty: Difficulty | null;
-  topics: string[];
-  status: ProblemStatus;
-  approachCount: number;
-  updatedAt: string;
-}
+import {
+  DifficultyFilter,
+  ProblemExplorerItem,
+  SortOption,
+  StatusFilter,
+} from "@/types/problem";
+import { PAGE_SIZE } from "@/utils/problems/constants";
+import { difficultyOrder } from "@/utils/problems/sorting";
+import { difficultyCardStripe, difficultyClass } from "@/utils/problems/style";
+import { Pagination } from "../ui/pagination";
 
 export interface ProblemsExplorerProps {
   problems: ProblemExplorerItem[];
@@ -77,55 +37,6 @@ export interface ProblemsExplorerProps {
   solvedTopics?: SolvedTopicItem[];
   lastSyncedAt?: string | null;
   leetcodeUsername?: string | null;
-}
-
-type DifficultyFilter = "ALL" | Difficulty;
-type StatusFilter = "ALL" | ProblemStatus;
-type SortOption =
-  | "NUM_ASC"
-  | "NUM_DESC"
-  | "TITLE_ASC"
-  | "DIFF_EASY"
-  | "DIFF_HARD"
-  | "RECENT";
-
-function difficultyClass(difficulty: Difficulty | null): string {
-  switch (difficulty) {
-    case "EASY":
-      return "bg-[#46C6C2]/10 text-[#46C6C2] border-[#46C6C2]/30";
-    case "MEDIUM":
-      return "bg-yellow-500/10 text-yellow-400 border-yellow-500/30";
-    case "HARD":
-      return "bg-red-500/10 text-red-400 border-red-500/30";
-    default:
-      return "bg-zinc-800 text-zinc-400 border-zinc-700";
-  }
-}
-
-function difficultyCardStripe(difficulty: Difficulty | null): string {
-  switch (difficulty) {
-    case "EASY":
-      return "border-l-[3px] border-l-[#46C6C2]";
-    case "MEDIUM":
-      return "border-l-[3px] border-l-[#eab308]";
-    case "HARD":
-      return "border-l-[3px] border-l-[#ef4444]";
-    default:
-      return "border-l-[3px] border-l-zinc-700";
-  }
-}
-
-function difficultyOrder(diff: Difficulty | null): number {
-  switch (diff) {
-    case "EASY":
-      return 1;
-    case "MEDIUM":
-      return 2;
-    case "HARD":
-      return 3;
-    default:
-      return 4;
-  }
 }
 
 export function ProblemsExplorer({
@@ -340,77 +251,12 @@ export function ProblemsExplorer({
 
   const renderPaginationButtons = (isCompact = false) => {
     return (
-      <div className="flex items-center gap-1 sm:gap-1.5">
-        <Button
-          type="button"
-          onClick={() => {
-            setCurrentPage((p) => Math.max(1, p - 1));
-            document
-              .getElementById("problems-list-header")
-              ?.scrollIntoView({ behavior: "smooth" });
-          }}
-          disabled={safeCurrentPage === 1}
-          className={`flex items-center gap-1 border border-[#383838] bg-[#262626] ${
-            isCompact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-xs"
-          } font-medium text-muted-foreground hover:bg-[#333333] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors`}
-          aria-label="Previous page"
-        >
-          <ChevronLeft className="size-3.5" />
-          <span className={isCompact ? "hidden sm:inline" : ""}>Prev</span>
-        </Button>
-
-        {/* Page numbers */}
-        <div className="flex items-center gap-1">
-          {getPageNumbers(safeCurrentPage, totalPages).map((p, idx) =>
-            p === "..." ? (
-              <span
-                key={`ellipsis-${idx}`}
-                className="px-1.5 py-0.5 text-xs text-zinc-500 select-none"
-              >
-                …
-              </span>
-            ) : (
-              <Button
-                key={p}
-                type="button"
-                onClick={() => {
-                  setCurrentPage(p as number);
-                  document
-                    .getElementById("problems-list-header")
-                    ?.scrollIntoView({ behavior: "smooth" });
-                }}
-                className={`min-w-7 h-7 sm:min-w-8 sm:h-8 text-xs font-semibold transition-colors ${
-                  safeCurrentPage === p
-                    ? "border border-border bg-white/20 text-white font-bold shadow-xs"
-                    : " bg-[#262626] text-zinc-300 hover:bg-[#333333] hover:text-white"
-                }`}
-                aria-label={`Page ${p}`}
-                aria-current={safeCurrentPage === p ? "page" : undefined}
-              >
-                {p}
-              </Button>
-            ),
-          )}
-        </div>
-
-        <Button
-          type="button"
-          onClick={() => {
-            setCurrentPage((p) => Math.min(totalPages, p + 1));
-            document
-              .getElementById("problems-list-header")
-              ?.scrollIntoView({ behavior: "smooth" });
-          }}
-          disabled={safeCurrentPage === totalPages}
-          className={`flex items-center gap-1 border border-border bg-[#262626] ${
-            isCompact ? "px-2.5 py-1 text-xs" : "px-3 py-1.5 text-xs"
-          } font-medium text-zinc-300 hover:bg-[#333333] hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition-colors`}
-          aria-label="Next page"
-        >
-          <span className={isCompact ? "hidden sm:inline" : ""}>Next</span>
-          <ChevronRight className="size-3.5" />
-        </Button>
-      </div>
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={setCurrentPage}
+        isCompact={isCompact}
+      />
     );
   };
 
